@@ -41,6 +41,11 @@ class Ticket
      */
     private $user;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $sale_date;
+
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
     public function getId(): ?int
@@ -105,4 +110,16 @@ class Ticket
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+    public function getSaleDate(): ?\DateTimeInterface
+    {
+        return $this->sale_date;
+    }
+
+    public function setSaleDate(?\DateTimeInterface $sale_date): self
+    {
+        $this->sale_date = $sale_date;
+
+        return $this;
+    }
 }
