@@ -32,6 +32,12 @@ class Comment
      */
     private $user;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=EventData::class, inversedBy="comments")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $event;
+
     
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
 
@@ -104,4 +110,16 @@ class Comment
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+    public function getEvent(): ?EventData
+    {
+        return $this->event;
+    }
+
+    public function setEvent(?EventData $event): self
+    {
+        $this->event = $event;
+
+        return $this;
+    }
 }

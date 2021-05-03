@@ -187,7 +187,7 @@ class User
     }
     
     /**
-     * getPrivileges
+     *  Devuelve los privilegios que tiene el usuario
      *
      * @return int
      */
@@ -197,9 +197,9 @@ class User
     }
     
     /**
-     * setPrivileges
+     * Recibe un nuevo privilegio por parámetro y lo actualiza
      *
-     * @param  mixed $privileges
+     * @param  int $privileges
      * @return self
      */
     public function setPrivileges(?int $privileges): self
@@ -210,7 +210,7 @@ class User
     }
     
     /**
-     * getPhoto
+     * Devuelve la foto de perfil del usuario
      *
      * @return void
      */
@@ -255,16 +255,6 @@ class User
         return $this;
     }
 
-
-
-    # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
-
-    # ------------------------------------------------- METHODS ------------------------------------------------------ #
-
-    # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
-
-    # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
-
     /**
      * @return Collection|Ticket[]
      */
@@ -272,6 +262,19 @@ class User
     {
         return $this->tickets;
     }
+
+    /**
+     * @return Collection|Comment[]
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+
+    # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
+
+    # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
     public function addTicket(Ticket $ticket): self
     {
@@ -295,36 +298,6 @@ class User
         return $this;
     }
 
-    # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
-
-    # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
-
-    # ------------------------------------------------- METHODS ------------------------------------------------------ #
-
-    # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
-
-    # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
-
-    public function getRelation(): ?string
-    {
-        return $this->relation;
-    }
-
-    public function setRelation(string $relation): self
-    {
-        $this->relation = $relation;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Comment[]
-     */
-    public function getComments(): Collection
-    {
-        return $this->comments;
-    }
-
     public function addComment(Comment $comment): self
     {
         if (!$this->comments->contains($comment)) {
@@ -346,4 +319,13 @@ class User
 
         return $this;
     }
+
+    # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
+
+    # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+
+
+
+   
 }

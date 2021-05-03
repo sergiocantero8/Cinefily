@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CinemaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -23,9 +25,9 @@ class Cinema
     private $id;
 
     /**
-     * @ORM\Column(type="object", nullable=true)
+     * @ORM\Column(type="string", length=255)
      */
-    private $rooms;
+    private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -33,12 +35,23 @@ class Cinema
     private $location;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\OneToMany(targetEntity=Session::class, mappedBy="cinema", orphanRemoval=true)
      */
-    private $title;
+    private $sessions;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Room::class, mappedBy="cinema", orphanRemoval=true)
+     */
+    private $rooms;
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
+    
+    public function __construct()
+    {
+        $this->sessions = new ArrayCollection();
+        $this->rooms = new ArrayCollection();
+    }
+
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
 
@@ -47,14 +60,14 @@ class Cinema
         return $this->id;
     }
 
-    public function getRooms()
+    public function getName(): ?string
     {
-        return $this->rooms;
+        return $this->name;
     }
 
-    public function setRooms($rooms): self
+    public function setName(string $name): self
     {
-        $this->rooms = $rooms;
+        $this->name = $name;
 
         return $this;
     }
@@ -71,25 +84,74 @@ class Cinema
         return $this;
     }
 
-    public function getTitle(): ?string
+    /**
+     * @return Collection|Session[]
+     */
+    public function getSessions(): Collection
     {
-        return $this->title;
+        return $this->sessions;
     }
 
-    public function setTitle(string $title): self
+
+    /**
+     * @return Collection|Room[]
+     */
+    public function getRooms(): Collection
     {
-        $this->title = $title;
-
-        return $this;
+        return $this->rooms;
     }
-
 
     # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
+    public function addRoom(Room $room): self
+    {
+        if (!$this->rooms->contains($room)) {
+            $this->rooms[] = $room;
+            $room->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRoom(Room $room): self
+    {
+        if ($this->rooms->removeElement($room)) {
+            // set the owning side to null (unless already changed)
+            if ($room->getCinema() === $this) {
+                $room->setCinema(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function addSession(Session $session): self
+    {
+        if (!$this->sessions->contains($session)) {
+            $this->sessions[] = $session;
+            $session->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSession(Session $session): self
+    {
+        if ($this->sessions->removeElement($session)) {
+            // set the owning side to null (unless already changed)
+            if ($session->getCinema() === $this) {
+                $session->setCinema(null);
+            }
+        }
+
+        return $this;
+    }
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+   
     
 }
