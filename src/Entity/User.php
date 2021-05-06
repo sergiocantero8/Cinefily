@@ -6,14 +6,20 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  */
-class User
+class User implements UserInterface
 {
 
     # -------------------------------------------------- CONST ------------------------------------------------------- #
+
+    public const ROLE_ADMIN = 0;
+    public const ROLE_USER = 1;
+    public const ROLE_MODERATOR = 2;
 
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
     /**
@@ -21,52 +27,52 @@ class User
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $name;
+    protected $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $surname;
+    protected $surname;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $password;
+    protected $password;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $email;
+    protected $email;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $privileges;
+    protected $privileges;
 
     /**
      * @ORM\Column(type="blob", nullable=true)
      */
-    private $photo;
+    protected $photo;
 
     /**
      * @ORM\Column(type="string", length=14, nullable=true)
      */
-    private $phone_number;
+    protected $phone_number;
 
     /**
      * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="user")
      */
-    private $tickets;
+    protected $tickets;
 
     /**
      * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="user", orphanRemoval=true)
      */
-    private $comments;
+    protected $comments;
 
         
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
@@ -78,6 +84,41 @@ class User
      */
     public function __construct()
     {
+        /*
+        # Seteamos todas las propiedades no nullables
+        $this->setName($name);
+        $this->setSurname($surname);
+        $this->setPassword($password);
+        $this->setEmail($email);
+        $this->setPrivileges($privileges);
+
+        if ($photo !== NULL):
+            $this->setPhoto($photo);
+        endif;
+
+        if ($phone_number !== NULL):
+            $this->setPhoneNumber($phone_number);
+        endif;
+
+        # Si los tickets no son nulos añadimos cada uno de los tickets a nuestro array
+        if ($tickets !== NULL):
+            foreach ($tickets as $ticket):
+                $this->addTicket($ticket);
+            endforeach;
+        else:
+            $this->tickets = new ArrayCollection();
+        endif;
+
+        # Si los comentarios no son nulos añadimos cada uno de los comentarios a nuestro array
+        if ($comments !== NULL):
+            foreach ($comments as $comment):
+                $this->addComment($comment);
+            endforeach;
+        else:
+            $this->comments = new ArrayCollection();
+        endif;
+
+    */
         $this->tickets = new ArrayCollection();
         $this->comments = new ArrayCollection();
     }
@@ -107,7 +148,7 @@ class User
     /**
      * Recibe el nuevo nombre por parámetro y lo actualiza
      *
-     * @param  string $name
+     * @param string $name
      * @return self
      */
     public function setName(?string $name): self
@@ -130,7 +171,7 @@ class User
     /**
      * Recibe el nuevo nombre por parámetro y lo actualiza
      *
-     * @param  string $surname
+     * @param string $surname
      * @return self
      */
     public function setSurname(?string $surname): self
@@ -153,7 +194,7 @@ class User
     /**
      * Reciba la nueva contraseña por parámetro y la actualiza
      *
-     * @param  string $password
+     * @param string $password
      * @return self
      */
     public function setPassword(string $password): self
@@ -176,7 +217,7 @@ class User
     /**
      * Recibe el nuevo email por parámetro y lo actualiza
      *
-     * @param  string $email
+     * @param string $email
      * @return self
      */
     public function setEmail(string $email): self
@@ -195,11 +236,11 @@ class User
     {
         return $this->privileges;
     }
-    
+
     /**
      * Recibe un nuevo privilegio por parámetro y lo actualiza
      *
-     * @param  int $privileges
+     * @param int|null $privileges
      * @return self
      */
     public function setPrivileges(?int $privileges): self
@@ -212,9 +253,9 @@ class User
     /**
      * Devuelve la foto de perfil del usuario
      *
-     * @return void
+     * @return File
      */
-    public function getPhoto()
+    public function getPhoto(): File
     {
         return $this->photo;
     }
@@ -222,10 +263,10 @@ class User
     /**
      * setPhoto
      *
-     * @param  mixed $photo
+     * @param File $photo
      * @return self
      */
-    public function setPhoto($photo): self
+    public function setPhoto(File $photo): self
     {
         $this->photo = $photo;
 
@@ -245,7 +286,7 @@ class User
     /**
      * setPhoneNumber
      *
-     * @param  mixed $phone_number
+     * @param mixed $phone_number
      * @return self
      */
     public function setPhoneNumber(?string $phone_number): self
@@ -273,7 +314,15 @@ class User
 
 
     # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
-
+    /**
+     * @ORM\PrePersist
+     */
+    public function prePersist(): void
+    {
+        if ($this->privileges === NULL):
+            $this->setPrivileges(self::ROLE_USER);
+        endif;
+    }
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
     public function addTicket(Ticket $ticket): self
@@ -324,8 +373,32 @@ class User
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
 
+    /**
+     * Devuelve los tipos de roles de usuario disponibles
+     * @return array
+     */
+    public function getRoles():array
+    {
+        return array(
+            static::ROLE_ADMIN,
+            static::ROLE_USER,
+            static::ROLE_MODERATOR
+        );
+    }
+
+    public function getSalt():void
+    {
+
+    }
 
 
+    public function eraseCredentials():void
+    {
 
-   
+    }
+
+    public function getUsername(): void
+    {
+
+    }
 }
