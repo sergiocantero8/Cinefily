@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class UserController extends AbstractController
 {
@@ -33,7 +34,7 @@ class UserController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()):
             $data_form = $form->getData();
 
             if ($data_form['password'] === $data_form['password_repeated']):
@@ -45,6 +46,7 @@ class UserController extends AbstractController
                 $user->setSurname($data_form['surname']);
                 $user->setPassword($passwordEncoder->encodePassword($user,$data_form['password']));
                 $user->setEmail($data_form['email']);
+                $user->setPrivileges(User::ROLE_USER);
 
                 if ($data_form['phone_number'] !== NULL):
                     $user->setPhoneNumber($data_form['phone_number']);
@@ -58,7 +60,7 @@ class UserController extends AbstractController
                 $this->addFlash('error', 'Las contraseñas introducidas no coinciden');
             endif;
 
-        }
+        endif;
 
         $template = 'user/registration.html.twig';
 
@@ -72,9 +74,35 @@ class UserController extends AbstractController
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
+    /**
+     * @Route("/login", name="app_login")
+     */
+    public function login(AuthenticationUtils $authenticationUtils): Response
+    {
+        // if ($this->getUser()) {
+        //     return $this->redirectToRoute('target_path');
+        // }
+
+        // get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
+        // last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
+    }
+
+    /**
+     * @Route("/logout", name="app_logout")
+     */
+    public function logout()
+    {
+        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+
 
 
 }

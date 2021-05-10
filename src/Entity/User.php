@@ -397,8 +397,8 @@ class User implements UserInterface
 
     }
 
-    public function getUsername(): void
+    public function getUsername(): string
     {
-
+        return $this->getEmail();
     }
 }
