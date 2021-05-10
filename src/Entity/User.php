@@ -84,41 +84,10 @@ class User implements UserInterface
      */
     public function __construct()
     {
-        /*
-        # Seteamos todas las propiedades no nullables
-        $this->setName($name);
-        $this->setSurname($surname);
-        $this->setPassword($password);
-        $this->setEmail($email);
-        $this->setPrivileges($privileges);
 
-        if ($photo !== NULL):
-            $this->setPhoto($photo);
-        endif;
+        # La primera vez que se crea un usuario tendrá el rol de usuario
+        $this->setPrivileges(self::ROLE_USER);
 
-        if ($phone_number !== NULL):
-            $this->setPhoneNumber($phone_number);
-        endif;
-
-        # Si los tickets no son nulos añadimos cada uno de los tickets a nuestro array
-        if ($tickets !== NULL):
-            foreach ($tickets as $ticket):
-                $this->addTicket($ticket);
-            endforeach;
-        else:
-            $this->tickets = new ArrayCollection();
-        endif;
-
-        # Si los comentarios no son nulos añadimos cada uno de los comentarios a nuestro array
-        if ($comments !== NULL):
-            foreach ($comments as $comment):
-                $this->addComment($comment);
-            endforeach;
-        else:
-            $this->comments = new ArrayCollection();
-        endif;
-
-    */
         $this->tickets = new ArrayCollection();
         $this->comments = new ArrayCollection();
     }

@@ -46,7 +46,6 @@ class UserController extends AbstractController
                 $user->setSurname($data_form['surname']);
                 $user->setPassword($passwordEncoder->encodePassword($user,$data_form['password']));
                 $user->setEmail($data_form['email']);
-                $user->setPrivileges(User::ROLE_USER);
 
                 if ($data_form['phone_number'] !== NULL):
                     $user->setPhoneNumber($data_form['phone_number']);
