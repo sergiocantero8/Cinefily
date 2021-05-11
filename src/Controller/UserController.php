@@ -37,7 +37,10 @@ class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()):
             $data_form = $form->getData();
 
-            if ($data_form['password'] === $data_form['password_repeated']):
+            $userRepository= $this->getDoctrine()->getRepository(User::class);
+            $users_array= $userRepository->findBy(array('email' => $data_form['email']));
+
+            if ($data_form['password'] === $data_form['password_repeated'] && empty($users_array)):
                 # Creamos un nuevo usuario
                 $user = new User();
 
@@ -51,12 +54,13 @@ class UserController extends AbstractController
                     $user->setPhoneNumber($data_form['phone_number']);
                 endif;
 
+
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($user);
                 $entityManager->flush();
                 $this->addFlash('success', '¡Te has registrado correctamente!');
             else:
-                $this->addFlash('error', 'Las contraseñas introducidas no coinciden');
+                $this->addFlash('error', 'Ha ocurrido un error al registrarte ');
             endif;
 
         endif;

@@ -6,11 +6,18 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity(
+ *     fields={"email"},
+ *     message="Ya existe el email introducido"
+ * )
  */
 class User implements UserInterface
 {
@@ -45,7 +52,7 @@ class User implements UserInterface
     protected $password;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      */
     protected $email;
 
@@ -74,9 +81,9 @@ class User implements UserInterface
      */
     protected $comments;
 
-        
+
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
-    
+
     /**
      * Constructor de User
      *
@@ -94,6 +101,7 @@ class User implements UserInterface
 
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #    
+
     /**
      * Devuelve el id del usuario
      *
@@ -103,7 +111,7 @@ class User implements UserInterface
     {
         return $this->id;
     }
-    
+
     /**
      * Devuelve el nombre del usuario
      *
@@ -113,7 +121,7 @@ class User implements UserInterface
     {
         return $this->name;
     }
-    
+
     /**
      * Recibe el nuevo nombre por parámetro y lo actualiza
      *
@@ -126,7 +134,7 @@ class User implements UserInterface
 
         return $this;
     }
-    
+
     /**
      * Devuelve el apellido del usuario
      *
@@ -136,7 +144,7 @@ class User implements UserInterface
     {
         return $this->surname;
     }
-    
+
     /**
      * Recibe el nuevo nombre por parámetro y lo actualiza
      *
@@ -149,7 +157,7 @@ class User implements UserInterface
 
         return $this;
     }
-    
+
     /**
      * Devuelve la contraseña (codificada)
      *
@@ -159,7 +167,7 @@ class User implements UserInterface
     {
         return $this->password;
     }
-    
+
     /**
      * Reciba la nueva contraseña por parámetro y la actualiza
      *
@@ -172,7 +180,7 @@ class User implements UserInterface
 
         return $this;
     }
-    
+
     /**
      * Devuelve el email del usuario
      *
@@ -182,7 +190,7 @@ class User implements UserInterface
     {
         return $this->email;
     }
-    
+
     /**
      * Recibe el nuevo email por parámetro y lo actualiza
      *
@@ -195,7 +203,7 @@ class User implements UserInterface
 
         return $this;
     }
-    
+
     /**
      *  Devuelve los privilegios que tiene el usuario
      *
@@ -218,7 +226,7 @@ class User implements UserInterface
 
         return $this;
     }
-    
+
     /**
      * Devuelve la foto de perfil del usuario
      *
@@ -228,7 +236,7 @@ class User implements UserInterface
     {
         return $this->photo;
     }
-    
+
     /**
      * setPhoto
      *
@@ -241,7 +249,7 @@ class User implements UserInterface
 
         return $this;
     }
-    
+
     /**
      * getPhoneNumber
      *
@@ -251,7 +259,7 @@ class User implements UserInterface
     {
         return $this->phone_number;
     }
-    
+
     /**
      * setPhoneNumber
      *
@@ -283,6 +291,7 @@ class User implements UserInterface
 
 
     # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
+
     /**
      * @ORM\PrePersist
      */
@@ -292,6 +301,7 @@ class User implements UserInterface
             $this->setPrivileges(self::ROLE_USER);
         endif;
     }
+
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
     public function addTicket(Ticket $ticket): self
@@ -338,30 +348,22 @@ class User implements UserInterface
         return $this;
     }
 
-    # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
-
-    # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
-
     /**
      * Devuelve los tipos de roles de usuario disponibles
      * @return array
      */
-    public function getRoles():array
+    public function getRoles(): array
     {
-        return array(
-            static::ROLE_ADMIN,
-            static::ROLE_USER,
-            static::ROLE_MODERATOR
-        );
+        return array($this->getPrivileges());
     }
 
-    public function getSalt():void
+    public function getSalt(): void
     {
 
     }
 
 
-    public function eraseCredentials():void
+    public function eraseCredentials(): void
     {
 
     }
@@ -370,4 +372,18 @@ class User implements UserInterface
     {
         return $this->getEmail();
     }
+
+    # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
+
+    # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+    public static function getAvailableRoles(): array
+    {
+        return array(
+            self::ROLE_ADMIN,
+            self::ROLE_USER,
+            self::ROLE_MODERATOR
+        );
+    }
+
 }
