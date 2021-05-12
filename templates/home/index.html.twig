@@ -16,28 +16,38 @@
         </div>
     {% endfor %}
 
-    <div class="row">
+    <div class="container px-4 py-5" id="custom-cards">
+        <h2 class="pb-2 border-bottom">Películas y eventos</h2>
 
-                <div class="col-md-4 m-5">
-                    <div class="card">
-                        <img class="card-img-top p-4"
-                             src="https://i2.wp.com/noescinetodoloquereluce.com/wp-content/uploads/2021/01/nomadland-poster.jpg?resize=800%2C1185&ssl=1"
-                             alt="Card image cap" >
-                        <div class="card-body">
-                            <p class="card-text text-white font-weight-bold">This is a wider card with supporting text below as a natural lead-in to
-                                additional content. This content is a little bit longer.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-primary">View</button>
-                                    <button type="button" class="btn btn-light">Edit</button>
-                                </div>
-                                <small class="text-muted">9 mins</small>
-                            </div>
-                        </div>
+        <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
+            <div class="col">
+                <div class="card card-cover overflow-hidden text-white bg-dark rounded-5 shadow-lg" style="background: url('https://i2.wp.com/noescinetodoloquereluce.com/wp-content/uploads/2021/01/nomadland-poster.jpg?resize=800%2C1185&ssl=1') no-repeat fixed center;background-size: auto ">
+                    <div class="d-flex flex-column p-5 pb-3 text-white text-shadow-1" id="event_footer">
+                        <h2 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">Short title, long jacket</h2>
+                        <ul class="d-flex list-unstyled mt-auto">
+                            <li class="me-auto">
+                                <img src="https://i2.wp.com/noescinetodoloquereluce.com/wp-content/uploads/2021/01/nomadland-poster.jpg?resize=800%2C1185&ssl=1"
+                                     alt="Bootstrap" width="32" height="32" class="rounded-circle border border-white">
+                            </li>
+                            <li class="d-flex align-items-center me-3">
+                                <svg class="bi me-2" width="1em" height="1em">
+                                    <use xlink:href="#geo-fill"></use>
+                                </svg>
+                                <small>Earth</small>
+                            </li>
+                            <li class="d-flex align-items-center">
+                                <svg class="bi me-2" width="1em" height="1em">
+                                    <use xlink:href="#calendar3"></use>
+                                </svg>
+                                <small>3d</small>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-
-
             </div>
 
+
+        </div>
+    </div>
+    <!--========Cards========-->
 {% endblock %}

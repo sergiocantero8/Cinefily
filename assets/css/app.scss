@@ -41,5 +41,14 @@
     margin-bottom: .25rem;
   }
   
-  .box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
-  
+.box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+
+.card {
+  height: 500px;
+  width: 500px;
+}
+
+#event_footer{
+  position: relative;
+  top: 250px;
+}
