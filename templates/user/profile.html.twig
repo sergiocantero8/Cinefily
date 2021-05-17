@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+{% block main %}
+    <section class="jumbotron text-center">
+        <div class="container">
+            <h1 class="jumbotron-heading">Mi perfil</h1>
+
+            {% for flash_message in app.flashes('error') %}
+                <div class="alert alert-danger">
+                    {{ flash_message }}
+                </div>
+            {% endfor %}
+
+            {% for flash_message in app.flashes('success') %}
+                <div class="alert alert-success">
+                    {{ flash_message }}
+                </div>
+            {% endfor %}
+
+            {{ form(form) }}
+
+        </div>
+    </section>
+
+{% endblock %}

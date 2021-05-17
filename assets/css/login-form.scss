@@ -1,0 +1,62 @@
+
+#loginForm {
+  border-radius: 10px 10px 10px 10px;
+  background: #343a40;
+  padding: 30px;
+  margin: 200px auto auto;
+  width: 100%;
+  max-width: 900px;
+  position: relative;
+  -webkit-box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
+  text-align: center;
+
+  .labelForm{
+    color: white;
+    font-weight: normal;
+    margin-bottom: 20px;
+  }
+
+  label{
+    color: white;
+    font-size: 20px;
+    margin: 15px;
+  }
+
+  input {
+    width: 500px;
+    margin: auto auto 20px;
+  }
+}
+
+#loginFormFooter {
+  padding: 25px;
+  margin: 20px auto auto;
+  width: auto;
+  text-align: center;
+  border-radius: 0 0 10px 10px;
+  color: #39ace7;
+  font-weight: bold;
+
+  /* Simple CSS3 Fade-in Animation */
+  .underlineHover:after {
+    display: block;
+    left: 0;
+    bottom: -10px;
+    width: 0;
+    height: 2px;
+    background-color: #56baed;
+    content: "";
+    transition: width 0.2s;
+  }
+
+  .underlineHover:hover {
+    color: #88c2ff;
+    font-size: 19px;
+  }
+
+  .underlineHover:hover:after{
+    width: 100%;
+    color:white
+  }
+}
+
