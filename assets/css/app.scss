@@ -1,6 +1,10 @@
 
-@import './sidebar.scss';
 @import './login-form.scss';
+@import './footer.scss';
+@import '~@fortawesome/fontawesome-free/css/solid.css';
+@import '~@fortawesome/fontawesome-free/css/brands.css';
+@import '~@fortawesome/fontawesome-free/css/regular.css';
+@import '~bootstrap/scss/bootstrap';
 
 .card{
   background: linear-gradient(to top right, #0d0d0d 10%, #3f4030 100%);
@@ -55,3 +59,5 @@
   position: relative;
   top: 250px;
 }
+
+

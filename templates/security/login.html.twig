@@ -6,15 +6,16 @@
 {% block main %}
 <form id="loginForm" method="post">
     {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        <div class="alert alert-danger">Usuario o contraseña incorrectos</div>
     {% endif %}
 
     <h1 class="labelForm">Inicia sesión</h1>
     <label for="inputEmail">Email</label>
     <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" required autofocus>
+    <i class="email_icon fas fa-envelope"></i>
     <label for="inputPassword">Password</label>
     <input type="password" name="password" id="inputPassword" class="form-control" required>
-
+    <i class="paswd_icon fas fa-key"></i>
     <input type="hidden" name="_csrf_token"
            value="{{ csrf_token('authenticate') }}"
     >
