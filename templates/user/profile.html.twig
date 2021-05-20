@@ -6,6 +6,8 @@
         <div class="container">
             <h1 class="jumbotron-heading">Mi perfil</h1>
 
+            <img class="profile-photo rounded-circle z-depth-2" alt="Foto de perfil" src="{{ asset('uploads/images/' ~ image) }}"
+                 data-holder-rendered="true">
             {% for flash_message in app.flashes('error') %}
                 <div class="alert alert-danger">
                     {{ flash_message }}
@@ -19,6 +21,7 @@
             {% endfor %}
 
             {{ form(form) }}
+
 
         </div>
     </section>

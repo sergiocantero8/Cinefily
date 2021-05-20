@@ -62,9 +62,14 @@ class User implements UserInterface
     protected $privileges;
 
     /**
-     * @ORM\Column(type="blob", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
+     * @Assert\File(maxSize = "1024k",
+     *     mimeTypes={"image/jpeg"} ,
+     *     mimeTypesMessage = "Please upload a valid Image"
+     * )
      */
-    protected $photo;
+    protected $profile_photo;
+
 
     /**
      * @ORM\Column(type="string", length=14, nullable=true)
@@ -230,22 +235,22 @@ class User implements UserInterface
     /**
      * Devuelve la foto de perfil del usuario
      *
-     * @return File
+     * @return string
      */
-    public function getPhoto(): File
+    public function getPhoto(): string
     {
-        return $this->photo;
+        return $this->profile_photo;
     }
 
     /**
      * setPhoto
      *
-     * @param File $photo
+     * @param string $photo
      * @return self
      */
-    public function setPhoto(File $photo): self
+    public function setPhoto(string $photo): self
     {
-        $this->photo = $photo;
+        $this->profile_photo = $photo;
 
         return $this;
     }

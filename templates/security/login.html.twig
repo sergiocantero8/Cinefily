@@ -4,7 +4,7 @@
 
 
 {% block main %}
-<form id="loginForm" method="post">
+<form id="userForm" method="post">
     {% if error %}
         <div class="alert alert-danger">Usuario o contraseña incorrectos</div>
     {% endif %}
@@ -23,7 +23,7 @@
         Iniciar sesión
     </button>
 
-    <div id="loginFormFooter">
+    <div id="userFormFooter">
         <a class="underlineHover" href="#">¿Olvidaste la contraseña?</a>
     </div>
 

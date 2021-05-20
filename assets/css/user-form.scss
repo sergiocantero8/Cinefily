@@ -1,5 +1,5 @@
 
-#loginForm {
+#userForm {
   border-radius: 10px 10px 10px 10px;
   background: #343a40;
   padding: 30px;
@@ -28,7 +28,7 @@
   }
 }
 
-#loginFormFooter {
+#userFormFooter {
   padding: 25px;
   margin: 20px auto auto;
   width: auto;
@@ -81,6 +81,12 @@
   position: relative;
   bottom: 70px;
   right: 168px;
+}
+
+.profile-photo{
+  width: 120px;
+  height: 160px;
+  box-shadow: 0 0 0 3px #343a40;
 }
 
 

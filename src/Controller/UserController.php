@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserRegistrationType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -114,33 +116,35 @@ class UserController extends AbstractController
         endif;
 
 
+        $user = $this->getUser() ?? new User();
+
         $form = $this->createFormBuilder(array('csrf_protection' => FALSE))
             ->setMethod(Request::METHOD_POST)
             ->setAction($this->generateUrl(static::ROUTE_USER_PROFILE))
             ->add('name', TextType::class, array(
                 'required' => FALSE,
                 'label' => 'Nombre',
-                'data' => $this->getUser()->getName(),
+                'data' => $user->getName(),
             ))
             ->add('surname', TextType::class, array(
                 'required' => FALSE,
                 'label' => 'Apellidos',
-                'data' => $this->getUser()->getSurname()
+                'data' => $user->getSurname()
             ))
             ->add('email', TextType::class, array(
                 'required' => FALSE,
                 'label' => 'Email',
-                'data' => $this->getUser()->getUsername()
+                'data' => $user->getUsername()
             ))
             ->add('password', TextType::class, array(
                 'required' => FALSE,
                 'label' => 'Contraseña',
-                'data' => $this->getUser()->getSurname()
+                'data' => $user->getSurname()
             ))
             ->add('privileges', TextType::class, array(
                 'required' => FALSE,
                 'label' => 'Privilegios',
-                'data' => self::convertPrivilegesToString($this->getUser()->getPrivileges()),
+                'data' => self::convertPrivilegesToString($user->getPrivileges()),
                 'attr' => array(
                     'readonly' => true,
                 ),
@@ -148,7 +152,15 @@ class UserController extends AbstractController
             ->add('phone_number', TextType::class, array(
                 'required' => FALSE,
                 'label' => 'Teléfono',
-                'data' => $this->getUser()->getPhoneNumber() ?? '',
+                'data' => $user->getPhoneNumber() ?? '',
+            ))
+            ->add('profile_photo', FileType::class, array(
+                'label' => 'Foto de perfil',
+                'data_class' => null,
+                'required' => false,
+                'attr' => array(
+                    'placeholder' => 'Buscar foto...'
+                )
             ))
             ->add('submit', SubmitType::class, array(
                 'label' => 'Guardar',
@@ -157,10 +169,38 @@ class UserController extends AbstractController
 
         $form->handleRequest($request);
 
+        if ($form->isSubmitted() && $form->isValid()) {
+            $formData = $form->getData();
+
+            $img = $formData['profile_photo'];
+
+            if ($img) {
+                $fileName = md5(uniqid('', false)) . '' . $img->guessExtension();
+
+                try {
+                    $img->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+                } catch (FileException $e) {
+                    $this->createNotFoundException('Directorio images no encontrado');
+                }
+
+
+                $em = $this->getDoctrine()->getManager();
+                $user->setPhoto($fileName);
+                $em->persist($user);
+                $em->flush();
+            }
+
+
+        }
+
         $template = 'user/profile.html.twig';
 
         $data = array(
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'image' => $this->getUser()->getPhoto()
         );
 
         return $this->render($template, $data);
@@ -198,7 +238,7 @@ class UserController extends AbstractController
 
         endswitch;
 
-        return  $value;
+        return $value;
     }
 
 }
