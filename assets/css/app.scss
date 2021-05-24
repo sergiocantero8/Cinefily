@@ -12,7 +12,14 @@
 .card{
   background: linear-gradient(to top right, #0d0d0d 10%, #3f4030 100%);
 }
+main {
+  background-image: url("../../images/background2.png"); ;
+}
 
+#logo-web{
+  width: 145px;
+  height: 145px;
+}
 :root {
     --jumbotron-padding-y: 3rem;
   }

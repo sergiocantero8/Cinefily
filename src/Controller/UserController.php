@@ -159,7 +159,7 @@ class UserController extends AbstractController
                 'data_class' => null,
                 'required' => false,
                 'attr' => array(
-                    'placeholder' => 'Buscar foto...'
+                    'placeholder' => 'Para actualizar la foto de perfil...'
                 )
             ))
             ->add('submit', SubmitType::class, array(
@@ -171,6 +171,7 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
+
 
             $img = $formData['profile_photo'];
 

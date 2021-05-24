@@ -1,17 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Welcome!{% endblock %}</title>
-
-    {% block javascripts_head %}
-        <script src="{{ asset('build/js/app.js') }}"></script>
-    {% endblock %}
-
-
-    {% block stylesheets_head  %}
-        <link rel="stylesheet" href="{{ asset('build/js/app.css') }}">
-        <link href="data:image/x-icon;base64,AAABAAEAICAAAAEAIACoEAAAFgAAACgAAAAgAAAAQAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAABAAEAICAAAAEAIACoEAAAFgAAACgAAAAgAAAAQAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAD//////////////////////////////////////v7+//7+/v/+/v7/7+/v/8vLy/+dnZ3/
 eHh4/2ZmZv9jY2P/bm5u/4yMjP+4uLj/4uLi//z8/P/+/v7//v7+//7+/v//////////////////
 /////////////////////////////////////////////////////v7+//7+/v/+/v7/8/Pz/7W1
@@ -86,24 +73,4 @@ lJSU//b29v/+/v7//v7+////////////////////////////////////////////////////////
 Jv9nZ2f/tLS0//Dw8P/+/v7//v7+//7+/v//////////////////////////////////////AAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAA=" rel="icon" type="image/x-icon" >
-    {% endblock %}
-
-
-</head>
-<body>
-{% include 'includes/header.html.twig' %}
-{% include 'includes/sidebar.html.twig' %}
-<main>
-    {% block main %}
-    {% endblock %}
-</main>
-
-
-{% include 'includes/footer.html.twig' %}
-
-{% block custom_body_javascript %}
-
-{% endblock %}
-</body>
-</html>
+AAAAAAAAAAAAAAA=
