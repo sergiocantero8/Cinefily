@@ -13,12 +13,12 @@
   background: linear-gradient(to top right, #0d0d0d 10%, #3f4030 100%);
 }
 main {
-  background-image: url("../../images/background2.png"); ;
+  //background-image: url("../../images/background2.png"); ;
 }
 
 #logo-web{
-  width: 145px;
-  height: 145px;
+  width: 130px;
+  height: 130px;
 }
 :root {
     --jumbotron-padding-y: 3rem;
@@ -68,6 +68,22 @@ main {
 #event_footer{
   position: relative;
   top: 250px;
+}
+
+.nav-section{
+  font-size: 20px;
+}
+.nav-button{
+  font-size: 20px;
+}
+
+.search-field{
+  font-size: 20px;
+  width: 400px;
+}
+
+.header-web{
+  background-color: #26272b!important;
 }
 
 
