@@ -6,6 +6,7 @@ use App\Repository\EventDataRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=EventDataRepository::class)
@@ -58,10 +59,19 @@ class EventData
     /**
      * @ORM\Column(type="text", nullable=true)
      */
+    private $director;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
     private $actors;
 
     /**
-     * @ORM\Column(type="blob", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
+     * @Assert\File(maxSize = "1024k",
+     *     mimeTypes={"image/jpeg"} ,
+     *     mimeTypesMessage = "Please upload a valid Image"
+     * )
      */
     private $poster_photo;
 
@@ -135,9 +145,17 @@ class EventData
         return $this->gender;
     }
 
-    public function setGender(?string $gender): self
+    public function setGender(?array $genders): self
     {
-        $this->gender = $gender;
+        $stringGenders = '';
+        foreach ($genders as $gender):
+            if (!empty($stringGenders)):
+                $stringGenders .= ', ';
+            endif;
+            $stringGenders .= $gender;
+        endforeach;
+
+        $this->gender = $stringGenders;
 
         return $this;
     }
@@ -190,12 +208,12 @@ class EventData
         return $this;
     }
 
-    public function getPosterPhoto()
+    public function getPosterPhoto(): string
     {
         return $this->poster_photo;
     }
 
-    public function setPosterPhoto($poster_photo): self
+    public function setPosterPhoto(string $poster_photo): self
     {
         $this->poster_photo = $poster_photo;
 
@@ -234,6 +252,18 @@ class EventData
     public function setAgeRating(?string $age_rating): self
     {
         $this->age_rating = $age_rating;
+
+        return $this;
+    }
+
+    public function getDirector(): ?string
+    {
+        return $this->director;
+    }
+
+    public function setDirector(?string $director): self
+    {
+        $this->director = $director;
 
         return $this;
     }
@@ -298,7 +328,7 @@ class EventData
 
         return $this;
     }
-    
+
 
     # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
 

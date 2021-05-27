@@ -1,0 +1,124 @@
+// Add-event form
+.add-event-form{
+  margin: 100px;
+  background-color: #26272b;
+  color: white;
+  padding: 35px;
+  border-radius: 80px;
+
+  .title{
+    text-align: center;
+  }
+
+  ::-webkit-input-placeholder {
+    font-style: italic;
+  }
+  :-moz-placeholder {
+    font-style: italic;
+  }
+  ::-moz-placeholder {
+    font-style: italic;
+  }
+  :-ms-input-placeholder {
+    font-style: italic;
+  }
+
+}
+
+.title-event.col-12 {
+  padding-top: 50px;
+}
+
+.title-event .form-group {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.type-event .form-group {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gender-event .form-group {
+  width: 50%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.age-rating-event .form-group {
+  width: 50%;
+  margin-left: auto;
+}
+
+.director-event .form-group {
+  width: 50%;
+  margin-right: auto;
+}
+
+.description-event .form-group {
+  width: 50%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.actors-event .form-group {
+  width: 50%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.poster-photo-event .form-group{
+  width: 50%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.submit-event .form-group{
+  width: 50%;
+  margin-left: auto;
+}
+
+.status-event .form-group{
+  width: 50%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+select#add_event_release_date_date_month {
+  margin-right: 3px;
+  margin-left: 10px;
+}
+
+select#add_event_release_date_date_day{
+  margin-right: 3px;
+}
+
+select#add_event_release_date_date_year{
+  margin-right: 3px;
+}
+
+select#add_event_release_date_time_hour{
+  display: none;
+}
+
+.duration-event .form-group {
+  width: 25%;
+  margin-left: auto;
+}
+
+
+
+
+.rating-event .form-group {
+  width: 50%;
+}
+
+.duration-event.col-12.col-md-6.col-lg-4 {
+  padding-right: 0;
+}
+
+button#add_event_submit {
+  font-size: 20px;
+}

@@ -8,7 +8,9 @@
 @import '~bootstrap/scss/bootstrap';
 
 @import './user-form.scss';
+@import './add-event-form.scss';
 @import './footer.scss';
+
 .card{
   background: linear-gradient(to top right, #0d0d0d 10%, #3f4030 100%);
 }
@@ -16,38 +18,14 @@ main {
   //background-image: url("../../images/background2.png"); ;
 }
 
+body{
+  zoom: 0.75;
+}
+
 #logo-web{
   width: 130px;
   height: 130px;
 }
-:root {
-    --jumbotron-padding-y: 3rem;
-  }
-  
-  .jumbotron {
-    padding-top: var(--jumbotron-padding-y);
-    padding-bottom: var(--jumbotron-padding-y);
-    margin-bottom: 0;
-    background-color: #fff;
-  }
-  @media (min-width: 768px) {
-    .jumbotron {
-      padding-top: calc(var(--jumbotron-padding-y) * 2);
-      padding-bottom: calc(var(--jumbotron-padding-y) * 2);
-    }
-  }
-  
-  .jumbotron p:last-child {
-    margin-bottom: 0;
-  }
-  
-  .jumbotron-heading {
-    font-weight: 300;
-  }
-  
-  .jumbotron .container {
-    max-width: 40rem;
-  }
   
   footer {
     padding-top: 3rem;
@@ -85,5 +63,9 @@ main {
 .header-web{
   background-color: #26272b!important;
 }
+
+
+
+
 
 

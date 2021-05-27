@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\EventData;
 use App\Entity\User;
 use App\Form\AddEventType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,6 +25,8 @@ class EventController extends AbstractController
 
     # Géneros de eventos
     public const ACTION_EVENT = 'action';
+    public const ADVENTURE_EVENT = 'adventure';
+    public const ANIMATION_EVENT = 'animation';
     public const COMEDY_EVENT = 'comedy';
     public const DRAMA_EVENT = 'drama';
     public const FANTASY_EVENT = 'fantasy';
@@ -33,6 +37,13 @@ class EventController extends AbstractController
     public const WESTERN_EVENT = 'western';
     public const SCIENCE_FICTION_EVENT = 'scienceFiction';
     public const INFORMATIVE_EVENT = 'informative';
+
+    # Rango de edades
+    public const TO_ALL_PUBLIC = 'A';
+    public const OLDER_THAN_7 = '+7';
+    public const OLDER_THAN_12 = '+12';
+    public const OLDER_THAN_16 = '+16';
+    public const OLDER_THAN_18 = '+18';
 
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
@@ -57,12 +68,57 @@ class EventController extends AbstractController
             array(
                 'data' => array(
                     'event_types' => $this->getAllEventTypes(),
-                    'genders_types' => $this->getAllGenresTypes())
+                    'genders_types' => $this->getAllGenresTypes(),
+                    'age_rating_types' => $this->getAllAgeRating())
             )
         );
         $form->handleRequest($request);
 
-        $data= array(
+        if ($form->isSubmitted() && $form->isValid()):
+            $data_form = $form->getData();
+
+
+            # Creamos un nuevo evento
+            $event = new EventData();
+
+            # Seteamos todas las propiedades
+            $event->setTitle($data_form['title']);
+            $event->setType($data_form['type']);
+            $event->setGender($data_form['gender']);
+            $event->setDescription($data_form['description']);
+            $event->setDuration($data_form['duration']);
+            $event->setReleaseDate($data_form['release_date']);
+            $event->setActors($data_form['actors']);
+            $event->setRating($data_form['rating']);
+            $event->setStatus($data_form['status']);
+
+            $img = $data_form['poster_photo'];
+
+            if ($img) {
+                $fileName = md5(uniqid('', false)) . '' . $img->guessExtension();
+
+                try {
+                    $img->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+                } catch (FileException $e) {
+                    $this->createNotFoundException('Directorio images no encontrado');
+                }
+
+                $event->setPosterPhoto($fileName);
+            }
+
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($event);
+            $em->flush();
+            $this->addFlash('success', '¡El evento se ha añadido correctamente!');
+            return $this->redirectToRoute('home');
+        endif;
+
+
+        $data = array(
             'form' => $form->createView()
         );
 
@@ -71,16 +127,18 @@ class EventController extends AbstractController
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
+
     /**
      * Devuelve todos los tipos de eventos disponibles
      * @return array
      */
     public function getAllEventTypes(): array
     {
-        return array(self::FILM_EVENT_TYPE,
-            self::THEATER_EVENT_TYPE,
-            self::CONFERENCE_EVENT_TYPE,
-            self::CONCERT_EVENT_TYPE);
+        return array(
+            'Película' => self::FILM_EVENT_TYPE,
+            'Teatro' => self::THEATER_EVENT_TYPE,
+            'Conferencia' => self::CONFERENCE_EVENT_TYPE,
+            'Concierto' => self::CONCERT_EVENT_TYPE);
     }
 
     /**
@@ -90,11 +148,37 @@ class EventController extends AbstractController
     public function getAllGenresTypes(): array
     {
         return array(
-            self::ACTION_EVENT, self::COMEDY_EVENT, self::DRAMA_EVENT, self::FANTASY_EVENT, self::HORROR_EVENT,
-            self::MYSTERY_EVENT, self::ROMANCE_EVENT, self::INFORMATIVE_EVENT, self::THRILLER_EVENT, self::WESTERN_EVENT,
-            self::SCIENCE_FICTION_EVENT
+            'Acción' => self::ACTION_EVENT,
+            'Comedia' => self::COMEDY_EVENT,
+            'Drama' => self::DRAMA_EVENT,
+            'Fantasía' => self::FANTASY_EVENT,
+            'Terror' => self::HORROR_EVENT,
+            'Intriga' => self::MYSTERY_EVENT,
+            'Romántica' => self::ROMANCE_EVENT,
+            'Divulgativo' => self::INFORMATIVE_EVENT,
+            'Thriller' => self::THRILLER_EVENT,
+            'Western' => self::WESTERN_EVENT,
+            'Ciencia Ficción' => self::SCIENCE_FICTION_EVENT,
+            'Aventuras' => self:: ADVENTURE_EVENT,
+            'Animación' => self::ANIMATION_EVENT
         );
     }
+
+    /**
+     * Devuelve todos los tipos de géneros disponibles
+     * @return array
+     */
+    public function getAllAgeRating(): array
+    {
+        return array(
+            'Todos los públicos' => self::TO_ALL_PUBLIC,
+            'Mayores de 7 años' => self::OLDER_THAN_7,
+            'Mayores de 12 años' => self::OLDER_THAN_12,
+            'Mayores de 16 años' => self::OLDER_THAN_16,
+            'Mayores de 18' => self::OLDER_THAN_18
+        );
+    }
+
 
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
