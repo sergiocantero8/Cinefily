@@ -175,7 +175,7 @@ class User implements UserInterface
 
     /**
      * Reciba la nueva contraseña por parámetro y la actualiza
-     *
+     * TODO codificar contraseña
      * @param string $password
      * @return self
      */
@@ -237,7 +237,7 @@ class User implements UserInterface
      *
      * @return string
      */
-    public function getPhoto(): string
+    public function getPhoto(): ?string
     {
         return $this->profile_photo;
     }

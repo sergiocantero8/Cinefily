@@ -28,7 +28,7 @@ class AddEventType extends AbstractType
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
-    public function buildForm(FormBuilderInterface $builder, array $options):void
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
 
         $builder
@@ -39,28 +39,30 @@ class AddEventType extends AbstractType
                 'label' => 'Tipo',
                 'choices' => $options['data']['event_types']
             ))
-            ->add('gender',ChoiceType::class,array(
+            ->add('gender', ChoiceType::class, array(
                 'label' => 'Género',
                 'choices' => $options['data']['genders_types'],
                 'multiple' => true
             ))
-            ->add('description',TextareaType::class,array(
+            ->add('description', TextareaType::class, array(
                 'label' => 'Descripcion',
                 'attr' => array(
                     'rows' => 5
-                )
+                ),
+
             ))
-            ->add('duration',IntegerType::class,array(
+            ->add('duration', IntegerType::class, array(
                 'label' => 'Duración (mins)'
             ))
-            ->add('release_date',DateTimeType::class,array(
+            ->add('release_date', DateTimeType::class, array(
                 'label' => 'Fecha de estreno',
                 'placeholder' => [
                     'year' => 'Año', 'month' => 'Mes', 'day' => 'Dia'
                 ],
-                'with_minutes' => false,
+                'years' => range(1900, 2021),
+                'with_minutes' => false
             ))
-            ->add('actors',TextareaType::class,array(
+            ->add('actors', TextareaType::class, array(
                 'label' => 'Actores',
                 'attr' => array(
                     'placeholder' => 'Los nombres de los actores separados por comas',
@@ -73,34 +75,39 @@ class AddEventType extends AbstractType
                 'required' => false,
                 'attr' => array(
                     'placeholder' => 'Buscar..'
+                ),
+                'label_attr' => array(
+                    'class' => 'form-control-file'
                 )
             ))
-            ->add('rating',IntegerType::class,array(
+            ->add('rating', IntegerType::class, array(
                 'label' => 'Valoración',
                 'attr' => array(
                     'min' => 0,
                     'max' => 5
                 )
             ))
-            ->add('age_rating',ChoiceType::class,array(
+            ->add('age_rating', ChoiceType::class, array(
                 'label' => 'Recomendada para',
                 'choices' => $options['data']['age_rating_types']
             ))
-            ->add('director',TextType::class,array(
+            ->add('director', TextType::class, array(
                 'label' => 'Director/es'
             ))
-            ->add('status',CheckboxType::class,array(
+            ->add('status', CheckboxType::class, array(
                 'label' => 'En cartelera',
                 'data' => false,
-                'required' => false
+                'required' => false,
+                'label_attr' => array(
+                    'class' => 'switch-custom'
+                )
             ))
-            ->add('submit', SubmitType::class,array(
+            ->add('submit', SubmitType::class, array(
                 'label' => 'Añadir'
-            ))
-        ;
+            ));
     }
 
-    public function configureOptions(OptionsResolver $resolver):void
+    public function configureOptions(OptionsResolver $resolver): void
     {
 
 

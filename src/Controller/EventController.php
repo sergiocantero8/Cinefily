@@ -7,9 +7,16 @@ use App\Entity\User;
 use App\Form\AddEventType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class EventController extends AbstractController
 {
@@ -45,12 +52,24 @@ class EventController extends AbstractController
     public const OLDER_THAN_16 = '+16';
     public const OLDER_THAN_18 = '+18';
 
+    # API KEY
+    private const API_KEY = '99e1f232e39064087b6bbd5255d957b4';
+
+    #Códigos de estado
+    public const SUCCESS_STATUS_CODE = 200;
+
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
+
+    // Para peticiones HTTP
+    private $client;
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
-
+    public function __construct(HttpClientInterface $client)
+    {
+        $this->client = $client;
+    }
     # ------------------------------------------------- ROUTES ------------------------------------------------------- #
 
     /**
@@ -125,8 +144,64 @@ class EventController extends AbstractController
         return $this->render('event/add.html.twig', $data);
     }
 
+
+
+
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
+    /**
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function getIMDBFilmByID(int $film_id): ?array
+    {
+        $result = NULL;
+
+        $response = $this->client->request(
+            'GET',
+            'https://api.themoviedb.org/3/movie/' . $film_id . '?api_key=' . self::API_KEY . '&language=es-ES'
+        );
+
+        if ($response->getStatusCode() === self::SUCCESS_STATUS_CODE):
+            $result = $response->toArray();
+        endif;
+
+
+        return $result;
+    }
+
+    /**
+     * Devuelve la url base para visualizar una imagen de la api de the movie database
+     * @return string
+     */
+    public function getImageBaseURLIMDB(): string
+    {
+        return 'https://image.tmdb.org/t/p/';
+    }
+
+    /**
+     * Devuelve la configuración basica asocidada a la key de la api
+     * @return array|null
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function getIMDBConfiguration(): ?array
+    {
+        $result = NULL;
+
+        $response = $this->client->request(
+            'GET',
+            'https://api.themoviedb.org/3/configuration?api_key=' . self::API_KEY
+        );
+
+        if ($response->getStatusCode() === self::SUCCESS_STATUS_CODE):
+            $result = $response->toArray();
+        endif;
+
+        return $result;
+    }
 
     /**
      * Devuelve todos los tipos de eventos disponibles

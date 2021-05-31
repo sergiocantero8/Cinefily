@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cinefily{% endblock %}
+
+{% block main %}
+
+    {% for flash_message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ flash_message }}
+        </div>
+    {% endfor %}
+
+    {% for flash_message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ flash_message }}
+        </div>
+    {% endfor %}
+
+
+
+    {% include 'includes/event_card.html.twig' with
+        {
+            'title' : title,
+            'summary' : summary,
+            'poster_photo': poster_photo
+        }
+    %}
+{% endblock %}

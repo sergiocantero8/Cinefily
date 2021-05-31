@@ -144,6 +144,7 @@ class UserController extends AbstractController
             ->add('privileges', TextType::class, array(
                 'required' => FALSE,
                 'label' => 'Privilegios',
+                'help' => 'Solo el administrador puede cambiar los privilegios de un usuario',
                 'data' => self::convertPrivilegesToString($user->getPrivileges()),
                 'attr' => array(
                     'readonly' => true,
@@ -187,12 +188,18 @@ class UserController extends AbstractController
                     $this->createNotFoundException('Directorio images no encontrado');
                 }
 
-
-                $em = $this->getDoctrine()->getManager();
                 $user->setPhoto($fileName);
-                $em->persist($user);
-                $em->flush();
+
             }
+
+            $user->setName($formData['name']);
+            $user->setSurname($formData['surname']);
+            $user->setPassword($formData['password']);
+            $user->setEmail($formData['email']);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($user);
+            $em->flush();
 
 
         }

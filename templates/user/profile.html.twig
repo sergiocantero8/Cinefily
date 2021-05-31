@@ -2,28 +2,48 @@
 
 {% form_theme form 'bootstrap_4_layout.html.twig' %}
 {% block main %}
-    <section class="jumbotron text-center">
-        <div class="container">
-            <h1 class="jumbotron-heading">Mi perfil</h1>
 
-            <img class="profile-photo rounded-circle z-depth-2" alt="Foto de perfil" src="{{ asset('uploads/images/' ~ image) }}"
-                 data-holder-rendered="true">
-            {% for flash_message in app.flashes('error') %}
-                <div class="alert alert-danger">
-                    {{ flash_message }}
-                </div>
-            {% endfor %}
-
-            {% for flash_message in app.flashes('success') %}
-                <div class="alert alert-success">
-                    {{ flash_message }}
-                </div>
-            {% endfor %}
-
-            {{ form(form) }}
-
-
+    {% for flash_message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            {{ flash_message }}
         </div>
-    </section>
+    {% endfor %}
+
+
+    {% for flash_message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ flash_message }}
+        </div>
+    {% endfor %}
+
+    <div class="header-profile container-fluid">
+
+        {{ form_start(form) }}
+
+
+        {{ form_row(form.email) }}
+
+
+
+        {% if image is defined and image != null %}
+            <div class="avatar">
+                <img class="profile-photo rounded-circle z-depth-2" alt="Foto de perfil"
+                     src="{{ asset('uploads/images/' ~ image) }}"
+                     data-holder-rendered="true">
+            </div>
+
+        {% endif %}
+
+    </div>
+    {{ form_row(form.name) }}
+    {{ form_row(form.surname) }}
+
+    {{ form_row(form.password) }}
+    {{ form_row(form.privileges) }}
+    {{ form_row(form.phone_number) }}
+    {{ form_row(form.profile_photo) }}
+    {{ form_end(form) }}
+
+
 
 {% endblock %}

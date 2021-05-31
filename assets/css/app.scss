@@ -10,6 +10,7 @@
 @import './user-form.scss';
 @import './add-event-form.scss';
 @import './footer.scss';
+@import './event-card';
 
 .card{
   background: linear-gradient(to top right, #0d0d0d 10%, #3f4030 100%);
@@ -63,6 +64,7 @@ body{
 .header-web{
   background-color: #26272b!important;
 }
+
 
 
 
