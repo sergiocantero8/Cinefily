@@ -16,13 +16,25 @@
         </div>
     {% endfor %}
 
+    <div class="container-fluid">
+        <h1 class="display-2 mb-5 mt-2">Eventos <i class="fab fa-elementor"></i></h1>
+        <div class="h1">Películas premiadas <i class="fas fa-award"></i></div>
+
+        <div class="row mt-5">
+
+            <div class="card-box col-12 col-md-6 col-lg-3 ">
+                {% include 'includes/event_card.html.twig' %}
+            </div>
+
+            <div class="card-box col-12 col-md-6 col-lg-3 ">
+                {% include 'includes/event_card.html.twig' %}
+            </div>
+
+            <div class="card-box col-12 col-md-6 col-lg-3 ">
+                {% include 'includes/event_card.html.twig' %}
+            </div>
 
 
-    {% include 'includes/event_card.html.twig' with
-        {
-            'title' : title,
-            'summary' : summary,
-            'poster_photo': poster_photo
-        }
-    %}
+        </div>
+    </div>
 {% endblock %}
