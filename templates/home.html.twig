@@ -22,18 +22,13 @@
 
         <div class="row mt-5">
 
-            <div class="card-box col-12 col-md-6 col-lg-3 ">
-                {% include 'includes/event_card.html.twig' %}
-            </div>
-
-            <div class="card-box col-12 col-md-6 col-lg-3 ">
-                {% include 'includes/event_card.html.twig' %}
-            </div>
-
-            <div class="card-box col-12 col-md-6 col-lg-3 ">
-                {% include 'includes/event_card.html.twig' %}
-            </div>
-
+            {% if films != null and films is not empty%}
+                {% for key, data_film in films %}
+                    <div class="card-box col-12 col-md-6 col-lg-4 ">
+                        {% include 'includes/event_card.html.twig' with {'id': key , 'data_film' : data_film} %}
+                    </div>
+                {% endfor %}
+            {% endif %}
 
         </div>
     </div>

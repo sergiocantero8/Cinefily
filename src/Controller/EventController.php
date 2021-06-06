@@ -133,7 +133,6 @@ class EventController extends AbstractController
             $em->persist($event);
             $em->flush();
             $this->addFlash('success', '¡El evento se ha añadido correctamente!');
-            return $this->redirectToRoute('home');
         endif;
 
 
@@ -150,7 +149,15 @@ class EventController extends AbstractController
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
     /**
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     *  Devuelve los datos de una película con el id que se le pase por parámetro,
+     *  null si no existe la película con ese id
+     * @param int $film_id
+     * @return array|null
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
      */
     public function getIMDBFilmByID(int $film_id): ?array
     {
@@ -159,6 +166,35 @@ class EventController extends AbstractController
         $response = $this->client->request(
             'GET',
             'https://api.themoviedb.org/3/movie/' . $film_id . '?api_key=' . self::API_KEY . '&language=es-ES'
+        );
+
+        if ($response->getStatusCode() === self::SUCCESS_STATUS_CODE):
+            $result = $response->toArray();
+        endif;
+
+
+        return $result;
+    }
+
+    /**
+     *  Devuelve los datos de una película con el id que se le pase por parámetro,
+     *  null si no existe la película con ese id
+     *
+     * @param int $film_id
+     * @return array|null
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function getIMDB_VideosFilm(int $film_id): ?array
+    {
+        $result = NULL;
+
+        $response = $this->client->request(
+            'GET',
+            'https://api.themoviedb.org/3/movie/' . $film_id . '/videos' . '?api_key=' . self::API_KEY . '&language=es-ES'
         );
 
         if ($response->getStatusCode() === self::SUCCESS_STATUS_CODE):
@@ -258,4 +294,6 @@ class EventController extends AbstractController
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+
 }

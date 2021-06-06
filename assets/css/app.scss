@@ -12,9 +12,7 @@
 @import './footer.scss';
 @import './event-card';
 
-.card{
-  background: linear-gradient(to top right, #0d0d0d 10%, #3f4030 100%);
-}
+
 main {
   //background-image: url("../../images/white_background.png"); ;
 
@@ -42,11 +40,6 @@ body{
   }
   
 .box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
-
-.card {
-  height: 500px;
-  width: 500px;
-}
 
 #event_footer{
   position: relative;
