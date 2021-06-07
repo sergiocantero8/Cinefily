@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use function count;
 
 /**
  * @ORM\Entity(repositoryClass=EventDataRepository::class)
@@ -16,7 +17,7 @@ class EventData
 
     # -------------------------------------------------- CONST ------------------------------------------------------- #
 
-
+    public const MAX_WORDS = 40;
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
     /**
@@ -337,4 +338,25 @@ class EventData
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+    public static function getShortenSummary(string $overview):string
+    {
+
+        $words = explode(' ', $overview);
+
+        if (count($words) >= self::MAX_WORDS):
+            $overview = '';
+            foreach ($words as $number => $word):
+                if ($number !== self::MAX_WORDS):
+                    $overview .= $word;
+                    $overview .= ' ';
+                else:
+                    $overview .= '...';
+                    break;
+                endif;
+            endforeach;
+        endif;
+
+        return $overview;
+    }
 }

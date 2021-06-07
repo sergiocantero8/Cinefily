@@ -1,8 +1,10 @@
-<div class="card">
+<div class="card" onclick="location.href = 'event/details?id={{ id }}';" style="cursor: pointer;">
     <div class="card_left">
-       {# {% if strpos(data_film.poster_photo, 'https://image.tmdb.org') === true %} #}
-            <img src="{{ data_film.poster_photo }}"/>
-        {# {% endif %} #}
+        {% if strPosString(data_film.poster_photo,'image.tmdb.org',8) != false %}
+            <img src="{{ data_film.poster_photo }}" alt="Poster photo"/>
+            {% else %}
+                <img src="{{  asset('uploads/images/' ~ data_film.poster_photo) }}" alt="Poster photo"/>
+         {% endif %}
     </div>
     <div class="card_right">
         <div class="film-id">
@@ -54,3 +56,9 @@
         </div>
     </div>
 </div>
+
+<script>
+    function myFunction(elmnt,clr) {
+        elmnt.style.color = clr;
+    }
+</script>
