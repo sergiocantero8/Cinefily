@@ -1,10 +1,19 @@
-<div class="card" onclick="location.href = 'event/details?id={{ id }}';" style="cursor: pointer;">
+{# Si tiene el id de imdb y el id de Cinefily significa que una película con datos de imdb ha sido guardada en cinefily #}
+{% if tmdb_id is defined and tmdb_id is not null and id is defined and id is not null %}
+    {% set href_movie = 'event/details?id=' ~ id ~ '&tmdb_id=' ~ tmdb_id %}
+{% elseif tmdb_id is defined and tmdb_id is not null %}
+    {% set href_movie = 'event/details?tmdb_id=' ~ tmdb_id %}
+{% else %}
+    {% set href_movie = 'event/details?id=' ~ id %}
+{% endif %}
+
+<div class="card" onclick="location.href = '{{ href_movie }}';" style="cursor: pointer;">
     <div class="card_left">
         {% if strPosString(data_film.poster_photo,'image.tmdb.org',8) != false %}
             <img src="{{ data_film.poster_photo }}" alt="Poster photo"/>
-            {% else %}
-                <img src="{{  asset('uploads/images/' ~ data_film.poster_photo) }}" alt="Poster photo"/>
-         {% endif %}
+        {% else %}
+            <img src="{{ asset('uploads/images/' ~ data_film.poster_photo) }}" alt="Poster photo"/>
+        {% endif %}
     </div>
     <div class="card_right">
         <div class="film-id">
@@ -57,8 +66,3 @@
     </div>
 </div>
 
-<script>
-    function myFunction(elmnt,clr) {
-        elmnt.style.color = clr;
-    }
-</script>

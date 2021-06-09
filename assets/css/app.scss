@@ -6,12 +6,11 @@
 @import '~@fortawesome/fontawesome-free/css/brands.min.css';
 */
 @import '~bootstrap/scss/bootstrap';
-
 @import './user-form.scss';
 @import './add-event-form.scss';
 @import './footer.scss';
 @import './event-card';
-
+@import './event-description';
 
 main {
   //background-image: url("../../images/white_background.png"); ;

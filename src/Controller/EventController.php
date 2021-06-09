@@ -144,6 +144,16 @@ class EventController extends AbstractController
     }
 
 
+    /**
+     * @Route("/event/details", name="event_details")
+     */
+    public function seeEventDetails(Request $request): Response
+    {
+
+
+
+        return $this->render('event/description.html.twig', array());
+    }
 
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

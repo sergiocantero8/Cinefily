@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class HomeController extends AbstractController
+class MainController extends AbstractController
 {
 
     # -------------------------------------------------- CONST ------------------------------------------------------- #
@@ -37,6 +37,7 @@ class HomeController extends AbstractController
         $events_data[] = $eventController->getIMDBFilmByID(615457);
         $events_data[] = $eventController->getIMDBFilmByID(577922);
         $events_data[] = $eventController->getIMDBFilmByID(460465);
+
 
 
         $eventDataRepository = $this->getDoctrine()->getRepository(EventData::class);
