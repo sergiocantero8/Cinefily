@@ -17,7 +17,11 @@
     </div>
     <div class="card_right">
         <div class="film-id">
-            IMDB ID: {{ id }}
+            {% if id is defined and id is not null %}
+                ID: {{ id }}
+            {% else %}
+                IMDB ID: {{ tmdb_id }}
+            {% endif %}
         </div>
         <h1>{{ data_film.title }}</h1>
         <div class="card_right__details">

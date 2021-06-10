@@ -101,6 +101,16 @@ class EventData
      */
     private $sessions;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $tag_line;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $backdrop_path;
+
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
 
@@ -358,5 +368,29 @@ class EventData
         endif;
 
         return $overview;
+    }
+
+    public function getTagLine(): ?string
+    {
+        return $this->tag_line;
+    }
+
+    public function setTagLine(?string $tag_line): self
+    {
+        $this->tag_line = $tag_line;
+
+        return $this;
+    }
+
+    public function getBackdropPath(): ?string
+    {
+        return $this->backdrop_path;
+    }
+
+    public function setBackdropPath(?string $backdrop_path): self
+    {
+        $this->backdrop_path = $backdrop_path;
+
+        return $this;
     }
 }

@@ -23,10 +23,14 @@
 
         <div class="row mt-5">
 
-            {% if films != null and films is not empty%}
-                {% for key, data_film in films %}
+            {% if films != null and films is not empty %}
+                {% for data_film in films %}
                     <div class="card-box col-12 col-md-6 col-lg-4 ">
-                        {% include 'includes/event_card.html.twig' with {'id': key , 'data_film' : data_film} %}
+                        {% if data_film.tmdb_id is defined and data_film.tmdb_id is not null %}
+                            {% include 'includes/event_card.html.twig' with {'tmdb_id': data_film.tmdb_id , 'data_film' : data_film} %}
+                        {% else %}
+                            {% include 'includes/event_card.html.twig' with {'id': data_film.id , 'data_film' : data_film} %}
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% endif %}

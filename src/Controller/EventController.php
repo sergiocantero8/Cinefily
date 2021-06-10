@@ -150,9 +150,32 @@ class EventController extends AbstractController
     public function seeEventDetails(Request $request): Response
     {
 
+        $ID = $request->get('id');
+        $tmdbID = $request->get('tmdb_id');
 
 
-        return $this->render('event/description.html.twig', array());
+        if ($tmdbID !== NULL):
+            $event_data = $this->getIMDBFilmByID($tmdbID);
+            $data = array(
+                'tmdb_id' => $event_data['id'],
+                'title' => strtoupper($event_data['title']),
+                'genres' => $this->convertTMDBGenresToArray($event_data['genres']),
+                'release_date' => $event_data['release_date'],
+                'duration' => $event_data['runtime'],
+                'summary' => $event_data['overview'],
+                'poster_photo' => $this->getImageBaseURLIMDB() . 'w185/' . $event_data['poster_path'],
+                'age_rating' => 'PG-13',
+                'tagline' => $event_data['tagline'],
+                'backdrop' => $this->getImageBaseURLIMDB() . 'original/' . $event_data['backdrop_path']
+            );
+        elseif ($ID !== NULL):
+            $data = $this->getDoctrine()->getRepository(EventData::class)->find($ID);
+            $data = NULL;
+        else:
+            $data = NULL;
+        endif;
+
+        return $this->render('event/description.html.twig', array('data' => $data));
     }
 
 
@@ -175,7 +198,35 @@ class EventController extends AbstractController
 
         $response = $this->client->request(
             'GET',
-            'https://api.themoviedb.org/3/movie/' . $film_id . '?api_key=' . self::API_KEY . '&language=es-ES'
+            'https://api.themoviedb.org/3/movie/' . $film_id . '?api_key=' . self::API_KEY . '&language=es-ES&append_to_response=videos'
+        );
+
+        if ($response->getStatusCode() === self::SUCCESS_STATUS_CODE):
+            $result = $response->toArray();
+        endif;
+
+
+        return $result;
+    }
+
+    /**
+     *  Devuelve los datos de una película con el id que se le pase por parámetro,
+     *  null si no existe la película con ese id
+     * @param int $film_id
+     * @return array|null
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function getTMDBFilmsList(int $film_id): ?array
+    {
+        $result = NULL;
+
+        $response = $this->client->request(
+            'GET',
+            'https://api.themoviedb.org/3/movie/' . $film_id . '/lists?api_key=' . self::API_KEY . '&language=es-ES&page=1'
         );
 
         if ($response->getStatusCode() === self::SUCCESS_STATUS_CODE):
@@ -303,7 +354,34 @@ class EventController extends AbstractController
 
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
-    # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+    /**
+     * Convierte el array de generos de películas de TMDB en un array standar
+     * @param array $genres
+     * @return array
+     */
+    private function convertTMDBGenresToArray(array $genres): array
+    {
+        $result = array();
 
+        foreach ($genres as $genre):
+            $result[]=$genre['name'];
+        endforeach;
+
+        return $result;
+    }
+
+    # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+    public static function gendersToString(array $genres): string
+    {
+        $genresString = '';
+        foreach ($genres as $genre):
+            if (!empty($genresString)):
+                $genresString .= ', ';
+            endif;
+            $genresString .= $genre['name'];
+        endforeach;
+
+        return $genresString;
+    }
 
 }
