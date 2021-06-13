@@ -150,29 +150,30 @@ class EventController extends AbstractController
     public function seeEventDetails(Request $request): Response
     {
 
+        $data = NULL;
         $ID = $request->get('id');
         $tmdbID = $request->get('tmdb_id');
 
 
         if ($tmdbID !== NULL):
             $event_data = $this->getIMDBFilmByID($tmdbID);
-            $data = array(
-                'tmdb_id' => $event_data['id'],
-                'title' => strtoupper($event_data['title']),
-                'genres' => $this->convertTMDBGenresToArray($event_data['genres']),
-                'release_date' => $event_data['release_date'],
-                'duration' => $event_data['runtime'],
-                'summary' => $event_data['overview'],
-                'poster_photo' => $this->getImageBaseURLIMDB() . 'w185/' . $event_data['poster_path'],
-                'age_rating' => 'PG-13',
-                'tagline' => $event_data['tagline'],
-                'backdrop' => $this->getImageBaseURLIMDB() . 'original/' . $event_data['backdrop_path']
-            );
+            if ($event_data !== NULL):
+                $data = array(
+                    'tmdb_id' => $event_data['id'],
+                    'title' => strtoupper($event_data['title']),
+                    'genres' => $this->convertTMDBGenresToArray($event_data['genres']),
+                    'release_date' => $event_data['release_date'],
+                    'duration' => $event_data['runtime'],
+                    'summary' => $event_data['overview'],
+                    'poster_photo' => $this->getImageBaseURLIMDB() . 'w185/' . $event_data['poster_path'],
+                    'age_rating' => 'PG-13',
+                    'tagline' => $event_data['tagline'],
+                    'backdrop' => $this->getImageBaseURLIMDB() . 'original/' . $event_data['backdrop_path'],
+                    'youtube_key' => $this->extractYoutubeTrailerTMDB($event_data['videos'])
+                );
+            endif;
         elseif ($ID !== NULL):
             $data = $this->getDoctrine()->getRepository(EventData::class)->find($ID);
-            $data = NULL;
-        else:
-            $data = NULL;
         endif;
 
         return $this->render('event/description.html.twig', array('data' => $data));
@@ -210,9 +211,7 @@ class EventController extends AbstractController
     }
 
     /**
-     *  Devuelve los datos de una película con el id que se le pase por parámetro,
-     *  null si no existe la película con ese id
-     * @param int $film_id
+     *  Devuelve los datos de las películas que se estrenarán proximamente
      * @return array|null
      * @throws ClientExceptionInterface
      * @throws DecodingExceptionInterface
@@ -220,13 +219,13 @@ class EventController extends AbstractController
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function getTMDBFilmsList(int $film_id): ?array
+    public function getTMDBFilmsUpcoming(): ?array
     {
         $result = NULL;
 
         $response = $this->client->request(
             'GET',
-            'https://api.themoviedb.org/3/movie/' . $film_id . '/lists?api_key=' . self::API_KEY . '&language=es-ES&page=1'
+            'https://api.themoviedb.org/3/movie/upcoming?api_key=' . self::API_KEY . '&language=es-ES&page=1'
         );
 
         if ($response->getStatusCode() === self::SUCCESS_STATUS_CODE):
@@ -364,10 +363,23 @@ class EventController extends AbstractController
         $result = array();
 
         foreach ($genres as $genre):
-            $result[]=$genre['name'];
+            $result[] = $genre['name'];
         endforeach;
 
         return $result;
+    }
+
+    private function extractYoutubeTrailerTMDB(array $videos): ?string
+    {
+        $key = NULL;
+        if (!empty($videos['results'])):
+            $firstVideo = $videos['results'][0];
+            if (isset($firstVideo['key']) && $firstVideo['key'] !== NULL):
+                $key=$firstVideo['key'];
+            endif;
+        endif;
+
+        return $key;
     }
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
@@ -383,5 +395,6 @@ class EventController extends AbstractController
 
         return $genresString;
     }
+
 
 }

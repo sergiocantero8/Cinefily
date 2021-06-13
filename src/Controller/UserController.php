@@ -8,6 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -95,6 +96,28 @@ class UserController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
+    }
+
+
+    /**
+     * @Route("/user/forgotPassword", name="forgot_password")
+     */
+    public function forgotPassword(): RedirectResponse
+    {
+
+        ini_set( 'display_errors', 1 );
+        error_reporting( E_ALL );
+        $from = "test@gmail.com";
+        $to = "sergiocantero8@gmail.com";
+        $subject = "Recuperación de contraseña";
+        $message = "tomaestamanin";
+        $headers = "From:" . $from;
+        mail($to,$subject,$message, $headers);
+
+        $this->addFlash('success', 'Te hemos enviado un email a tu correo con la nueva contraseña');
+
+
+        return $this->redirectToRoute('home');
     }
 
     /**

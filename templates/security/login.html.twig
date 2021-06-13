@@ -4,7 +4,7 @@
 
 
 {% block main %}
-<form id="userForm" method="post">
+<form id="loginUserForm" class="user-login-form" method="post">
     {% if error %}
         <div class="alert alert-danger">Usuario o contraseña incorrectos</div>
     {% endif %}
@@ -23,11 +23,50 @@
         Iniciar sesión
     </button>
 
-    <div id="userFormFooter">
+    <div id="loginUserFormFooter" class="forgetPassword">
         <a class="underlineHover" href="#">¿Olvidaste la contraseña?</a>
     </div>
 
-
-
 </form>
+
+
+    <form id="passwordRecoveryUserForm" action="/user/forgotPassword" class="user-login-form" method="post">
+
+        <h1 class="labelForm">Recuperar contraseña</h1>
+        <label for="inputEmail">Introduce tu email</label>
+        <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control"
+               required autofocus>
+        <i class="email_icon fas fa-envelope"></i>
+        <input type="hidden" name="_csrf_token"
+               value="{{ csrf_token('authenticate') }}"
+        >
+        <button class="btn btn-lg btn-primary" type="submit">
+            Enviar
+        </button>
+
+        <div id="passwordRecoveryUserFormFooter" class="forgetPassword">
+            <a class="underlineHover" href="#">Volver al login</a>
+        </div>
+
+    </form>
+
+{% endblock %}
+
+{% block custom_body_javascript %}
+    <script>
+        $(document).ready(function() {
+            $("#passwordRecoveryUserForm").hide();
+
+            $("#loginUserFormFooter").click(function() {
+                $("#loginUserForm").hide();
+                $("#passwordRecoveryUserForm").show();
+            });
+
+            $("#passwordRecoveryUserFormFooter").click(function() {
+                $("#passwordRecoveryUserForm").hide();
+                $("#loginUserForm").show();
+            });
+
+        });
+    </script>
 {% endblock %}

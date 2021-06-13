@@ -17,8 +17,12 @@
 
             <div class="container-fluid" id="description-fluid">
 
-                <div class="backdrop"
-                     style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),url('{{ data.backdrop }}'); background-position: center">
+{% if data.backdrop is defined and data.backdrop is not null %}
+    {% set backdrop = data.backdrop %}
+    {% else %}
+        {% set backdrop = asset('uploads/images/default-backdrop.jpg')  %}
+        {% endif %}
+                <div class="backdrop" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),url({{ backdrop }}); background-position: center">
 
                     <div class="cover">
                         <img src="{{ data.poster_photo }}" alt="cover"/>
@@ -66,6 +70,7 @@
 
                 <div class="description">
 
+                    <div class="info_description">
                     <div class="left-content">
                         <div class="tags">
                             {% for genre in data.genres %}
@@ -80,19 +85,38 @@
                         </div>
                     </div>
                     <div class="left-content">
-                        <div class="about-event">
-                            {% for genre in data.genres %}
-                                <span class="tag">{{ genre }}</span>
-                            {% endfor %}
+                        <div class="about-event flex-column">
+                            {% if data.director is defined and data.director is not null %}
+                                <div class="director">
+                                    Director
+                                    <p> {{ data.director }}</p>
+                                </div>
+                            {% endif %}
+                            {% if data.duration is defined and data.duration is not null %}
+                                <div class="duration">
+                                    Duración
+                                    <p> {{ data.duration }} minutos</p>
+                                </div>
+                            {% endif %}
+                            {% if data.actors is defined and data.actors is not null %}
+                                <div class="actors"> Actores
+                                    <p>{{ data.actors }}</p>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
 
+                    </div>
+                    {% if data.youtube_key is not null %}
+                        <div class="youtube-trailer">
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ data.youtube_key }}"
+                                    title="YouTube video player" frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe>
+                        </div>
+                    {% endif %}
                 </div>
 
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/UoSSbmD9vqc"
-                        title="YouTube video player" frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen></iframe>
 
             </div>
         </div>

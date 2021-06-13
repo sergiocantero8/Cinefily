@@ -1,4 +1,6 @@
-
+@font-face {
+  @import url('//fonts.googleapis.com/css2?family=Baloo+Tammudu+2:wght@400;600&display=swap');
+}
 
 a {
   text-decoration: none;
@@ -143,41 +145,51 @@ width: 80%;
 }
 
 .description {
-
   line-height: 26px;
   background-color: #26272b;
   min-height: 350px;
+
+  .youtube-trailer{
+    display: flex;
+    justify-content: center;
+    padding-bottom: 50px;
+  }
+}
+
+.info_description{
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
-
 }
 
 .tags {
-  padding-top: 70px;
-  width: 220px;
+  padding-top: 15px;
+  width: 250px;
   float: left;
   text-align: center;
 }
 
 .about-event {
-  padding-top: 70px;
+  padding-top: 15px;
   width: 220px;
   float: right;
   text-align: center;
 }
 
 .tag {
-  background: #ff446f61;
+  background: #e8bec861;
   border-radius: 10px;
   padding: 3px 8px;
   font-size: 16px;
   color: white;
   font-weight: bold;
   margin-right: 10px;
+  margin-left: 10px;
   line-height: 35px;
   cursor: pointer;
+  display: block;
+  margin-bottom: 15px;
 }
 
 .tag:hover {
@@ -185,11 +197,12 @@ width: 80%;
 }
 
 .overview {
-  @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;400&display=swap');
+
   padding-top: 30px;
-  padding-right: 150px;
-  font-family: 'Source Sans Pro', sans-serif;
-  font-size: 18px;
+  padding-right: 100px;
+  padding-left: 100px;
+  font-family: 'Baloo Tammudu 2', cursive;
+  font-size: 21px;
   color: white;
 }
 

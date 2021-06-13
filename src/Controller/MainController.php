@@ -13,7 +13,7 @@ class MainController extends AbstractController
 
     # -------------------------------------------------- CONST ------------------------------------------------------- #
 
-
+    public const LIMIT_UPCOMING_FILMS = 5;
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
@@ -31,7 +31,15 @@ class MainController extends AbstractController
 
         //$configuration = $eventController->getIMDBConfiguration();
 
-        $prueba = $eventController->getTMDBFilmsList(157336);
+        $upcomingsFilmsPage = $eventController->getTMDBFilmsUpcoming();
+
+        foreach ($upcomingsFilmsPage as $key => $film):
+            if ($key <= static::LIMIT_UPCOMING_FILMS):
+                $upcoming_data[] = $eventController->getIMDBFilmByID($film);
+            else:
+                break;
+            endif;
+        endforeach;
 
         $homeIDSFilms = $this->getTMDB_FilmIDs();
 
@@ -55,27 +63,27 @@ class MainController extends AbstractController
             'poster_photo' => $filmsStored->getPosterPhoto()
         );
 
+        if (isset($events_data)):
+            foreach ($events_data as $event_data):
+                if ($event_data !== NULL):
 
-        foreach ($events_data as $event_data):
-            if ($event_data !== NULL):
+                    $genres = EventController::gendersToString($event_data['genres']);
 
-                $genres = EventController::gendersToString($event_data['genres']);
+                    $overview = EventData::getShortenSummary($event_data['overview']);
 
-                $overview = EventData::getShortenSummary($event_data['overview']);
+                    $data[] = array(
+                        'tmdb_id' => $event_data['id'],
+                        'title' => strtoupper($event_data['title']),
+                        'genres' => $genres,
+                        'release_date' => $event_data['release_date'],
+                        'duration' => $event_data['runtime'],
+                        'summary' => $overview,
+                        'poster_photo' => $eventController->getImageBaseURLIMDB() . 'w154/' . $event_data['poster_path'],
+                    );
 
-                $data[] = array(
-                    'tmdb_id' => $event_data['id'],
-                    'title' => strtoupper($event_data['title']),
-                    'genres' => $genres,
-                    'release_date' => $event_data['release_date'],
-                    'duration' => $event_data['runtime'],
-                    'summary' => $overview,
-                    'poster_photo' => $eventController->getImageBaseURLIMDB() . 'w154/' . $event_data['poster_path'],
-                );
-
-            endif;
-        endforeach;
-
+                endif;
+            endforeach;
+        endif;
 
         return $this->render('home.html.twig', array('films' => $data));
 

@@ -25,7 +25,7 @@
 
             {% if films != null and films is not empty %}
                 {% for data_film in films %}
-                    <div class="card-box col-12 col-md-6 col-lg-4 ">
+                    <div class="card-box col-12 col-md-6 col-xl-4 ">
                         {% if data_film.tmdb_id is defined and data_film.tmdb_id is not null %}
                             {% include 'includes/event_card.html.twig' with {'tmdb_id': data_film.tmdb_id , 'data_film' : data_film} %}
                         {% else %}
