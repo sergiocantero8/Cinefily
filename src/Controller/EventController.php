@@ -21,6 +21,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class EventController extends AbstractController
 {
 
+
     # -------------------------------------------------- CONST ------------------------------------------------------- #
 
     # Tipos de eventos
@@ -169,7 +170,8 @@ class EventController extends AbstractController
                     'age_rating' => 'PG-13',
                     'tagline' => $event_data['tagline'],
                     'backdrop' => $this->getImageBaseURLIMDB() . 'original/' . $event_data['backdrop_path'],
-                    'youtube_key' => $this->extractYoutubeTrailerTMDB($event_data['videos'])
+                    'youtube_key' => $this->extractYoutubeTrailerTMDB($event_data['videos']),
+                    'vote_average' => $event_data['vote_average']
                 );
             endif;
         elseif ($ID !== NULL):

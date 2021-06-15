@@ -4,11 +4,13 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserRegistrationType;
+use Exception;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -101,20 +103,37 @@ class UserController extends AbstractController
 
     /**
      * @Route("/user/forgotPassword", name="forgot_password")
+     * @throws Exception
      */
-    public function forgotPassword(): RedirectResponse
+    public function forgotPassword(Request $request, \Swift_Mailer $mailer, UserPasswordEncoderInterface $passwordEncoder): RedirectResponse
     {
+        $email = $request->get('email');
 
-        ini_set( 'display_errors', 1 );
-        error_reporting( E_ALL );
-        $from = "test@gmail.com";
-        $to = "sergiocantero8@gmail.com";
-        $subject = "Recuperación de contraseña";
-        $message = "tomaestamanin";
-        $headers = "From:" . $from;
-        mail($to,$subject,$message, $headers);
-
-        $this->addFlash('success', 'Te hemos enviado un email a tu correo con la nueva contraseña');
+        $userRepository = $this->getDoctrine()->getRepository(User::class);
+        $user = $userRepository->findOneBy(array('email' => $email));
+        if (!empty($user) && $user instanceof User):
+            $randomPassword = $this->generateRandomPassword();
+            $message = (new \Swift_Message('Recuperación de contraseña'))
+                ->setFrom('cinefily@gmail.com')
+                ->setTo('sergiocantero8@gmail.com')
+                ->setBody(
+                    'Hemos recibido tu solicitud de que no recuerdas la contraseña. No te preocupes tu nueva contraseña
+                    es ' . $randomPassword,
+                    'text/plain'
+                );
+            if ($mailer->send($message)):
+                $user->setPassword($passwordEncoder->encodePassword($user, $randomPassword));
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($user);
+                $entityManager->flush();
+                $this->addFlash('success', 'Te hemos enviado un email a tu correo con la nueva contraseña');
+            else:
+                $this->addFlash('error', 'No ha sido posible enviarte el email de recuperación de contraseña');
+            endif;
+        else:
+            $this->addFlash('error', 'El email que has introducido no existe');
+            $this->redirectToRoute('app_login');
+        endif;
 
 
         return $this->redirectToRoute('home');
@@ -240,9 +259,26 @@ class UserController extends AbstractController
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
+    /**
+     * Genera una contraseña aleatoria dependiendo de la longitud que se le pase
+     * @param int $length
+     * @return string
+     * @throws Exception
+     */
+    public function generateRandomPassword(int $length = 8): string
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $count = mb_strlen($chars);
+
+        for ($i = 0, $result = ''; $i < $length; $i++) {
+            $index = random_int(0, $count - 1);
+            $result .= mb_substr($chars, $index, 1);
+        }
+
+        return $result;
+    }
 
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
-
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
     /**

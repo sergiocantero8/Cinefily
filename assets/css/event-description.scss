@@ -11,9 +11,10 @@ a:hover {
   text-decoration: underline;
 }
 
-#description-fluid{
-width: 80%;
+#description-fluid {
+  width: 80%;
 }
+
 .movie-card {
   border-radius: 10px 10px 10px 10px;
   font: 14px/22px "Lato", Arial, sans-serif;
@@ -35,23 +36,25 @@ width: 80%;
 
 .backdrop {
   height: 342px;
-  margin:0;
+  margin: 0;
   position: relative;
   overflow: hidden;
-  z-index:1;
+  z-index: 1;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
 }
 
 .backdrop:before {
-  content:'';
-  width:100%; height:100%;
-  position:absolute;
+  content: '';
+  width: 100%;
+  height: 100%;
+  position: absolute;
   overflow: hidden;
-  top:0; left:0;
-  z-index:-1;
+  top: 0;
+  left: 0;
+  z-index: -1;
   transform: skewY(-2.2deg);
-  transform-origin:0 0;
+  transform-origin: 0 0;
   //chrome antialias fix
   -webkit-backface-visibility: hidden;
 
@@ -73,7 +76,7 @@ width: 80%;
     color: white;
     font-size: 55px;
     font-weight: bold;
-    font-family: "Source Sans Pro",Arial,sans-serif;
+    font-family: "Source Sans Pro", Arial, sans-serif;
     margin-bottom: 22px;
     position: relative;
     letter-spacing: 1px;
@@ -100,7 +103,10 @@ width: 80%;
 
   //star rating stuff via: https://codepen.io/jamesbarnett/pen/vlpkh/
 
-  fieldset, label { margin: 0; padding: 0; }
+  fieldset, label {
+    margin: 0;
+    padding: 0;
+  }
 
   /****** Style Star Rating Widget *****/
 
@@ -109,7 +115,10 @@ width: 80%;
     float: left;
   }
 
-  .rating > input { display: none; }
+  .rating > input {
+    display: none;
+  }
+
   .rating > label:before {
     margin: 5px;
     margin-top: 0;
@@ -149,14 +158,14 @@ width: 80%;
   background-color: #26272b;
   min-height: 350px;
 
-  .youtube-trailer{
+  .youtube-trailer {
     display: flex;
     justify-content: center;
     padding-bottom: 50px;
   }
 }
 
-.info_description{
+.info_description {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -175,6 +184,38 @@ width: 80%;
   width: 220px;
   float: right;
   text-align: center;
+  color: white;
+  font-size: 17px;
+  font-family: 'Baloo Tammudu 2', cursive;
+  font-weight: bold;
+
+  p {
+    font-weight: normal;
+  }
+}
+
+.card-movie__rating {
+  $size: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: $size;
+  position: relative;
+  text-align: center;
+  width: $size;
+
+  &:after {
+    border-radius: 100%;
+    border: 2px solid #ee927b;
+    content: '';
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  // &:after
+
 }
 
 .tag {
@@ -227,24 +268,32 @@ width: 80%;
 
 .rating > input:checked ~ label, /* show gold star when clicked */
 .rating:not(:checked) > label:hover, /* hover current star */
-.rating:not(:checked) > label:hover ~ label { color: #FFD700;  } /* hover previous stars in list */
+.rating:not(:checked) > label:hover ~ label {
+  color: #FFD700;
+}
+
+/* hover previous stars in list */
 
 .rating > input:checked + label:hover, /* hover current star when changing rating */
 .rating > input:checked ~ label:hover,
 .rating > label:hover ~ input:checked ~ label, /* lighten current selection */
-.rating > input:checked ~ label:hover ~ label { color: #FFED85;  }
+.rating > input:checked ~ label:hover ~ label {
+  color: #FFED85;
+}
 
 //tooltip stuff via: https://codepen.io/peiche/pen/JaftA
 
 a[data-tooltip] {
   position: relative;
 }
+
 a[data-tooltip]::before,
 a[data-tooltip]::after {
   position: absolute;
   display: none;
   opacity: 0.85;
 }
+
 a[data-tooltip]::before {
   /*
    * using data-tooltip instead of title so we
@@ -260,6 +309,7 @@ a[data-tooltip]::before {
   white-space: nowrap;
   text-decoration: none;
 }
+
 a[data-tooltip]::after {
   width: 0;
   height: 0;
@@ -280,6 +330,7 @@ a[data-tooltip][data-placement="top"]::before {
   left: 0;
   margin-bottom: 40px;
 }
+
 a[data-tooltip][data-placement="top"]::after {
   border-top-color: #000;
   border-bottom: none;

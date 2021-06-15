@@ -174,8 +174,7 @@ class User implements UserInterface
     }
 
     /**
-     * Reciba la nueva contraseña por parámetro y la actualiza
-     * TODO codificar contraseña
+     * Reciba la nueva contraseña por parámetro CODIFICADA y la actualiza
      * @param string $password
      * @return self
      */
