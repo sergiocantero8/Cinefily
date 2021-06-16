@@ -180,8 +180,7 @@ class UserController extends AbstractController
             ))
             ->add('password', TextType::class, array(
                 'required' => FALSE,
-                'label' => 'Contraseña',
-                'data' => $user->getSurname()
+                'label' => 'Contraseña'
             ))
             ->add('privileges', TextType::class, array(
                 'required' => FALSE,
@@ -250,7 +249,8 @@ class UserController extends AbstractController
 
         $data = array(
             'form' => $form->createView(),
-            'image' => $this->getUser()->getPhoto()
+            'image' => $this->getUser()->getPhoto(),
+            'name' => $this->getUser()->getName()
         );
 
         return $this->render($template, $data);
