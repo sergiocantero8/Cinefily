@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserRegistrationType;
+use DateTime;
 use Exception;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -57,6 +58,9 @@ class UserController extends AbstractController
                 $user->setSurname($data_form['surname']);
                 $user->setPassword($passwordEncoder->encodePassword($user, $data_form['password']));
                 $user->setEmail($data_form['email']);
+                $user->setCreatedAt(new DateTime());
+
+
 
                 if ($data_form['phone_number'] !== NULL):
                     $user->setPhoneNumber($data_form['phone_number']);

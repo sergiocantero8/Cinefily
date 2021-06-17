@@ -86,6 +86,11 @@ class User implements UserInterface
      */
     protected $comments;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $created_at;
+
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
 
@@ -388,6 +393,18 @@ class User implements UserInterface
             self::ROLE_USER,
             self::ROLE_MODERATOR
         );
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $created_at): self
+    {
+        $this->created_at = $created_at;
+
+        return $this;
     }
 
 }
