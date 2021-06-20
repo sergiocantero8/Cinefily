@@ -6,8 +6,9 @@ use App\Entity\EventData;
 use App\Entity\User;
 use App\Form\AddEventType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -58,6 +59,10 @@ class EventController extends AbstractController
 
     #Códigos de estado
     public const SUCCESS_STATUS_CODE = 200;
+
+
+    # Rutas
+    public const ROUTE_EVENT_DETAILS = 'event_details';
 
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
@@ -151,6 +156,22 @@ class EventController extends AbstractController
     public function seeEventDetails(Request $request): Response
     {
 
+        $form = $this->createFormBuilder(array('csrf_protection' => FALSE))
+            ->setMethod(Request::METHOD_POST)
+            ->setAction($this->generateUrl(static::ROUTE_EVENT_DETAILS))
+            ->add('description', TextareaType::class, array(
+                'label' => 'Comentar',
+                'attr' => array(
+                    'rows' => 5
+                ),
+            ))
+            ->add('submit', SubmitType::class, array(
+                'label' => 'Enviar',
+            ))
+            ->getForm();
+
+        $form->handleRequest($request);
+
         $data = NULL;
         $ID = $request->get('id');
         $tmdbID = $request->get('tmdb_id');
@@ -171,7 +192,8 @@ class EventController extends AbstractController
                     'tagline' => $event_data['tagline'],
                     'backdrop' => $this->getImageBaseURLIMDB() . 'original/' . $event_data['backdrop_path'],
                     'youtube_key' => $this->extractYoutubeTrailerTMDB($event_data['videos']),
-                    'vote_average' => $event_data['vote_average']
+                    'vote_average' => $event_data['vote_average'],
+                    'form' => $form->createView()
                 );
             endif;
         elseif ($ID !== NULL):

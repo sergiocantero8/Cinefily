@@ -11,7 +11,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,7 +58,6 @@ class UserController extends AbstractController
                 $user->setPassword($passwordEncoder->encodePassword($user, $data_form['password']));
                 $user->setEmail($data_form['email']);
                 $user->setCreatedAt(new DateTime());
-
 
 
                 if ($data_form['phone_number'] !== NULL):
@@ -154,7 +152,7 @@ class UserController extends AbstractController
     /**
      * @Route("/user/profile", name="user_profile")
      */
-    public function userProfile(Request $request): Response
+    public function userProfile(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
     {
 
         if (!$this->getUser()) :
@@ -184,7 +182,7 @@ class UserController extends AbstractController
             ))
             ->add('password', TextType::class, array(
                 'required' => FALSE,
-                'label' => 'Contraseña'
+                'label' => 'Contraseña',
             ))
             ->add('privileges', TextType::class, array(
                 'required' => FALSE,
@@ -239,7 +237,10 @@ class UserController extends AbstractController
 
             $user->setName($formData['name']);
             $user->setSurname($formData['surname']);
-            $user->setPassword($formData['password']);
+
+            if ($formData['password'] !== NULL):
+                $user->setPassword($user->setPassword($passwordEncoder->encodePassword($user, $formData['password'])));
+            endif;
             $user->setEmail($formData['email']);
 
             $em = $this->getDoctrine()->getManager();
