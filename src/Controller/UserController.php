@@ -251,12 +251,15 @@ class UserController extends AbstractController
         }
 
         $template = 'user/profile.html.twig';
+        $date = $this->getUser()->getCreatedAt()->format('d/m/Y');
+
 
         $data = array(
             'form' => $form->createView(),
             'image' => $this->getUser()->getPhoto(),
-            'name' => $this->getUser()->getName()
-        );
+            'name' => $this->getUser()->getName(),
+            'created_at' => $date
+    );
 
         return $this->render($template, $data);
 

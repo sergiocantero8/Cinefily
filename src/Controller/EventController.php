@@ -159,7 +159,7 @@ class EventController extends AbstractController
         $form = $this->createFormBuilder(array('csrf_protection' => FALSE))
             ->setMethod(Request::METHOD_POST)
             ->setAction($this->generateUrl(static::ROUTE_EVENT_DETAILS))
-            ->add('description', TextareaType::class, array(
+            ->add('comment', TextareaType::class, array(
                 'label' => 'Comentar',
                 'attr' => array(
                     'rows' => 5

@@ -282,6 +282,20 @@ class User implements UserInterface
         return $this;
     }
 
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTime $created_at): self
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+
     /**
      * @return Collection|Ticket[]
      */
@@ -395,16 +409,5 @@ class User implements UserInterface
         );
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $created_at): self
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
 
 }
