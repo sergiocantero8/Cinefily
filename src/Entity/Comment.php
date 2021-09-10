@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\CommentRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -34,7 +35,7 @@ class Comment
 
     /**
      * @ORM\ManyToOne(targetEntity=EventData::class, inversedBy="comments")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $event;
 
@@ -42,6 +43,11 @@ class Comment
      * @ORM\Column(type="datetime")
      */
     private $created_at;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $tmdb_id;
 
     
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
@@ -128,14 +134,26 @@ class Comment
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?DateTime
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeInterface $created_at): self
+    public function setCreatedAt(DateTime $created_at): self
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getTmdbId(): ?int
+    {
+        return $this->tmdb_id;
+    }
+
+    public function setTmdbId(?int $tmdb_id): self
+    {
+        $this->tmdb_id = $tmdb_id;
 
         return $this;
     }

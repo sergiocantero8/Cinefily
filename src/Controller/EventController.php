@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\EventData;
 use App\Entity\User;
 use App\Form\AddEventType;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -79,6 +81,8 @@ class EventController extends AbstractController
     # ------------------------------------------------- ROUTES ------------------------------------------------------- #
 
     /**
+     * Ruta para añadir un evento a través de un formulario. Un evento solo lo puede añadir un usuario con privilegios
+     * de administrador
      * @Route("/event/add", name="event_add")
      */
     public function addEvent(Request $request): Response
@@ -151,34 +155,73 @@ class EventController extends AbstractController
 
 
     /**
+     * Ruta para ver los detalles de un evento: descripción, portada, puntuación, comentarios y detalles del evento
      * @Route("/event/details", name="event_details")
      */
     public function seeEventDetails(Request $request): Response
     {
 
-        $form = $this->createFormBuilder(array('csrf_protection' => FALSE))
-            ->setMethod(Request::METHOD_POST)
-            ->setAction($this->generateUrl(static::ROUTE_EVENT_DETAILS))
-            ->add('comment', TextareaType::class, array(
-                'label' => 'Comentar',
-                'attr' => array(
-                    'rows' => 5
-                ),
-            ))
-            ->add('submit', SubmitType::class, array(
-                'label' => 'Enviar',
-            ))
-            ->getForm();
-
-        $form->handleRequest($request);
-
+        # Se crea obtiene el ID de la película y el tmdbID (uno de los dos será nulo)
         $data = NULL;
         $ID = $request->get('id');
         $tmdbID = $request->get('tmdb_id');
 
+        # Se crea el formulario para la sección de comentarios si hay un usuario autenticado, de lo contrario es null
+        $commentsForm = NULL;
 
+        if ($this->getUser()):
+            $commentsForm = $this->createFormBuilder(array('csrf_protection' => FALSE))
+                ->setMethod(Request::METHOD_POST)
+                ->setAction($this->generateUrl(static::ROUTE_EVENT_DETAILS) . ($tmdbID !== NULL) ? '?tmdb_id=' . $tmdbID : '?id=' . $ID)
+                ->add('comment', TextareaType::class, array(
+                    'label' => 'Comentar',
+                    'attr' => array(
+                        'rows' => 5
+                    ),
+                ))
+                ->add('submit', SubmitType::class, array(
+                    'label' => 'Enviar',
+                ))
+                ->getForm();
+
+            $commentsForm->handleRequest($request);
+
+        endif;
+
+
+        if ($commentsForm !== NULL && $this->getUser() && $commentsForm->isSubmitted() && $commentsForm->isValid()):
+            $comment = new Comment();
+            $text = $commentsForm->getData()['comment'];
+            $comment->setText($text);
+            $comment->setCreatedAt(new DateTime());
+            $comment->setUser($this->getUser());
+            if ($ID !== null):
+                $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy($ID);
+                if ($event !== null):
+                    $comment->setEvent($event);
+                endif;
+            elseif ($tmdbID !== null):
+                $comment->setTmdbId((int)$tmdbID);
+            endif;
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($comment);
+            $entityManager->flush();
+        endif;
+
+        # Si es una película que viene de TMDB
         if ($tmdbID !== NULL):
             $event_data = $this->getIMDBFilmByID($tmdbID);
+            $commentsObject = $this->getDoctrine()->getRepository(Comment::class)->findBy(array('tmdb_id' => $tmdbID));
+            $comments=array();
+
+            foreach ($commentsObject as $item):
+                $comments[$item->getID()]['text']=$item->getText();
+                $comments[$item->getID()]['username']= $item->getUser()->getName() . ' ' .  $item->getUser()->getSurname();
+                $comments[$item->getID()]['createdAt']= $item->getCreatedAt()->format('Y-m-d H:i:s');
+                $comments[$item->getID()]['profilePic']= $item->getUser()->getPhoto();
+            endforeach;
+
             if ($event_data !== NULL):
                 $data = array(
                     'tmdb_id' => $event_data['id'],
@@ -193,9 +236,12 @@ class EventController extends AbstractController
                     'backdrop' => $this->getImageBaseURLIMDB() . 'original/' . $event_data['backdrop_path'],
                     'youtube_key' => $this->extractYoutubeTrailerTMDB($event_data['videos']),
                     'vote_average' => $event_data['vote_average'],
-                    'form' => $form->createView()
+                    'form' => $commentsForm !== NULL ? $commentsForm->createView() : $commentsForm,
+                    'comments' => $comments
                 );
             endif;
+
+        # Si es una película que tenemos almacenada en la base de datos
         elseif ($ID !== NULL):
             $data = $this->getDoctrine()->getRepository(EventData::class)->find($ID);
         endif;
@@ -399,7 +445,7 @@ class EventController extends AbstractController
         if (!empty($videos['results'])):
             $firstVideo = $videos['results'][0];
             if (isset($firstVideo['key']) && $firstVideo['key'] !== NULL):
-                $key=$firstVideo['key'];
+                $key = $firstVideo['key'];
             endif;
         endif;
 
