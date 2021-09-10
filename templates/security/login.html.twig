@@ -9,7 +9,7 @@
         <div class="alert alert-danger">Usuario o contraseña incorrectos</div>
     {% endif %}
 
-    <h1 class="labelForm">Inicia sesión</h1>
+    <div class="labelForm h3">Inicia sesión</div>
     <label for="inputEmail">Email</label>
     <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" required autofocus>
     <i class="email_icon fas fa-envelope"></i>
@@ -19,7 +19,7 @@
     <input type="hidden" name="_csrf_token"
            value="{{ csrf_token('authenticate') }}"
     >
-    <button class="btn btn-lg btn-primary" type="submit">
+    <button class="nav-button btn btn-lg btn-primary" type="submit">
         Iniciar sesión
     </button>
 

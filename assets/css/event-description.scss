@@ -12,7 +12,7 @@ a:hover {
 }
 
 #description-fluid {
-  width: 80%;
+  width: 77%;
 }
 
 .movie-card {
@@ -74,7 +74,7 @@ a:hover {
 
   .main-title-event {
     color: white;
-    font-size: 55px;
+    font-size: 40px;
     font-weight: bold;
     font-family: "Source Sans Pro", Arial, sans-serif;
     margin-bottom: 22px;
@@ -96,7 +96,7 @@ a:hover {
 
   .secondary-title-event {
     color: #C7C1BA;
-    font-size: 23px;
+    font-size: 17px;
     font-weight: 300;
     margin-bottom: 15px;
   }
@@ -174,7 +174,7 @@ a:hover {
 
 .tags {
   padding-top: 15px;
-  width: 250px;
+  width: 200px;
   float: left;
   text-align: center;
 }
@@ -185,7 +185,7 @@ a:hover {
   float: right;
   text-align: center;
   color: white;
-  font-size: 17px;
+  font-size: 15px;
   font-family: 'Baloo Tammudu 2', cursive;
   font-weight: bold;
 
@@ -196,7 +196,7 @@ a:hover {
 
 .card-movie__rating {
   $size: 50px;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   line-height: $size;
   position: relative;
@@ -223,7 +223,7 @@ a:hover {
   background: #e8bec861;
   border-radius: 10px;
   padding: 3px 8px;
-  font-size: 16px;
+  font-size: 14px;
   color: white;
   font-weight: bold;
   margin-right: 10px;
@@ -241,10 +241,10 @@ a:hover {
 .overview {
 
   padding-top: 30px;
-  padding-right: 100px;
-  padding-left: 100px;
+  padding-right: 70px;
+  padding-left: 70px;
   font-family: 'Baloo Tammudu 2', cursive;
-  font-size: 21px;
+  font-size: 16px;
   color: white;
 }
 

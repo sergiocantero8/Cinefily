@@ -5,7 +5,7 @@
   padding: 30px;
   margin: 200px auto;
   width: 100%;
-  max-width: 900px;
+  max-width: 650px;
   position: relative;
   -webkit-box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
   text-align: center;
@@ -18,12 +18,12 @@
 
   label{
     color: white;
-    font-size: 20px;
+    font-size: 15px;
     margin: 15px;
   }
 
   input {
-    width: 500px;
+    width: 350px;
     margin: auto auto 20px;
   }
 }
@@ -70,17 +70,17 @@
 
 .paswd_icon{
   position: relative;
-  bottom: 60px;
-  right: 150px;
-  font-size: 20px;
+  bottom: 57px;
+  right: 92px;
+  font-size: 17px;
   font-style: normal;
 }
 .email_icon{
-  font-size: 20px;
+  font-size: 17px;
   font-style: normal;
   position: relative;
-  bottom: 70px;
-  right: 168px;
+  bottom: 65px;
+  right: 103px;
 }
 
 .profile-photo{

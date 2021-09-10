@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use function count;
 
 class UserController extends AbstractController
 {
@@ -254,11 +255,14 @@ class UserController extends AbstractController
         $template = 'user/profile.html.twig';
         $date = $this->getUser()->getCreatedAt()->format('d/m/Y');
 
+        $nComments= count($this->getDoctrine()->getRepository(Comment::class)->findBy(array('user'=>$this->getUser()->getID())));
+
 
         $data = array(
             'form' => $form->createView(),
             'image' => $this->getUser()->getPhoto(),
             'name' => $this->getUser()->getName(),
+            'user_comments' => $nComments,
             'created_at' => $date
     );
 
