@@ -28,26 +28,26 @@ class EventController extends AbstractController
     # -------------------------------------------------- CONST ------------------------------------------------------- #
 
     # Tipos de eventos
-    public const FILM_EVENT_TYPE = 'film';
-    public const THEATER_EVENT_TYPE = 'theater';
-    public const CONFERENCE_EVENT_TYPE = 'conference';
-    public const CONCERT_EVENT_TYPE = 'concert';
+    public const FILM_EVENT_TYPE = 'película';
+    public const THEATER_EVENT_TYPE = 'teatro';
+    public const CONFERENCE_EVENT_TYPE = 'conferencia';
+    public const CONCERT_EVENT_TYPE = 'concierto';
 
 
     # Géneros de eventos
-    public const ACTION_EVENT = 'action';
-    public const ADVENTURE_EVENT = 'adventure';
-    public const ANIMATION_EVENT = 'animation';
-    public const COMEDY_EVENT = 'comedy';
+    public const ACTION_EVENT = 'acción';
+    public const ADVENTURE_EVENT = 'aventuras';
+    public const ANIMATION_EVENT = 'animacion';
+    public const COMEDY_EVENT = 'comedia';
     public const DRAMA_EVENT = 'drama';
-    public const FANTASY_EVENT = 'fantasy';
+    public const FANTASY_EVENT = 'fantasia';
     public const HORROR_EVENT = 'horror';
-    public const MYSTERY_EVENT = 'mystery';
+    public const MYSTERY_EVENT = 'misterio';
     public const ROMANCE_EVENT = 'romance';
     public const THRILLER_EVENT = 'thriller';
     public const WESTERN_EVENT = 'western';
-    public const SCIENCE_FICTION_EVENT = 'scienceFiction';
-    public const INFORMATIVE_EVENT = 'informative';
+    public const SCIENCE_FICTION_EVENT = 'ciencia ficción';
+    public const INFORMATIVE_EVENT = 'informativa';
 
     # Rango de edades
     public const TO_ALL_PUBLIC = 'A';
@@ -121,13 +121,14 @@ class EventController extends AbstractController
             $event->setRating($data_form['rating']);
             $event->setStatus($data_form['status']);
 
-            $img = $data_form['poster_photo'];
+            $img_poster = $data_form['poster_photo'];
+            $img_backdrop = $data_form['backdrop_photo'];
 
-            if ($img) {
-                $fileName = md5(uniqid('', false)) . '' . $img->guessExtension();
+            if ($img_poster) {
+                $fileName = md5(uniqid('', false)) . '' . $img_poster->guessExtension();
 
                 try {
-                    $img->move(
+                    $img_poster->move(
                         $this->getParameter('images_directory'),
                         $fileName
                     );
@@ -136,6 +137,21 @@ class EventController extends AbstractController
                 }
 
                 $event->setPosterPhoto($fileName);
+            }
+
+            if ($img_backdrop) {
+                $fileName = md5(uniqid('', false)) . '' . $img_backdrop->guessExtension();
+
+                try {
+                    $img_backdrop->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+                } catch (FileException $e) {
+                    $this->createNotFoundException('Directorio images no encontrado');
+                }
+
+                $event->setBackdropPath($fileName);
             }
 
 
@@ -170,9 +186,14 @@ class EventController extends AbstractController
         $commentsForm = NULL;
 
         if ($this->getUser()):
+            if ($ID !== null):
+                $action = '?id=' . $ID;
+            else:
+                $action = '?tmdb_id=' . $tmdbID;
+            endif;
             $commentsForm = $this->createFormBuilder(array('csrf_protection' => FALSE))
                 ->setMethod(Request::METHOD_POST)
-                ->setAction($this->generateUrl(static::ROUTE_EVENT_DETAILS) . ($tmdbID !== NULL) ? '?tmdb_id=' . $tmdbID : '?id=' . $ID)
+                ->setAction($this->generateUrl(static::ROUTE_EVENT_DETAILS) . $action)
                 ->add('comment', TextareaType::class, array(
                     'label' => 'Comentar',
                     'attr' => array(
@@ -189,14 +210,16 @@ class EventController extends AbstractController
         endif;
 
 
+        # Si el usuario está identificado y se ha enviado un comentario, lo registramos en la base de datos
         if ($commentsForm !== NULL && $this->getUser() && $commentsForm->isSubmitted() && $commentsForm->isValid()):
             $comment = new Comment();
             $text = $commentsForm->getData()['comment'];
             $comment->setText($text);
             $comment->setCreatedAt(new DateTime());
             $comment->setUser($this->getUser());
+
             if ($ID !== null):
-                $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy($ID);
+                $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $ID));
                 if ($event !== null):
                     $comment->setEvent($event);
                 endif;
@@ -213,13 +236,13 @@ class EventController extends AbstractController
         if ($tmdbID !== NULL):
             $event_data = $this->getIMDBFilmByID($tmdbID);
             $commentsObject = $this->getDoctrine()->getRepository(Comment::class)->findBy(array('tmdb_id' => $tmdbID));
-            $comments=array();
+            $comments = array();
 
             foreach ($commentsObject as $item):
-                $comments[$item->getID()]['text']=$item->getText();
-                $comments[$item->getID()]['username']= $item->getUser()->getName() . ' ' .  $item->getUser()->getSurname();
-                $comments[$item->getID()]['createdAt']= $item->getCreatedAt()->format('Y-m-d H:i:s');
-                $comments[$item->getID()]['profilePic']= $item->getUser()->getPhoto();
+                $comments[$item->getID()]['text'] = $item->getText();
+                $comments[$item->getID()]['username'] = $item->getUser()->getName() . ' ' . $item->getUser()->getSurname();
+                $comments[$item->getID()]['createdAt'] = $item->getCreatedAt()->format('Y-m-d H:i:s');
+                $comments[$item->getID()]['profilePic'] = $item->getUser()->getPhoto();
             endforeach;
 
             if ($event_data !== NULL):
@@ -243,7 +266,38 @@ class EventController extends AbstractController
 
         # Si es una película que tenemos almacenada en la base de datos
         elseif ($ID !== NULL):
-            $data = $this->getDoctrine()->getRepository(EventData::class)->find($ID);
+            $event_data = $this->getDoctrine()->getRepository(EventData::class)->find($ID);
+
+            if ($event_data !== NULL):
+
+                $commentsObject = $this->getDoctrine()->getRepository(Comment::class)->findBy(array('id' => $event_data->getID()));
+                $comments = array();
+
+                foreach ($commentsObject as $item):
+                    $comments[$item->getID()]['text'] = $item->getText();
+                    $comments[$item->getID()]['username'] = $item->getUser()->getName() . ' ' . $item->getUser()->getSurname();
+                    $comments[$item->getID()]['createdAt'] = $item->getCreatedAt()->format('Y-m-d H:i:s');
+                    $comments[$item->getID()]['profilePic'] = $item->getUser()->getPhoto();
+                endforeach;
+
+                $data = array(
+                    'id' => $event_data->getID(),
+                    'title' => strtoupper($event_data->getTitle()),
+                    'genres' => explode(', ', $event_data->getGender()),
+                    'release_date' => $event_data->getReleaseDate(),
+                    'duration' => $event_data->getDuration(),
+                    'summary' => $event_data->getDescription(),
+                    'poster_photo' => $event_data->getPosterPhoto(),
+                    'age_rating' => $event_data->getAgeRating(),
+                    'tagline' => $event_data->getTagLine(),
+                    'backdrop' => $event_data->getBackdropPath(),
+                    #'youtube_key' => $this->extractYoutubeTrailerTMDB($event_data['videos']),
+                    'vote_average' => $event_data->getRating(),
+                    'form' => $commentsForm !== NULL ? $commentsForm->createView() : $commentsForm,
+                    'comments' => $comments
+                );
+            endif;
+
         endif;
 
         return $this->render('event/description.html.twig', array('data' => $data));

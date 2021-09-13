@@ -17,16 +17,21 @@
 
             <div class="container-fluid" id="description-fluid">
 
-                {% if data.backdrop is defined and data.backdrop is not null %}
+                {% if data.backdrop is defined and data.backdrop is not null and data.tmdb_id is defined and data.tmdb_id is not null%}
                     {% set backdrop = data.backdrop %}
+                    {% set poster_photo = data.poster_photo %}
+                {% elseif data.id is defined and data.backdrop is defined and data.backdrop is not null %}
+                    {% set backdrop = asset('uploads/images/' ~ data.backdrop) %}
+                    {% set poster_photo = asset('uploads/images/' ~ data.poster_photo) %}
                 {% else %}
                     {% set backdrop = asset('uploads/images/default-backdrop.jpg') %}
                 {% endif %}
+
                 <div class="backdrop"
                      style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),url({{ backdrop }}); background-position: center">
 
                     <div class="cover">
-                        <img src="{{ data.poster_photo }}" alt="cover"/>
+                        <img src="{{ poster_photo }}" width="185" height="278" alt="cover"/>
                     </div>
                     <div class="details">
 
@@ -75,7 +80,7 @@
                         <div class="left-content">
                             <div class="tags">
                                 {% for genre in data.genres %}
-                                    <span class="tag">{{ genre }}</span>
+                                    <span class="tag">{{ ucfirst(genre) }}</span>
                                 {% endfor %}
                             </div>
                         </div>
@@ -113,7 +118,7 @@
                         </div>
 
                     </div>
-                    {% if data.youtube_key is not null %}
+                    {% if data.youtube_key is defined and data.youtube_key is not null %}
                         <div class="youtube-trailer">
                             <iframe width="500" height="300" src="https://www.youtube.com/embed/{{ data.youtube_key }}"
                                     title="YouTube video player" frameborder="0"

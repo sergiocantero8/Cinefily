@@ -50,19 +50,21 @@ class MainController extends AbstractController
 
 
         $eventDataRepository = $this->getDoctrine()->getRepository(EventData::class);
-        $filmsStored = $eventDataRepository->findAll()[0];
+        $filmsStored = $eventDataRepository->findAll();
 
         $data = array();
 
-        $data[] = array(
-            'id' => $filmsStored->getID(),
-            'title' => strtoupper($filmsStored->getTitle()),
-            'genres' => $filmsStored->getGender(),
-            'release_date' => $filmsStored->getReleaseDate()->format('Y-m-d'),
-            'duration' => $filmsStored->getDuration(),
-            'summary' => EventData::getShortenSummary($filmsStored->getDescription()),
-            'poster_photo' => $filmsStored->getPosterPhoto()
-        );
+        foreach ($filmsStored as $film):
+            $data[] = array(
+                'id' => $film->getID(),
+                'title' => strtoupper($film->getTitle()),
+                'genres' => $film->getGender(),
+                'release_date' => $film->getReleaseDate()->format('Y-m-d'),
+                'duration' => $film->getDuration(),
+                'summary' => EventData::getShortenSummary($film->getDescription()),
+                'poster_photo' => $film->getPosterPhoto()
+            );
+        endforeach;
 
         if (isset($events_data)):
             foreach ($events_data as $event_data):

@@ -25,63 +25,51 @@
 
 }
 
-.title-event.col-12 {
-  padding-top: 50px;
-}
-
 .title-event .form-group {
-  width: 50%;
   margin-left: auto;
   margin-right: auto;
 }
 
 .type-event .form-group {
-  width: 50%;
   margin-left: auto;
   margin-right: auto;
 }
 
 .gender-event .form-group {
-  width: 50%;
   margin-right: auto;
   margin-left: auto;
 }
 
 .age-rating-event .form-group {
-  width: 50%;
   margin-left: auto;
 }
 
 .director-event .form-group {
-  width: 50%;
   margin-right: auto;
 }
 
 .description-event .form-group {
-  width: 50%;
   margin-right: auto;
   margin-left: auto;
 }
 
 .actors-event .form-group {
-  width: 50%;
   margin-right: auto;
   margin-left: auto;
 }
 
 .poster-photo-event .form-group{
-  width: 50%;
   margin-right: auto;
   margin-left: auto;
 }
 
 .submit-event .form-group{
-  width: 50%;
   margin-left: auto;
 }
 
 .status-event .form-group{
-  width: 50%;
+  position: relative;
+  top: 50px;
   margin-right: auto;
   margin-left: auto;
 }
@@ -104,21 +92,18 @@ select#add_event_release_date_time_hour{
 }
 
 .duration-event .form-group {
-  width: 25%;
   margin-left: auto;
 }
 
-
-
-
-.rating-event .form-group {
-  width: 50%;
-}
 
 .duration-event.col-12.col-md-6.col-lg-4 {
   padding-right: 0;
 }
 
 button#add_event_submit {
-  font-size: 20px;
+  font-size: 16px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 20px;
 }

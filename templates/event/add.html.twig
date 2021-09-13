@@ -8,65 +8,85 @@
 
     <div class="add-event-form">
         <div class="title">
-            <h2> <i class="fas fa-film"></i>Añadir evento </h2>
+            <h5><i class="fas fa-film"></i>Añadir evento </h5>
         </div>
         {{ form_start(form) }}
 
         <div class="row">
-            <div class="title-event col-12">
+            <div class="title-event col-12 col-md-4 ">
                 {{ form_row(form.title) }}
             </div>
 
-            <div class="type-event col-12">
+            <div class="type-event col-12 col-md-4">
                 {{ form_row(form.type) }}
             </div>
 
-            <div class="gender-event col-12">
+            <div class="gender-event col-12 col-md-4">
                 {{ form_row(form.gender) }}
             </div>
 
-            <div class="description-event col-12">
+            <div class="description-event col-12 col-md-4">
                 {{ form_row(form.description) }}
             </div>
 
-            <div class="duration-event col-12 col-sm-12 col-md-6 col-lg-4">
+            <div class="duration-event col-12 col-md-2 ">
                 {{ form_row(form.duration) }}
             </div>
 
-            <div class="release-date-event col-12 col-sm-12 col-md-6 col-lg-2">
+            <div class="release-date-event col-12 col-md-2">
                 {{ form_row(form.release_date) }}
             </div>
 
-            <div class="rating-event col-12 col-sm-12 col-md-6 col-lg-6">
+            <div class="rating-event col-12 col-md-4">
                 {{ form_row(form.rating) }}
             </div>
 
-            <div class="age-rating-event col-12 col-md-6">
+            <div class="age-rating-event col-md-4">
                 {{ form_row(form.age_rating) }}
             </div>
 
-            <div class="director-event col-12 col-md-6">
+            <div class="director-event col-12 col-md-4">
                 {{ form_row(form.director) }}
             </div>
 
-            <div class="actors-event col-12">
+            <div class="actors-event col-12 col-md-4">
 
                 {{ form_row(form.actors) }}
             </div>
 
-            <div class="poster-photo-event col-12">
+            <div class="poster-photo-event col-12 col-md-4">
                 {{ form_row(form.poster_photo) }}
             </div>
 
-            <div class="status-event col-12">
+            <div class="backdrop-photo-event col-12 col-md-4">
+                {{ form_row(form.backdrop_photo) }}
+            </div>
+
+            <div class="status-event col-12 col-md-4">
                 {{ form_row(form.status) }}
             </div>
 
-            <div class="submit-event col-12 ">
+            <div class="submit-event col-12">
                 {{ form_row(form.submit) }}
             </div>
 
         </div>
     </div>
     {{ form_end(form) }}
+
+
+{% endblock %}
+
+{% block custom_body_javascript %}
+
+    <script>
+        // Para mostrar el nombre de los archivos seleccionados
+        $('#add_event_poster_photo').change(function () {
+            $('.custom-file label[for="add_event_poster_photo"]').text(this.files[0].name);
+        });
+
+        $('#add_event_backdrop_photo').change(function () {
+            $('.custom-file label[for="add_event_backdrop_photo"]').text(this.files[0].name);
+        });
+    </script>
 {% endblock %}
