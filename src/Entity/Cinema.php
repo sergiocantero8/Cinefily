@@ -44,6 +44,11 @@ class Cinema
      */
     private $rooms;
 
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $tickets_price;
+
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
     
     public function __construct()
@@ -151,6 +156,18 @@ class Cinema
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+    public function getTicketsPrice(): ?float
+    {
+        return $this->tickets_price;
+    }
+
+    public function setTicketsPrice(float $tickets_price): self
+    {
+        $this->tickets_price = $tickets_price;
+
+        return $this;
+    }
 
    
     

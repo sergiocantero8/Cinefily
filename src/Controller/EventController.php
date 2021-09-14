@@ -65,6 +65,7 @@ class EventController extends AbstractController
 
     # Rutas
     public const ROUTE_EVENT_DETAILS = 'event_details';
+    public const ROUTE_ADD_EVENT = 'add_event';
 
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
@@ -83,7 +84,7 @@ class EventController extends AbstractController
     /**
      * Ruta para añadir un evento a través de un formulario. Un evento solo lo puede añadir un usuario con privilegios
      * de administrador
-     * @Route("/event/add", name="event_add")
+     * @Route("/event/add", name="add_event")
      */
     public function addEvent(Request $request): Response
     {
@@ -270,7 +271,7 @@ class EventController extends AbstractController
 
             if ($event_data !== NULL):
 
-                $commentsObject = $this->getDoctrine()->getRepository(Comment::class)->findBy(array('id' => $event_data->getID()));
+                $commentsObject = $this->getDoctrine()->getRepository(Comment::class)->findBy(array('event' => $event_data->getID()));
                 $comments = array();
 
                 foreach ($commentsObject as $item):

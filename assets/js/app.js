@@ -20,4 +20,8 @@ require('@fortawesome/fontawesome-free/js/all.js')
 require('bootstrap/js/dist/tooltip');
 require('bootstrap/js/dist/popover');
 
+$(document).ready(function() {
+    $(".dropdown-toggle").dropdown();
+});
+
 

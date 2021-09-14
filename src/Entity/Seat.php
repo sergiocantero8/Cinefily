@@ -46,7 +46,7 @@ class Seat
 
     /**
      * @ORM\OneToOne(targetEntity=Ticket::class, inversedBy="seat", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $ticket;
 

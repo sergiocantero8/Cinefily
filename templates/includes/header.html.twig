@@ -11,6 +11,7 @@
                 <li><a href="#" class="nav-link px-2 text-white">Precios</a></li>
                 {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
                     <li><a href="/event/add" class="nav-link px-2 text-white">Añadir evento</a></li>
+                    <li><a href="/cinema/add" class="nav-link px-2 text-white">Añadir cine</a></li>
                 {% endif %}
             </ul>
 
