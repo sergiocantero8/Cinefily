@@ -1,12 +1,13 @@
 <header class="header-web bg-dark text-white">
-    <div class="container">
+    <div class="container-fluid">
         <div class="d-flex flex-wrap align-items-center">
-            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+            <a href="/" class="d-flex mb-2 mb-lg-0 text-white text-decoration-none">
                 <img id="logo-web" alt="Foto de perfil" src="{{ asset('uploads/images/logo.png') }}"
                      data-holder-rendered="true">
             </a>
 
-            <ul class="nav-section nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+            <ul class="nav-section nav col-12 col-lg-auto me-lg-auto mb-2 mb-md-0">
+                <li><a href="/cinema/all" class="nav-link px-2 text-white">Nuestros cines</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">Cartelera</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">Precios</a></li>
                 {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
@@ -33,7 +34,7 @@
                     <a href='/user/profile' type="button" class="nav-button btn btn-success btn-rounded ml-2 mr-1">Mi
                         perfil</a>
                     <a href='/user/logout' type="button"
-                       class="nav-button btn btn-danger btn-rounded ml-1 mr-2">Logout</a>
+                       class="nav-button btn btn-danger btn-rounded ml-1 mr-2"><i class="fas fa-sign-out-alt"></i></a>
                 </div>
 
             {% endif %}

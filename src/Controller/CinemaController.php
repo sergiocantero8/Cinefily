@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function count;
 
 class CinemaController extends AbstractController
 {
@@ -37,7 +38,7 @@ class CinemaController extends AbstractController
      * de administrador
      * @Route("/cinema/add", name="add_cinema")
      */
-    public function addCinema(Request $request, CinemaController $cinemaController): Response
+    public function addCinema(Request $request): Response
     {
 
         // Comprobamos que el usuario está identificado y además tiene privilegios de admnistrador
@@ -104,6 +105,37 @@ class CinemaController extends AbstractController
         );
 
         return $this->render('cinema/add.html.twig', $data);
+    }
+
+    /**
+     * Ruta para mostrar los detalles de todos los cines almacenados en la web
+     * @Route("/cinema/all", name="all_cinema")
+     */
+    public function showAllCinemas(Request $request): Response
+    {
+
+        $data = array();
+        $cinemas = $this->getDoctrine()->getRepository(Cinema::class)->findAll();
+
+        foreach ($cinemas as $cinema):
+            $rooms = $this->getDoctrine()->getRepository(Room::class)->findBy(array('cinema' => $cinema));
+            $nSeats=0;
+
+            foreach ($rooms as $room):
+                $nSeats+=$room->getNRows() * $room->getNColumns();
+            endforeach;
+
+            $data[] = array(
+                'id' => $cinema->getID(),
+                'name' => $cinema->getName(),
+                'location' => $cinema->getLocation(),
+                'tickets_price' => $cinema->getTicketsPrice(),
+                'n_rooms' => count($rooms),
+                'n_seats' => $nSeats
+            );
+        endforeach;
+
+        return $this->render('cinema/all.html.twig', array('data'=>$data));
     }
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

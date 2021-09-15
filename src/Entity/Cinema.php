@@ -106,6 +106,17 @@ class Cinema
         return $this->rooms;
     }
 
+    public function getTicketsPrice(): ?float
+    {
+        return $this->tickets_price;
+    }
+
+    public function setTicketsPrice(float $tickets_price): self
+    {
+        $this->tickets_price = $tickets_price;
+
+        return $this;
+    }
     # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
@@ -157,17 +168,6 @@ class Cinema
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
 
-    public function getTicketsPrice(): ?float
-    {
-        return $this->tickets_price;
-    }
-
-    public function setTicketsPrice(float $tickets_price): self
-    {
-        $this->tickets_price = $tickets_price;
-
-        return $this;
-    }
 
    
     

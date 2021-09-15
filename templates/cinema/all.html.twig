@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuestros cines | Cinefily{% endblock %}
+
+{% block main %}
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Localización</th>
+            <th scope="col">Número de salas</th>
+            <th scope="col">Asientos totales</th>
+            <th scope="col">Precio de las entradas</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for cinema in data %}
+            <tr>
+                <th scope="row">{{ cinema.name }}</th>
+                <td>{{ cinema.location }}</td>
+                <td>{{ cinema.n_rooms }}</td>
+                <td>{{ cinema.n_seats }}</td>
+                <td>{{ cinema.tickets_price }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
