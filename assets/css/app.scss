@@ -6,7 +6,8 @@
 @import '~@fortawesome/fontawesome-free/css/solid.min.css';
 @import '~@fortawesome/fontawesome-free/css/brands.min.css';
 */
-@import '~bootstrap/scss/bootstrap';
+//@import '~bootstrap/scss/bootstrap';
+@import './header.scss';
 @import './user-form.scss';
 @import './add-event-form.scss';
 @import './footer.scss';
@@ -42,10 +43,7 @@ body{
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-#logo-web{
-  width: 91px;
-  height: 91px;
-}
+
   
   footer {
     padding-top: 3rem;
@@ -89,15 +87,7 @@ body{
   font-size: 15px;
 }
 
-.search-field{
-  font-size: 13px;
-  width: 360px;
-}
 
-.header-web{
-  background-color: #26272b!important;
-  height: 80px;
-}
 
 
 
