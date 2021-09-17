@@ -13,8 +13,11 @@
                 {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
                     <li><a href="/event/add" class="nav-link px-2 text-white">Añadir evento</a></li>
                     <li><a href="/cinema/add" class="nav-link px-2 text-white">Añadir cine</a></li>
+                    <li><a href="/session/add" class="nav-link px-2 text-white">Añadir sesión</a></li>
                 {% endif %}
             </ul>
+
+
 
             <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
                 <input type="search" class="search-field form-control form-control-dark" placeholder="Buscar..."
@@ -46,18 +49,19 @@
                                 {% if imgProfile is not null %}
                                     <img alt="Foto de perfil"
                                          src="{{ asset('uploads/images/' ~ imgProfile) }}"
-                                         class="p-1" width="45" height="50" data-holder-rendered="true">
+                                         width="40" height="45" class="p-1 rounded-circle">
                                 {% else %}
                                     <img src="https://w7.pngwing.com/pngs/867/694/png-transparent-user-profile-default-computer-icons-network-video-recorder-avatar-cartoon-maker-blue-text-logo.png"
-                                         alt="Admin" class="p-1" width="40" height="40">
+                                         alt="Admin" width="40" height="40" class="p-1 rounded-circle">
                                 {% endif %}
 
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <p class="signed-as"> Conectado como <b>{{ app.user.getEmail() }}</b></p>
+                                <p class="signed-as"> Conectado como <b>{{ app.user.getEmail() }} </b><br><i>{{ convertPrivilegesToString(app.user.getPrivileges()) }}</i> </p>
                                 <hr class="horizontal-divider">
-                                <a class="dropdown-item " href="#"><i class="fas fa-user mr-1"></i>Mi perfil</a>
-                                <a class="dropdown-item " href="#"><i class="fas fa-sign-out-alt mr-1"></i>Cerrar sesión</a>
+                                <a class="dropdown-item " href="/user/profile"><i class="fas fa-user mr-1"></i>Mi perfil</a>
+                                <a class="dropdown-item " href="#"><i class="fas fa-ticket-alt"></i>Mis entradas</a>
+                                <a class="dropdown-item " href="/user/logout"><i class="fas fa-sign-out-alt mr-1"></i>Cerrar sesión</a>
                                 {# }<a class="dropdown-item" href="#">Log Out</a> #}
                             </div>
                         </li>

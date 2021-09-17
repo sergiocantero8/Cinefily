@@ -3,6 +3,25 @@
   height: 91px;
 }
 
+.nav-section {
+
+
+  li:hover {
+    font-weight: bold;
+    border: 1px solid #ffc107;
+    //font-size: 16px ;
+    background-color: #38383e;
+    background-size: 12px 12px;
+    background-repeat: no-repeat;
+    background-position: 10% 50%;
+    cursor: pointer;
+    -webkit-transition-property: all;
+    transition-property: all;
+    -webkit-transition-duration: .3s;
+    transition-duration: .3s;
+  }
+}
+
 .header-web{
   background-color: #26272b!important;
   height: 80px;
@@ -19,6 +38,6 @@ hr.horizontal-divider{
 }
 
 .search-field{
-  font-size: 13px;
-  width: 360px;
+  font-size: 13px !important;
+  width: 360px !important;
 }

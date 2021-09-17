@@ -190,7 +190,7 @@ class UserController extends AbstractController
                 'required' => FALSE,
                 'label' => 'Privilegios',
                 'help' => 'Solo el administrador puede cambiar los privilegios de un usuario',
-                'data' => self::convertPrivilegesToString($user->getPrivileges()),
+                'data' => static::convertPrivilegesToString($user->getPrivileges()),
                 'attr' => array(
                     'readonly' => true,
                 ),

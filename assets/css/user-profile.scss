@@ -10,7 +10,7 @@ body{
   word-wrap: break-word;
   background-color: #fff;
   background-clip: border-box;
-  border: 0 solid transparent;
+  border: 1px solid black;
   border-radius: .25rem;
   margin-bottom: 1.5rem;
   margin-top: 100px;
@@ -21,6 +21,6 @@ body{
 }
 
 .input_profile_user{
-  width: 500px;
+  width: 500px !important;
   margin-top: 2px;
 }

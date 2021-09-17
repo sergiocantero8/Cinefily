@@ -2,6 +2,7 @@
 
 namespace App\Twig;
 
+use App\Controller\UserController;
 use phpDocumentor\Reflection\Types\Mixed_;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -25,7 +26,8 @@ class TwigHelper extends AbstractExtension
             new TwigFunction('hasSubString', array($this, 'hasSubString')),
             new TwigFunction('ucfirst', array($this, 'ucfirstString')),
             new TwigFunction('lengthArray', array($this, 'lengthArray')),
-            new TwigFunction('strPosString', array($this, 'strPosString'))
+            new TwigFunction('strPosString', array($this, 'strPosString')),
+            new TwigFunction('convertPrivilegesToString', array($this, 'convertPrivilegesToString'))
         );
     }
 
@@ -69,6 +71,14 @@ class TwigHelper extends AbstractExtension
         return ucfirst($str);
     }
 
+    /**
+     * @param int $privilege
+     * @return string
+     */
+    public function convertPrivilegesToString(int $privilege): string
+    {
+        return UserController::convertPrivilegesToString($privilege);
+    }
 
     /**
      * @param string $str
