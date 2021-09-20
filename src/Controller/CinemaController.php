@@ -41,8 +41,8 @@ class CinemaController extends AbstractController
     public function addCinema(Request $request): Response
     {
 
-        // Comprobamos que el usuario está identificado y además tiene privilegios de admnistrador
-        if ($this->getUser() && !\in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true)):
+        // Comprobamos que el usuario está identificado y además tiene privilegios de administrador
+        if (!$this->getUser() || ($this->getUser() && !\in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
             $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
             return $this->redirectToRoute('home');
         endif;

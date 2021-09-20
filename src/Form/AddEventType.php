@@ -44,6 +44,7 @@ class AddEventType extends AbstractType
             ->add('gender', ChoiceType::class, array(
                 'label' => 'Género',
                 'choices' => $options['data']['genders_types'],
+                'required' => false,
                 'multiple' => true
             ))
             ->add('description', TextareaType::class, array(
@@ -66,6 +67,7 @@ class AddEventType extends AbstractType
             ))
             ->add('actors', TextareaType::class, array(
                 'label' => 'Actores',
+                'required' => false,
                 'attr' => array(
                     'placeholder' => 'Los nombres de los actores separados por comas',
                     'rows' => 3
@@ -95,6 +97,7 @@ class AddEventType extends AbstractType
             ))
             ->add('rating', NumberType::class, array(
                 'label' => 'Valoración',
+                'required' => false,
                 'attr' => array(
                     'min' => 0,
                     'max' => 10

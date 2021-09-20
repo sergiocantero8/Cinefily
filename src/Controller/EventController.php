@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection MultipleReturnStatementsInspection */
 
 namespace App\Controller;
 
@@ -20,6 +20,7 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use function in_array;
 
 class EventController extends AbstractController
 {
@@ -89,7 +90,7 @@ class EventController extends AbstractController
     public function addEvent(Request $request): Response
     {
 
-        if ($this->getUser() && !\in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true)):
+        if (!$this->getUser() || ($this->getUser() && !in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
             $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
             return $this->redirectToRoute('home');
         endif;
@@ -160,6 +161,7 @@ class EventController extends AbstractController
             $em->persist($event);
             $em->flush();
             $this->addFlash('success', '¡El evento se ha añadido correctamente!');
+            return $this->redirectToRoute('home');
         endif;
 
 
@@ -245,7 +247,6 @@ class EventController extends AbstractController
                 $comments[$item->getID()]['createdAt'] = $item->getCreatedAt()->format('Y-m-d H:i:s');
                 $comments[$item->getID()]['profilePic'] = $item->getUser()->getPhoto();
             endforeach;
-
             if ($event_data !== NULL):
                 $data = array(
                     'tmdb_id' => $event_data['id'],
@@ -515,7 +516,7 @@ class EventController extends AbstractController
             if (!empty($genresString)):
                 $genresString .= ', ';
             endif;
-            $genresString .= $genre['name'];
+            $genresString .= ucfirst($genre['name']);
         endforeach;
 
         return $genresString;
