@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\LogInfoRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -13,6 +14,25 @@ class LogInfo
 
     # -------------------------------------------------- CONST ------------------------------------------------------- #
 
+    public const TYPE_ERROR=0;
+    public const TYPE_WARNING=1;
+    public const TYPE_SUCCESS=2;
+    public const TYPE_INFO=3;
+
+
+    # -------------------------------------------------- CONST ------------------------------------------------------- #
+
+    /**
+     * LogInfo constructor.
+     * @param int $type
+     * @param string $info
+     */
+    public function __construct(int $type, string $info)
+    {
+        $this->setDate(new DateTime());
+        $this->setType($type);
+        $this->setInfo($info);
+    }
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
     
     /**
@@ -31,6 +51,11 @@ class LogInfo
      * @ORM\Column(type="text")
      */
     private $info;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $type;
 
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
@@ -70,4 +95,16 @@ class LogInfo
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+    public function getType(): ?int
+    {
+        return $this->type;
+    }
+
+    public function setType(int $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
 }

@@ -1,9 +1,10 @@
-<?php
+<?php /** @noinspection PhpParamsInspection */
 
 namespace App\Controller;
 
 use App\Entity\Cinema;
 use App\Entity\EventData;
+use App\Entity\LogInfo;
 use App\Entity\Room;
 use App\Entity\Session;
 use App\Entity\User;
@@ -67,24 +68,44 @@ class SessionController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()):
             $formData = $form->getData();
-
+            $em = $this->getDoctrine()->getManager();
 
             # Obtenemos el cine seleccionado, el evento y todas las sesiones y salas de ese cine
             # para asignar una sala a la película
-            $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id'=>$formData['cinema']));
-            $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id'=>$formData['event']));
-            $sessions = $this->getDoctrine()->getRepository(Session::class)->findBy(array('cinema' => $cinema));
-            $rooms=$this->getDoctrine()->getRepository(Room::class)->findBy(array('cinema' => $cinema));
+            $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $formData['cinema']));
+            $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $formData['event']));
+
+            $rooms = null;
+            $sessions = null;
+
+            if ($cinema !== null):
+                $sessions = $this->getDoctrine()->getRepository(Session::class)->findByActiveSessions($cinema);
+                $rooms = $this->getDoctrine()->getRepository(Room::class)->findBy(array('cinema' => $cinema));
+            endif;
 
             $now = new DateTime();
             $eee = new DateTime();
             $now->add(new DateInterval(('PT' . 90 . 'M')));
-           // $eee->format('Y-m-d H:i'),$now->format('Y-m-d H:i')
+            // $eee->format('Y-m-d H:i'),$now->format('Y-m-d H:i')
+
+
             # Si la fecha de la sesión es anterior a la actual mostramos un mensaje
             if ($formData['schedule'] < $now):
                 $this->addFlash('error', 'La fecha de la sesión es anterior a la fecha actual');
+                $info = new LogInfo(LogInfo::TYPE_ERROR, 'Intento fallido de añadir una sesión debido a que la
+                                    fecha de la sesión es anterior a la fecha actual');
+                $em->persist($info);
+                $em->flush();
+
+            # Si son nulos tanto sessión como rooms significa que el cine seleccionado no existe (inusual)
+            elseif ($sessions === null && $rooms === null):
+                $this->addFlash('error', 'No existe el cine seleccionado');
+                $info = new LogInfo(LogInfo::TYPE_ERROR, 'Intento fallido de añadir una sesión debido a que el 
+                                    cine seleccionado no existe');
+                $em->persist($info);
+                $em->flush();
             # Si está vacío significa que no hay ninguna sesión para ese cine
-            elseif (empty($sessions)):
+            elseif (empty($sessions) && $rooms !== null):
                 $session = new Session();
                 $session->setCinema($cinema);
                 $session->setEvent($event);
@@ -94,13 +115,20 @@ class SessionController extends AbstractController
                 # Como es la primera sesión del cine, le asignamos la primera sala
                 $session->setRoom($rooms[0]);
 
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($session);
-                $em->flush();
                 $this->addFlash('success', '¡La sesión ha sido añadida correctamente!');
+                $info = new LogInfo(LogInfo::TYPE_ERROR, 'Se ha añadido una sesión con ID' . $session->getId());
+                $em->persist($session);
+                $em->persist($info);
+                $em->flush();
+
                 return $this->redirectToRoute('home');
+            # Si no está vacío significa que hay sesiones activas en ese cine
             else:
 
+                # Recorremos las sesiones activas
+                foreach ($rooms as $room):
+
+                endforeach;
             endif;
         endif;
 
