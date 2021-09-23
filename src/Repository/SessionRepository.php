@@ -41,17 +41,26 @@ class SessionRepository extends ServiceEntityRepository
 
     /**
      * Método que devuelve todas las sesiones que sean posteriores a la fecha actual de un cine y salas concretos
-     * @return Session[] Returns an array of Session objects
+     * @param Cinema $cinema
+     * @param Room $room
+     * @param DateTime $start
+     * @param DateTime $end
+     * @return array|null Returns an array of Session objects
      */
-    public function findByActiveSessionsByRoom(Cinema $cinema, Room $room): ?array
+    public function findByActiveSessionsByRoom(Cinema $cinema, Room $room, DateTime $start, DateTime $end): ?array
     {
-        $now = new DateTime();
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.cinema = :cinema')
-            ->andWhere('s.schedule > :now')
-            ->andWhere('s.room = :room')
+        $qb=$this->createQueryBuilder('s');
+        return $qb
+            ->where($qb->expr()->orX(
+                $qb->expr()->andX($qb->expr()->lt('s.schedule', ':start'),$qb->expr()->lt(':start', 's.schedule_end')),
+                $qb->expr()->andX($qb->expr()->lt('s.schedule', ':end'),$qb->expr()->lt(':end', 's.schedule_end')),
+                $qb->expr()->andX($qb->expr()->lt(':start', 's.schedule'),$qb->expr()->lt('s.schedule', ':end'))
+            ))
+            ->andWhere($qb->expr()->eq('s.cinema',':cinema'))
+            ->andWhere($qb->expr()->eq('s.room',':room'))
+            ->setParameter('start',$start)
+            ->setParameter('end',$end)
             ->setParameter('cinema',$cinema)
-            ->setParameter('now', $now)
             ->setParameter('room', $room)
             ->getQuery()->execute()
             ;

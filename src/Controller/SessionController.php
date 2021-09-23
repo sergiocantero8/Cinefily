@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Form\AddSessionType;
 use DateInterval;
 use DateTime;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +35,7 @@ class SessionController extends AbstractController
 
     /**
      * @Route("/session/add", name="add_session")
+     * @throws Exception
      */
     public function addSession(Request $request): Response
     {
@@ -84,10 +86,14 @@ class SessionController extends AbstractController
             endif;
 
             $now = new DateTime();
-            $eee = new DateTime();
-            $now->add(new DateInterval(('PT' . 90 . 'M')));
-            // $eee->format('Y-m-d H:i'),$now->format('Y-m-d H:i')
 
+
+            # Obtenemos cuando empieza la sesión y cuando terminaría, le sumamos la duración del evento
+            if ($event !== null):
+                $schedule_start = $formData['schedule'];
+                $schedule_end = new DateTime($schedule_start->format('Y-m-d H:i'));
+                $schedule_end->add(new DateInterval(('PT' . $event->getDuration() . 'M')));
+            endif;
 
             # Si la fecha de la sesión es anterior a la actual mostramos un mensaje
             if ($formData['schedule'] < $now):
@@ -104,14 +110,14 @@ class SessionController extends AbstractController
                                     cine seleccionado no existe');
                 $em->persist($info);
                 $em->flush();
-            # Si está vacío significa que no hay ninguna sesión para ese cine
-            elseif (empty($sessions) && $rooms !== null):
+            # Si está vacío significa que no hay ninguna sesión activa para ese cine
+            elseif (empty($sessions) && isset($schedule_start, $schedule_end) && $rooms !== null):
                 $session = new Session();
                 $session->setCinema($cinema);
                 $session->setEvent($event);
                 $session->setLanguage($formData['language']);
-                $session->setSchedule($formData['schedule']);
-
+                $session->setSchedule($schedule_start);
+                $session->setScheduleEnd($schedule_end);
                 # Como es la primera sesión del cine, le asignamos la primera sala
                 $session->setRoom($rooms[0]);
 
@@ -124,11 +130,20 @@ class SessionController extends AbstractController
                 return $this->redirectToRoute('home');
             # Si no está vacío significa que hay sesiones activas en ese cine
             else:
+                # Recorremos las sesiones
+                foreach ($sessions as $session):
+                    $diff = date_diff($schedule_start, $session->getSchedule());
 
-                # Recorremos las sesiones activas
-                foreach ($rooms as $room):
+                    // Si la sesión es el mismo día comparamos
+                    if ($diff->format('%a') === '0'):
+                        foreach ($rooms as $room):
+                            dump($this->getDoctrine()->getRepository(Session::class)->findByActiveSessionsByRoom($cinema, $room, $session->getSchedule(), $session->getScheduleEnd()));
+                            die();
+                        endforeach;
+                    endif;
 
                 endforeach;
+
             endif;
         endif;
 

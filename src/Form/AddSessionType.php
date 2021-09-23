@@ -47,7 +47,7 @@ class AddSessionType extends AbstractType
             ->add('schedule', DateTimeType::class, array(
                 'label' => 'Fecha',
                 'placeholder' => [
-                    'year' => 'Año', 'month' => 'Mes', 'day' => 'Dia'
+                    'year' => 'Año', 'month' => 'Mes', 'day' => 'Dia', 'hour' => 'Hora', 'minute' => 'Minutos'
                 ],
                 'years' => range(2021, 2023)
             ))

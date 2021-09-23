@@ -49,6 +49,11 @@ class Session
      */
     private $room;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $schedule_end;
+
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
 
     public function getId(): ?int
@@ -123,4 +128,16 @@ class Session
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+    public function getScheduleEnd(): ?\DateTimeInterface
+    {
+        return $this->schedule_end;
+    }
+
+    public function setScheduleEnd(\DateTimeInterface $schedule_end): self
+    {
+        $this->schedule_end = $schedule_end;
+
+        return $this;
+    }
 }
