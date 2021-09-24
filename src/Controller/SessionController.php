@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpParamsInspection */
+<?php /** @noinspection MultipleReturnStatementsInspection */
+
+/** @noinspection PhpParamsInspection */
 
 namespace App\Controller;
 
@@ -45,7 +47,7 @@ class SessionController extends AbstractController
             return $this->redirectToRoute('home');
         endif;
 
-        # Obtenemos todos los eventos, cines y idiomas almacenados
+        # Obtenemos todos los eventos, cines y idiomas almacenados para mostrarlos en el selector de las sesiones
         $eventsRe = $this->getDoctrine()->getRepository(EventData::class)->findAll();
         $cinemasRe = $this->getDoctrine()->getRepository(Cinema::class)->findAll();
         $languages = array("Castellano" => static::LANGUAGE, "Versión original (subtitulada)" => static::ORIGINAL_LANGUAGE);
@@ -68,6 +70,7 @@ class SessionController extends AbstractController
         $form->handleRequest($request);
 
 
+        # Si se envia el formulario
         if ($form->isSubmitted() && $form->isValid()):
             $formData = $form->getData();
             $em = $this->getDoctrine()->getManager();
@@ -130,20 +133,35 @@ class SessionController extends AbstractController
                 return $this->redirectToRoute('home');
             # Si no está vacío significa que hay sesiones activas en ese cine
             else:
-                # Recorremos las sesiones
-                foreach ($sessions as $session):
-                    $diff = date_diff($schedule_start, $session->getSchedule());
-
-                    // Si la sesión es el mismo día comparamos
-                    if ($diff->format('%a') === '0'):
-                        foreach ($rooms as $room):
-                            dump($this->getDoctrine()->getRepository(Session::class)->findByActiveSessionsByRoom($cinema, $room, $session->getSchedule(), $session->getScheduleEnd()));
-                            die();
-                        endforeach;
+                $assigned = false;
+                foreach ($rooms as $room):
+                    if (empty($this->getDoctrine()->getRepository(Session::class)->findByActiveSessionsByRoom(
+                        $cinema, $room, $schedule_start, $schedule_end))):
+                        $session = new Session();
+                        $session->setCinema($cinema);
+                        $session->setEvent($event);
+                        $session->setLanguage($formData['language']);
+                        $session->setSchedule($schedule_start);
+                        $session->setScheduleEnd($schedule_end);
+                        $session->setRoom($room);
+                        $assigned = true;
+                        $info = new LogInfo(LogInfo::TYPE_ERROR, 'Se ha añadido una sesión con ID' . $session->getId() .
+                            'en la sala' . $room->getNumber());
+                        $em->persist($session);
+                        $em->persist($info);
+                        $em->flush();
+                        break;
                     endif;
-
                 endforeach;
 
+                if ($assigned):
+                    $this->addFlash('success', '¡La sesión ha sido añadida correctamente!');
+                    return $this->redirectToRoute('home');
+                else:
+                    $this->addFlash('error', 'No se ha podido añadir la sesión a 
+                    la hora seleccionada porque hay conflictos con otra sesión'
+                    );
+                endif;
             endif;
         endif;
 

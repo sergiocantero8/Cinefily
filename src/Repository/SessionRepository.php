@@ -51,11 +51,9 @@ class SessionRepository extends ServiceEntityRepository
     {
         $qb=$this->createQueryBuilder('s');
         return $qb
-            ->where($qb->expr()->orX(
-                $qb->expr()->andX($qb->expr()->lt('s.schedule', ':start'),$qb->expr()->lt(':start', 's.schedule_end')),
-                $qb->expr()->andX($qb->expr()->lt('s.schedule', ':end'),$qb->expr()->lt(':end', 's.schedule_end')),
-                $qb->expr()->andX($qb->expr()->lt(':start', 's.schedule'),$qb->expr()->lt('s.schedule', ':end'))
-            ))
+            ->where(':start BETWEEN s.schedule AND s.schedule_end')
+            ->orWhere(':end BETWEEN s.schedule AND s.schedule_end')
+            ->orWhere('s.schedule BETWEEN :start AND :end')
             ->andWhere($qb->expr()->eq('s.cinema',':cinema'))
             ->andWhere($qb->expr()->eq('s.room',':room'))
             ->setParameter('start',$start)

@@ -4,17 +4,6 @@
 
 {% block main %}
 
-    {% for flash_message in app.flashes('error') %}
-        <div class="alert alert-danger">
-            {{ flash_message }}
-        </div>
-    {% endfor %}
-
-    {% for flash_message in app.flashes('success') %}
-        <div class="alert alert-success">
-            {{ flash_message }}
-        </div>
-    {% endfor %}
 
     <div class="container-fluid">
 
