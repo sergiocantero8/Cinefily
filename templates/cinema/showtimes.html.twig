@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cartelera | Cinefily{% endblock %}
+
+{% block main %}
+
+    <div class="form-showtime">
+        {{ form_start(form) }}
+        <div class="row">
+            <div class="col-12 col-md-3 ">
+                {{ form_row(form.cinema) }}
+            </div>
+
+            <div class="col-12 col-md-3">
+                {{ form_row(form.schedule) }}
+            </div>
+
+            <div class="col-12 col-md-1">
+                {{ form_row(form.submit) }}
+            </div>
+
+        </div>
+        {{ form_end(form) }}
+    </div>
+
+
+    {#
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Localización</th>
+            <th scope="col">Número de salas</th>
+            <th scope="col">Asientos totales</th>
+            <th scope="col">Precio de las entradas</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for cinema in data %}
+            <tr>
+                <th scope="row">{{ cinema.name }}</th>
+                <td>{{ cinema.location }}</td>
+                <td>{{ cinema.n_rooms }}</td>
+                <td>{{ cinema.n_seats }}</td>
+                <td>{{ cinema.tickets_price }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    #}
+{% endblock %}

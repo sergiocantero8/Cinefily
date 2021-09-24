@@ -36,7 +36,7 @@ class CinemaController extends AbstractController
     /**
      * Ruta para añadir un cine a través de un formulario. Un cine solo lo puede añadir un usuario con privilegios
      * de administrador
-     * @Route("/cinema/add", name="add_cinema")
+     * @Route("/admin/cinema/add", name="add_cinema")
      */
     public function addCinema(Request $request): Response
     {

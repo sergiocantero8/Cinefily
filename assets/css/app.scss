@@ -15,6 +15,8 @@
 @import './event-description';
 @import './page-not-found.scss';
 @import './user-profile.scss';
+@import './show-times.scss';
+@import './sidebar.scss';
 
 main {
   //background-image: url("../../images/white_background.png"); ;
@@ -25,6 +27,7 @@ main {
 
 body{
   margin-top: 0;
+  overflow-x: hidden;
 }
 
 .form-control  {

@@ -19,6 +19,7 @@ class LogInfoRepository extends ServiceEntityRepository
         parent::__construct($registry, LogInfo::class);
     }
 
+
     // /**
     //  * @return LogInfo[] Returns an array of LogInfo objects
     //  */

@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log | Cinefily{% endblock %}
+
+{% block main %}
+
+    <table class="table m-4">
+        <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Información</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for info in log_info %}
+            <tr>
+                <th scope="row">{{ info.id }}</th>
+                <td>{{ info.date }}</td>
+                <td>{{ info.type }}</td>
+                <td>{{ info.info }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

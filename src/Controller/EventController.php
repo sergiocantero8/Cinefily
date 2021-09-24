@@ -85,7 +85,7 @@ class EventController extends AbstractController
     /**
      * Ruta para añadir un evento a través de un formulario. Un evento solo lo puede añadir un usuario con privilegios
      * de administrador
-     * @Route("/event/add", name="add_event")
+     * @Route("/admin/event/add", name="add_event")
      */
     public function addEvent(Request $request): Response
     {

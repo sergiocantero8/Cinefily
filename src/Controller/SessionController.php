@@ -36,7 +36,7 @@ class SessionController extends AbstractController
 
 
     /**
-     * @Route("/session/add", name="add_session")
+     * @Route("/admin/session/add", name="add_session")
      * @throws Exception
      */
     public function addSession(Request $request): Response
@@ -125,7 +125,9 @@ class SessionController extends AbstractController
                 $session->setRoom($rooms[0]);
 
                 $this->addFlash('success', '¡La sesión ha sido añadida correctamente!');
-                $info = new LogInfo(LogInfo::TYPE_ERROR, 'Se ha añadido una sesión con ID' . $session->getId());
+                $info = new LogInfo(LogInfo::TYPE_SUCCESS, 'Se ha añadido una nueva sesión del evento ' .
+                    $event->getTitle() . ' con fecha de inicio ' . $schedule_start->format('Y-m-d H:i') .
+                    ' en la sala ' . $rooms[0]->getNumber());
                 $em->persist($session);
                 $em->persist($info);
                 $em->flush();
@@ -144,9 +146,12 @@ class SessionController extends AbstractController
                         $session->setSchedule($schedule_start);
                         $session->setScheduleEnd($schedule_end);
                         $session->setRoom($room);
+
                         $assigned = true;
-                        $info = new LogInfo(LogInfo::TYPE_ERROR, 'Se ha añadido una sesión con ID' . $session->getId() .
-                            'en la sala' . $room->getNumber());
+                        $info = new LogInfo(LogInfo::TYPE_SUCCESS, 'Se ha añadido una nueva sesión del evento ' .
+                            $event->getTitle() . ' con fecha de inicio ' . $schedule_start->format('Y-m-d H:i') .
+                            ' en la sala ' . $room->getNumber());
+
                         $em->persist($session);
                         $em->persist($info);
                         $em->flush();
@@ -158,8 +163,12 @@ class SessionController extends AbstractController
                     $this->addFlash('success', '¡La sesión ha sido añadida correctamente!');
                     return $this->redirectToRoute('home');
                 else:
-                    $this->addFlash('error', 'No se ha podido añadir la sesión a 
-                    la hora seleccionada porque hay conflictos con otra sesión'
+                    $message = 'No se ha podido añadir la sesión a 
+                    la hora seleccionada porque hay conflictos con otra sesión';
+                    $info = new LogInfo(LogInfo::TYPE_WARNING, $message);
+                    $em->persist($info);
+                    $em->flush();
+                    $this->addFlash('error', $message
                     );
                 endif;
             endif;

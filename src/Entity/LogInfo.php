@@ -14,10 +14,10 @@ class LogInfo
 
     # -------------------------------------------------- CONST ------------------------------------------------------- #
 
-    public const TYPE_ERROR=0;
-    public const TYPE_WARNING=1;
-    public const TYPE_SUCCESS=2;
-    public const TYPE_INFO=3;
+    public const TYPE_ERROR = 0;
+    public const TYPE_WARNING = 1;
+    public const TYPE_SUCCESS = 2;
+    public const TYPE_INFO = 3;
 
 
     # -------------------------------------------------- CONST ------------------------------------------------------- #
@@ -34,7 +34,7 @@ class LogInfo
         $this->setInfo($info);
     }
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
-    
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -88,14 +88,6 @@ class LogInfo
         return $this;
     }
 
-    # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
-
-    # ------------------------------------------------- METHODS ------------------------------------------------------ #
-
-    # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
-
-    # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
-
     public function getType(): ?int
     {
         return $this->type;
@@ -106,5 +98,45 @@ class LogInfo
         $this->type = $type;
 
         return $this;
+    }
+
+    # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
+
+    # ------------------------------------------------- METHODS ------------------------------------------------------ #
+
+    # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
+
+    # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+
+    /**
+     * @param int $type
+     * @return string
+     */
+    public static function convertTypeLogInfo(int $type): string
+    {
+        switch ($type):
+            case static::TYPE_ERROR:
+                $value = "ERROR";
+                break;
+
+            case static::TYPE_WARNING:
+                $value = "WARNING";
+                break;
+
+            case static::TYPE_SUCCESS:
+                $value = "EXITO";
+                break;
+
+            case static::TYPE_INFO:
+                $value = "INFO";
+                break;
+
+            default:
+                $value = "DESCONOCIDO";
+                break;
+        endswitch;
+
+        return $value;
     }
 }

@@ -27,19 +27,26 @@
         </div>
     </div>
 
+    {#
     <div id="carouselExampleControls" class="carousel slide" data-interval="false">
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <div class="row">
-                    <div class="col-4">
-                        <img
-                             src="https://ep01.epimg.net/elpais/imagenes/2019/10/30/album/1572424649_614672_1572453030_noticia_normal.jpg"
-                             alt="First slide" height="300px" width="300px">
-                    </div>
-                    <div class="col-4">
-                        <img  src="https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg"
-                             alt="Second slide" height="300px" width="300px">
-                    </div>
+
+                    {% if films != null and films is not empty %}
+                        {% for data_film in films %}
+                            <div class="col-4">
+                                <div class="card-box col-12 col-md-6 col-xl-4 ">
+                                    {% if data_film.tmdb_id is defined and data_film.tmdb_id is not null %}
+                                        {% include 'includes/event_card.html.twig' with {'tmdb_id': data_film.tmdb_id , 'data_film' : data_film} %}
+                                    {% else %}
+                                        {% include 'includes/event_card.html.twig' with {'id': data_film.id , 'data_film' : data_film} %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
                 </div>
             </div>
             <div class="carousel-item">
@@ -60,5 +67,5 @@
             <span class="sr-only">Next</span>
         </a>
     </div>
-
+#}
 {% endblock %}
