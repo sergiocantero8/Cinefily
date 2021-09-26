@@ -5,3 +5,13 @@
   border-width: 1px;
   border-color: #26272b;
 }
+
+.submit-search-showtimes{
+  position: relative;
+  top: 35px;
+  right: 35px;
+}
+
+#form_schedule_month, #form_schedule_day, #form_schedule_year{
+  margin-right: 10px;
+}

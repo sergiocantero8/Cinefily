@@ -250,10 +250,10 @@ class User implements UserInterface
     /**
      * setPhoto
      *
-     * @param string $photo
+     * @param string|null $photo
      * @return self
      */
-    public function setPhoto(string $photo): self
+    public function setPhoto(?string $photo): self
     {
         $this->profile_photo = $photo;
 

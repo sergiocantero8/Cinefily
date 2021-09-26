@@ -16,7 +16,7 @@
             </div>
 
             <div class="col-12 col-md-1">
-                {{ form_row(form.submit) }}
+                {{ form_widget(form.submit,{'attr': {'class': 'btn-primary btn submit-search-showtimes'}}) }}
             </div>
 
         </div>
@@ -24,6 +24,37 @@
     </div>
 
 
+    {% if sessionsByEvent is not null %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Evento</th>
+                <th scope="col"></th>
+                <th scope="col">Horario</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for id_event,sessions in sessionsByEvent %}
+                <tr>
+                    <td><img src="{{ asset('uploads/images/' ~ sessions.event.getPosterPhoto()) }}"
+                                         class="db_poster_photo" alt="Poster photo" height="200" width="170"/>
+
+                    </td>
+                    <td>
+                        <div class="h5">{{ sessions.event.getTitle()}}</div>
+                    </td>
+                    <td>
+                    {% for key,session in sessions %}
+                        {% if key != 'event' %}
+                            <a class="btn btn-primary" href="/booking?id_event= {{id_event}}" role="button">{{ session.schedule|date("H:i") }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
     {#
     <table class="table">
         <thead>

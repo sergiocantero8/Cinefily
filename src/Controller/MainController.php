@@ -9,6 +9,7 @@ use App\Entity\Session;
 use App\Entity\User;
 use DateInterval;
 use DateTime;
+use Exception;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -20,6 +21,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\DisabledException;
+use function array_key_exists;
 
 class MainController extends AbstractController
 {
@@ -142,7 +144,7 @@ class MainController extends AbstractController
      * @Route("/showtimes", name="show_times")
      * @param Request $request
      * @return Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function renderShowTimes(Request $request): Response
     {
@@ -153,6 +155,7 @@ class MainController extends AbstractController
             $cinemas[$cinema->getName()] = $cinema->getID();
         endforeach;
 
+        $sessionsByEvent = null;
 
         $form = $this->createFormBuilder(array('csrf_protection' => FALSE))
             ->setMethod(Request::METHOD_GET)
@@ -166,7 +169,7 @@ class MainController extends AbstractController
                 'placeholder' => [
                     'year' => 'Año', 'month' => 'Mes', 'day' => 'Dia'
                 ],
-                'years' => range(2021, 2023),
+                'years' => range(2021, 2023)
             ))
             ->add('submit', SubmitType::class, array(
                 'label' => 'Buscar',
@@ -190,12 +193,23 @@ class MainController extends AbstractController
             endif;
 
             if (empty($sessions)):
-              $this->addFlash('warning',"No hay sesiones programadas para ese día ");
+                $this->addFlash('warning', "No hay sesiones programadas para ese día ");
+            else:
+                $sessionsByEvent = array();
+                foreach ($sessions as $session):
+                    if (!array_key_exists($session->getEvent()->getId(), $sessionsByEvent)):
+                        $event= $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()->getId()));
+                        $sessionsByEvent[$session->getEvent()->getId()]['event']=$event;
+                    endif;
+                    $sessionsByEvent[$session->getEvent()->getId()][] = $session;
+                endforeach;
+
             endif;
         endif;
 
         $data = array(
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'sessionsByEvent' => $sessionsByEvent
         );
 
         return $this->render('/cinema/showtimes.html.twig', $data);

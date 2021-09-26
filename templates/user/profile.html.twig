@@ -168,16 +168,17 @@
         </div>
     </div>
 
-    {#
-    <div class="header-profile container-fluid">
 
 
+{% endblock %}
 
+{% block custom_body_javascript %}
 
+    <script>
+        // Para mostrar el nombre del archivo seleccionado
+        $('#form_profile_photo').change(function () {
+            $('.custom-file label[for="form_profile_photo"]').text(this.files[0].name);
+        });
 
-
-    </div>
-    #}
-
-
+    </script>
 {% endblock %}

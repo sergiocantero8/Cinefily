@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Form\UserRegistrationType;
 use DateTime;
 use Exception;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -215,6 +216,7 @@ class UserController extends AbstractController
 
         $form->handleRequest($request);
 
+
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
 
@@ -222,6 +224,13 @@ class UserController extends AbstractController
             $img = $formData['profile_photo'];
 
             if ($img) {
+
+                # Comprobamos si ya tenía una foto de perfil, si es así eliminamos la antigua
+                if ($user->getPhoto() !== null):
+                    $fs = new Filesystem();
+                    $fs->remove($this->getParameter('images_directory') . '/' . $user->getPhoto());
+                endif;
+
                 $fileName = md5(uniqid('', false)) . '' . $img->guessExtension();
 
                 try {
@@ -255,7 +264,7 @@ class UserController extends AbstractController
         $template = 'user/profile.html.twig';
         $date = $this->getUser()->getCreatedAt()->format('d/m/Y');
 
-        $nComments= count($this->getDoctrine()->getRepository(Comment::class)->findBy(array('user'=>$this->getUser()->getID())));
+        $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(array('user' => $this->getUser()->getID())));
 
 
         $data = array(
@@ -264,7 +273,7 @@ class UserController extends AbstractController
             'name' => $this->getUser()->getName(),
             'user_comments' => $nComments,
             'created_at' => $date
-    );
+        );
 
         return $this->render($template, $data);
 
