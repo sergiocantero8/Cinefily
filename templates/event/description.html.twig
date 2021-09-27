@@ -3,189 +3,179 @@
 {% block title %}Cinefily{% endblock %}
 
 {% block main %}
-    {% if data is null %}
-        <section class="error_section">
-            <p class="error_section_subtitle">Opps Página no disponible !</p>
-            <h1 class="error_title">
-                <p>404</p>
-                404
-            </h1>
-            <a href="/" class="btn-error">Volver al home</a>
-        </section>
-    {% else %}
-        <div class="movie-card">
 
-            <div class="container-fluid" id="description-fluid">
+    <div class="movie-card">
 
-                {% if data.backdrop is defined and data.backdrop is not null and data.tmdb_id is defined and data.tmdb_id is not null%}
-                    {% set backdrop = data.backdrop %}
-                    {% set poster_photo = data.poster_photo %}
-                {% elseif data.id is defined and data.backdrop is defined and data.backdrop is not null %}
-                    {% set backdrop = asset('uploads/images/' ~ data.backdrop) %}
-                    {% set poster_photo = asset('uploads/images/' ~ data.poster_photo) %}
-                {% else %}
-                    {% set backdrop = asset('uploads/images/default-backdrop.jpg') %}
-                {% endif %}
+        <div class="container-fluid" id="description-fluid">
 
-                <div class="backdrop"
-                     style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),url({{ backdrop }}); background-position: center">
+            {% if data.backdrop is defined and data.backdrop is not null and data.tmdb_id is defined and data.tmdb_id is not null %}
+                {% set backdrop = data.backdrop %}
+                {% set poster_photo = data.poster_photo %}
+            {% elseif data.id is defined and data.backdrop is defined and data.backdrop is not null %}
+                {% set backdrop = asset('uploads/images/' ~ data.backdrop) %}
+                {% set poster_photo = asset('uploads/images/' ~ data.poster_photo) %}
+            {% else %}
+                {% set backdrop = asset('uploads/images/default-backdrop.jpg') %}
+            {% endif %}
 
-                    <div class="cover">
-                        <img src="{{ poster_photo }}" width="185" height="278" alt="cover"/>
-                    </div>
-                    <div class="details">
+            <div class="backdrop"
+                 style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),url({{ backdrop }}); background-position: center">
 
-                        <div class="main-title-event">{{ data.title }} <span>{{ data.age_rating }}</span></div>
+                <div class="cover">
+                    <img src="{{ poster_photo }}" width="185" height="278" alt="cover"/>
+                </div>
+                <div class="details">
 
-                        <div class="secondary-title-event">{{ data.tagline }}</div>
+                    <div class="main-title-event">{{ data.title }} <span>{{ data.age_rating }}</span></div>
 
-                        <fieldset class="rating">
-                            <input type="radio" id="star5" name="rating" value="5"/><label class="full" for="star5"
-                                                                                           title="Awesome - 5 stars"></label>
-                            <input type="radio" id="star4half" name="rating" value="4 and a half"/><label class="half"
-                                                                                                          for="star4half"
-                                                                                                          title="Pretty good - 4.5 stars"></label>
-                            <input type="radio" id="star4" name="rating" value="4" checked/><label class="full"
-                                                                                                   for="star4"
-                                                                                                   title="Pretty good - 4 stars"></label>
-                            <input type="radio" id="star3half" name="rating" value="3 and a half"/><label class="half"
-                                                                                                          for="star3half"
-                                                                                                          title="Meh - 3.5 stars"></label>
-                            <input type="radio" id="star3" name="rating" value="3"/><label class="full" for="star3"
-                                                                                           title="Meh - 3 stars"></label>
-                            <input type="radio" id="star2half" name="rating" value="2 and a half"/><label class="half"
-                                                                                                          for="star2half"
-                                                                                                          title="Kinda bad - 2.5 stars"></label>
-                            <input type="radio" id="star2" name="rating" value="2"/><label class="full" for="star2"
-                                                                                           title="Kinda bad - 2 stars"></label>
-                            <input type="radio" id="star1half" name="rating" value="1 and a half"/><label class="half"
-                                                                                                          for="star1half"
-                                                                                                          title="Meh - 1.5 stars"></label>
-                            <input type="radio" id="star1" name="rating" value="1"/><label class="full" for="star1"
-                                                                                           title="Sucks big time - 1 star"></label>
-                            <input type="radio" id="starhalf" name="rating" value="half"/><label class="half"
-                                                                                                 for="starhalf"
-                                                                                                 title="Sucks big time - 0.5 stars"></label>
-                        </fieldset>
+                    <div class="secondary-title-event">{{ data.tagline }}</div>
 
-                        <span class="likes">109 likes</span>
+                    <fieldset class="rating">
+                        <input type="radio" id="star5" name="rating" value="5"/><label class="full" for="star5"
+                                                                                       title="Awesome - 5 stars"></label>
+                        <input type="radio" id="star4half" name="rating" value="4 and a half"/><label class="half"
+                                                                                                      for="star4half"
+                                                                                                      title="Pretty good - 4.5 stars"></label>
+                        <input type="radio" id="star4" name="rating" value="4" checked/><label class="full"
+                                                                                               for="star4"
+                                                                                               title="Pretty good - 4 stars"></label>
+                        <input type="radio" id="star3half" name="rating" value="3 and a half"/><label class="half"
+                                                                                                      for="star3half"
+                                                                                                      title="Meh - 3.5 stars"></label>
+                        <input type="radio" id="star3" name="rating" value="3"/><label class="full" for="star3"
+                                                                                       title="Meh - 3 stars"></label>
+                        <input type="radio" id="star2half" name="rating" value="2 and a half"/><label class="half"
+                                                                                                      for="star2half"
+                                                                                                      title="Kinda bad - 2.5 stars"></label>
+                        <input type="radio" id="star2" name="rating" value="2"/><label class="full" for="star2"
+                                                                                       title="Kinda bad - 2 stars"></label>
+                        <input type="radio" id="star1half" name="rating" value="1 and a half"/><label class="half"
+                                                                                                      for="star1half"
+                                                                                                      title="Meh - 1.5 stars"></label>
+                        <input type="radio" id="star1" name="rating" value="1"/><label class="full" for="star1"
+                                                                                       title="Sucks big time - 1 star"></label>
+                        <input type="radio" id="starhalf" name="rating" value="half"/><label class="half"
+                                                                                             for="starhalf"
+                                                                                             title="Sucks big time - 0.5 stars"></label>
+                    </fieldset>
 
-                    </div>
+                    <span class="likes">109 likes</span>
 
                 </div>
-
-                <div class="description">
-
-                    <div class="info_description">
-                        <div class="left-content">
-                            <div class="tags">
-                                {% for genre in data.genres %}
-                                    <span class="tag">{{ ucfirst(genre) }}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="center-content">
-                            <div class="overview">
-                                <p>{{ data.summary }}</p>
-                            </div>
-                        </div>
-                        <div class="left-content">
-                            <div class="about-event flex-column">
-                                {% if data.director is defined and data.director is not null %}
-                                    <div class="director">
-                                        Director
-                                        <p> {{ data.director }}</p>
-                                    </div>
-                                {% endif %}
-                                {% if data.duration is defined and data.duration is not null %}
-                                    <div class="duration">
-                                        Duración
-                                        <p> {{ data.duration }} minutos</p>
-                                    </div>
-                                {% endif %}
-                                {% if data.actors is defined and data.actors is not null %}
-                                    <div class="actors"> Actores
-                                        <p>{{ data.actors }}</p>
-                                    </div>
-                                {% endif %}
-                                {% if data.vote_average is defined and data.vote_average is not null %}
-                                    <div class="title-rating"> Nota TMDB
-                                        <p class="card-movie__rating"> {{ data.vote_average }}</p>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                    </div>
-                    {% if data.youtube_key is defined and data.youtube_key is not null %}
-                        <div class="youtube-trailer">
-                            <iframe width="500" height="300" src="https://www.youtube.com/embed/{{ data.youtube_key }}"
-                                    title="YouTube video player" frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen></iframe>
-                        </div>
-                    {% endif %}
-                </div>
-
-
-                <div class="row comments-section">
-                    <div class="col-12">
-                        <div class="comment-wrapper">
-                            <div class="panel panel-info">
-                                <div class="panel-heading">
-                                    Comentar
-                                </div>
-                                <div class="panel-body">
-
-                                    {% if data.form is not null %}
-                                        {{ form_start(data.form) }}
-                                        {{ form_widget(data.form.comment) }}
-
-                                        <br>
-                                        {{ form_widget(data.form.submit,{'attr': {'class': 'btn btn-info pull-right'}}) }}
-                                        {{ form_end(data.form) }}
-                                    {% else %}
-                                        <p> Inicia sesión o regístrate para comentar</p>
-                                    {% endif %}
-                                    <div class="clearfix"></div>
-                                    <hr>
-                                    <ul class="media-list">
-                                        {% for comment in data.comments %}
-                                            <li class="media">
-                                                <a href="#" class="pull-left">
-                                                    {% if comment['profilePic'] is not null %}
-                                                        <img src="{{ asset('uploads/images/' ~ comment['profilePic']) }}"
-                                                             class="img-circle " alt="">
-                                                    {% else %}
-                                                        <img src="https://bootdey.com/img/Content/user_1.jpg" alt=""
-                                                             class="img-circle">
-                                                    {% endif %}
-                                                </a>
-                                                <div class="media-body">
-                                            <span class="text-muted pull-right">
-                                                <small class="text-muted">{{ comment['createdAt'] }}</small>
-                                            </span>
-                                                    <strong class="text-success pl-2">{{ comment['username'] }}</strong>
-                                                    <p class="font-weight-bold text-dark pl-2">
-                                                        {{ comment['text'] }}
-                                                    </p>
-                                                </div>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
 
             </div>
 
+            <div class="description">
+
+                <div class="info_description">
+                    <div class="left-content">
+                        <div class="tags">
+                            {% for genre in data.genres %}
+                                <span class="tag">{{ ucfirst(genre) }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="center-content">
+                        <div class="overview">
+                            <p>{{ data.summary }}</p>
+                        </div>
+                    </div>
+                    <div class="left-content">
+                        <div class="about-event flex-column">
+                            {% if data.director is defined and data.director is not null %}
+                                <div class="director">
+                                    Director
+                                    <p> {{ data.director }}</p>
+                                </div>
+                            {% endif %}
+                            {% if data.duration is defined and data.duration is not null %}
+                                <div class="duration">
+                                    Duración
+                                    <p> {{ data.duration }} minutos</p>
+                                </div>
+                            {% endif %}
+                            {% if data.actors is defined and data.actors is not null %}
+                                <div class="actors"> Actores
+                                    <p>{{ data.actors }}</p>
+                                </div>
+                            {% endif %}
+                            {% if data.vote_average is defined and data.vote_average is not null %}
+                                <div class="title-rating"> Nota TMDB
+                                    <p class="card-movie__rating"> {{ data.vote_average }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+                {% if data.youtube_key is defined and data.youtube_key is not null %}
+                    <div class="youtube-trailer">
+                        <iframe width="500" height="300" src="https://www.youtube.com/embed/{{ data.youtube_key }}"
+                                title="YouTube video player" frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                    </div>
+                {% endif %}
+            </div>
+
+
+            <div class="row comments-section">
+                <div class="col-12">
+                    <div class="comment-wrapper">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                Comentar
+                            </div>
+                            <div class="panel-body">
+
+                                {% if data.form is not null %}
+                                    {{ form_start(data.form) }}
+                                    {{ form_widget(data.form.comment) }}
+
+                                    <br>
+                                    {{ form_widget(data.form.submit,{'attr': {'class': 'btn btn-info pull-right'}}) }}
+                                    {{ form_end(data.form) }}
+                                {% else %}
+                                    <p> Inicia sesión o regístrate para comentar</p>
+                                {% endif %}
+                                <div class="clearfix"></div>
+                                <hr>
+                                <ul class="media-list">
+                                    {% for comment in data.comments %}
+                                        <li class="media">
+                                            <a href="#" class="pull-left">
+                                                {% if comment['profilePic'] is not null %}
+                                                    <img src="{{ asset('uploads/images/' ~ comment['profilePic']) }}"
+                                                         class="img-circle " alt="">
+                                                {% else %}
+                                                    <img src="https://bootdey.com/img/Content/user_1.jpg" alt=""
+                                                         class="img-circle">
+                                                {% endif %}
+                                            </a>
+                                            <div class="media-body">
+                                            <span class="text-muted pull-right">
+                                                <small class="text-muted">{{ comment['createdAt'] }}</small>
+                                            </span>
+                                                <strong class="text-success pl-2">{{ comment['username'] }}</strong>
+                                                <p class="font-weight-bold text-dark pl-2">
+                                                    {{ comment['text'] }}
+                                                </p>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
         </div>
 
-    {% endif %}
+    </div>
+
 {% endblock main %}

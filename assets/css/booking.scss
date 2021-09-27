@@ -1,0 +1,85 @@
+
+.seatStructure{
+  background-color: #26272b;
+}
+.screen
+{
+  width:100%;
+  height:20px;
+  background:#4388cc;
+  color:#fff;
+  line-height:20px;
+  font-size:15px;
+}
+
+.smallBox::before
+{
+  content:".";
+  width:15px;
+  height:15px;
+  float:left;
+  margin-right:10px;
+}
+.greenBox::before
+{
+  content:"";
+  background:Green;
+}
+.redBox::before
+{
+  content:"";
+  background:Red;
+}
+.emptyBox::before
+{
+  box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
+  background-color:#ccc;
+}
+
+.seats
+{
+  border:1px solid red;background:yellow;
+}
+
+
+
+.seatGap
+{
+  width:40px;
+}
+
+.seatVGap
+{
+  height:40px;
+}
+
+
+textarea
+{
+  border:none;
+  background:transparent;
+}
+
+
+input[type=checkbox] {
+  width:0;
+  margin-right:18px;
+}
+
+input[type=checkbox]:before {
+  content: "";
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  vertical-align:middle;
+  text-align: center;
+  box-shadow: inset 0 2px 3px 0 rgba(0, 0, 0, .3), 0 1px 0 0 rgba(255, 255, 255, .8);
+  background-color:#ccc;
+}
+
+input[type=checkbox]:checked:before {
+  background-color:Green;
+  font-size: 15px;
+}
+
+

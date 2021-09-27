@@ -302,7 +302,14 @@ class EventController extends AbstractController
 
         endif;
 
-        return $this->render('event/description.html.twig', array('data' => $data));
+        // Si los datos son nulos cargamos la página de error
+        if ($data === null):
+            $template = 'error.html.twig';
+        else:
+            $template = 'event/description.html.twig';
+        endif;
+
+        return $this->render($template, array('data' => $data));
     }
 
 
