@@ -4,267 +4,170 @@
 
 
 {% block main %}
-    <!--suppress ALL -->
+
+    <!--suppress HtmlFormInputWithoutLabel, EqualityComparisonWithCoercionJS -->
     <div class="booking-page">
 
-        {# Formulario para introducir email y número de asientos #}
-        <div class="inputForm d-flex justify-content-center m-4">
-            <div class="row">
-                <div class="col-12 col-md-4">
-                    <label for="userEmail">Email:</label>
-                    <input type="email" class="form-control" id="userEmail" required>
-                    <small id="emailHelp" class="form-text text-muted">Email que recibirá las entradas</small>
+        <div class="row">
+            {# Detalles de la sesión: nombre del evento, portada, horario... #}
+            <div class="col-12 col-md-2">
+                <div class="container session-details d-flex justify-content-end">
+                    <div class="row">
+                        <div class="col-12 h3 mt-3 text-white">
+                            {{ event.getTitle() }}
+                        </div>
+                        <div class="col-12 m-2">
+                            <img src="{{ asset('uploads/images/' ~ event.getPosterPhoto()) }}"
+                                 class="session-image" alt="Poster photo"/>
+                        </div>
+
+                        <div class="col-12 mt-2">
+                            <div class="h6 text-white">{{ cinema.getName() }} ({{ cinema.getLocation() }})</div>
+                        </div>
+
+                        <div class="divider col-12 mt-2">
+                            <div class="h6 text-white">Sala {{ room.getNumber() }}</div>
+                        </div>
+
+                        <div class="divider col-12 mt-2">
+                            <div class="h6 text-white"> {{ session.schedule|date('d/m/y') }} </div>
+                            <p class="h6 text-white"> {{ session.schedule|date("H:i") }}
+                                - {{ session.scheduleEnd|date("H:i") }}</p>
+                        </div>
+
+                        {% if  event.getAgeRating() is not null %}
+                            <div class="divider col-12 mt-2">
+                                <div class="h6 text-white"> {{ event.getAgeRating() }} </div>
+                            </div>
+                        {% endif %}
+                        <div class="divider col-12 mt-2">
+                            <div class="h6 text-white"> {{ ucfirst(session.getLanguage()) }} </div>
+                        </div>
+
+                        <div class="divider col-12 mt-2">
+                            <div class="h6 text-white"> Precio de la entrada: {{ cinema.getTicketsPrice() }}€</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-12 col-md-4">
-                    <label for="numSeats">Número de asientos: </label>
-                    <input type="number" class="form-control" id="numSeats" required>
-                </div>
-                <div class="col-12 col-md-4">
-                    <button onclick="takeData()" class="btn btn-dark btn-sm">Empezar seleccion</button>
-                </div>
-                <div class="col-12 col-md-6" id="notification"></div>
             </div>
-        </div>
-        {# Termina formulario #}
+            <div class="col-12 col-md-10">
+                {# Formulario para introducir email y número de asientos #}
+                <div class="inputForm d-flex justify-content-center m-4">
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <label for="userEmail">Email:</label>
+                            <input type="email" class="form-control" id="userEmail" required>
+                            <small id="emailHelp" class="form-text text-muted">Email que recibirá las entradas</small>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="numSeats">Número de asientos: </label>
+                            <input type="number" class="form-control" id="numSeats" required>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <button onclick="takeData()" class=" btn btn-dark btn-sm">Empezar seleccion</button>
+                        </div>
+                        <div class="col-12 col-md-6" id="notification"></div>
+                    </div>
+                </div>
+                {# Termina formulario #}
 
 
-        <div class="d-flex justify-content-center m-4">
+                <div class="d-flex justify-content-center m-4">
 
-            <div class="seatStructure">
+                    <div class="seatStructure">
 
-                <table id="seatsBlock">
+                        <table id="seatsBlock">
 
-                    <tr>
-                        <td colspan="14">
-                            <div class="screen ml-5">PANTALLA</div>
-                        </td>
-                        <td rowspan="20">
-                            <div class="smallBox greenBox text-white ml-2">Seleccionado</div>
-                            <br/>
-                            <div class="smallBox redBox text-white ml-2">Reservado</div>
-                            <br/>
-                            <div class="smallBox emptyBox text-white ml-2">Vacío</div>
-                            <br/>
-                        </td>
+                            <tr>
+                                <td colspan="14">
+                                    <div class="screen ml-5">PANTALLA</div>
+                                </td>
+                                <td rowspan="20">
+                                    <div class="smallBox greenBox text-white ml-2">Seleccionado</div>
+                                    <br/>
+                                    <div class="smallBox redBox text-white ml-2">Reservado</div>
+                                    <br/>
+                                    <div class="smallBox emptyBox text-white ml-2">Vacío</div>
+                                    <br/>
+                                </td>
+
+                                <br/>
+                            </tr>
+
+                            {# Este bucle es sólo para mostrar el número de asiento #}
+                            <tr>
+                                <td class="text-white font-weight-bold"> Nº asiento</td>
+                                {% for i in 1..room.getNColumns() %}
+                                    <td class="text-white">{{ i }}</td>
+                                {% endfor %}
+                            </tr>
+
+                            {#
+                            Este bucle crea los asientos poniendole el valor de la fila y columna. Hay dos espacios
+                                en la sala a tener en cuenta: un sólo espacio que hay entre la mitad de las filas y un
+                                espacio por cada mitad de las columnas.
+                                Por eso creamos una variable fuera del bucle para indicar que aún no se ha creado el
+                                espacio entre las filas. Cuando se cree, la ponemos a uno y no volverá a crear ningún
+                                espacio. Sin embargo en el espacio entre columnas, se creo uno por cada fila por lo que
+                                al empezar el bucle de creación de la fila se resetea el valor de espacio entre columnas
+                            #}
+                            {% set spaceRow= 0 %}
+                            {% for i in 1..room.getNRows() %}
+                                {% set spaceColumns= 0 %}
+                                {% if spaceRow==0 and i>= (room.getNRows()/2) %}
+                                    {% set spaceRow= 1 %}
+                                    <tr class="seatVGap"></tr>
+                                {% else %}
+                                    <tr>
+                                        <td class="text-white">{{ i }}</td>
+                                        {% for j in 1..room.getNColumns() %}
+                                            {% if spaceColumns == 0 and j>= (room.getNColumns()/2) %}
+                                                <td></td>
+                                                {% set spaceColumns= 1 %}
+                                            {% else %}
+                                                <td>
+                                                    <input type="checkbox" class="seats"
+                                                           value="F{{ i }} C{{ j }},">
+                                                </td>
+                                            {% endif %}
+
+                                        {% endfor %}
+                                    </tr>
+                                {% endif %}
+
+                            {% endfor %}
+
+                        </table>
 
                         <br/>
-                    </tr>
 
-                    <tr>
-                        <td class="text-white font-weight-bold"> Nº asiento</td>
-                        <td class="text-white">1</td>
-                        <td class="text-white">2</td>
-                        <td class="text-white">3</td>
-                        <td class="text-white">4</td>
-                        <td class="text-white">5</td>
-                        <td class="text-white">6</td>
-                        <td class="text-white">7</td>
-                        <td class="text-white">8</td>
-                        <td class="text-white">9</td>
-                        <td class="text-white">10</td>
-                        <td class="text-white">11</td>
-                        <td class="text-white">12</td>
-                    </tr>
+                    </div>
 
-                    <tr>
-                        <td>A</td>
-                        <td><input type="checkbox" class="seats" value="A1"></td>
-                        <td><input type="checkbox" class="seats" value="A2"></td>
-                        <td><input type="checkbox" class="seats" value="A3"></td>
-                        <td><input type="checkbox" class="seats" value="A4"></td>
-                        <td><input type="checkbox" class="seats" value="A5"></td>
-                        <td class="seatGap"></td>
-                        <td><input type="checkbox" class="seats" value="A6"></td>
-                        <td><input type="checkbox" class="seats" value="A7"></td>
-                        <td><input type="checkbox" class="seats" value="A8"></td>
-                        <td><input type="checkbox" class="seats" value="A9"></td>
-                        <td><input type="checkbox" class="seats" value="A10"></td>
-                        <td><input type="checkbox" class="seats" value="A11"></td>
-                        <td><input type="checkbox" class="seats" value="A12"></td>
-                    </tr>
+                </div>
 
-                    <tr>
-                        <td>B</td>
-                        <td><input type="checkbox" class="seats" value="B1"></td>
-                        <td><input type="checkbox" class="seats" value="B2"></td>
-                        <td><input type="checkbox" class="seats" value="B3"></td>
-                        <td><input type="checkbox" class="seats" value="B4"></td>
-                        <td><input type="checkbox" class="seats" value="B5"></td>
-                        <td></td>
-                        <td><input type="checkbox" class="seats" value="B6"></td>
-                        <td><input type="checkbox" class="seats" value="B7"></td>
-                        <td><input type="checkbox" class="seats" value="B8"></td>
-                        <td><input type="checkbox" class="seats" value="B9"></td>
-                        <td><input type="checkbox" class="seats" value="B10"></td>
-                        <td><input type="checkbox" class="seats" value="B11"></td>
-                        <td><input type="checkbox" class="seats" value="B12"></td>
-                    </tr>
+                <div class="d-flex justify-content-center mb-4">
+                    <button onclick="updateTextArea()" class="btn btn-dark btn-sm">Confirmar selección</button>
+                </div>
+                {#
+                <div class="displayerBoxes">
+                    <table class="table-responsive d-flex justify-content-center">
+                        <tr>
+                            <th>Email</th>
+                            <th>Número de asientos</th>
+                            <th>Asientos</th>
+                        </tr>
+                        <tr>
+                            <td><textarea id="nameDisplay"></textarea></td>
+                            <td><textarea id="NumberDisplay"></textarea></td>
+                            <td><textarea id="seatsDisplay"></textarea></td>
+                            <button onclick="sendData()" class="btn btn-dark btn-sm" id="bookingReady">Pagar</button>
+                        </tr>
 
-                    <tr>
-                        <td>C</td>
-                        <td><input type="checkbox" class="seats" value="C1"></td>
-                        <td><input type="checkbox" class="seats" value="C2"></td>
-                        <td><input type="checkbox" class="seats" value="C3"></td>
-                        <td><input type="checkbox" class="seats" value="C4"></td>
-                        <td><input type="checkbox" class="seats" value="C5"></td>
-                        <td></td>
-                        <td><input type="checkbox" class="seats" value="C6"></td>
-                        <td><input type="checkbox" class="seats" value="C7"></td>
-                        <td><input type="checkbox" class="seats" value="C8"></td>
-                        <td><input type="checkbox" class="seats" value="C9"></td>
-                        <td><input type="checkbox" class="seats" value="C10"></td>
-                        <td><input type="checkbox" class="seats" value="C11"></td>
-                        <td><input type="checkbox" class="seats" value="C12"></td>
-                    </tr>
-
-                    <tr>
-                        <td>D</td>
-                        <td><input type="checkbox" class="seats" value="D1"></td>
-                        <td><input type="checkbox" class="seats" value="D2"></td>
-                        <td><input type="checkbox" class="seats" value="D3"></td>
-                        <td><input type="checkbox" class="seats" value="D4"></td>
-                        <td><input type="checkbox" class="seats" value="D5"></td>
-                        <td></td>
-                        <td><input type="checkbox" class="seats" value="D6"></td>
-                        <td><input type="checkbox" class="seats" value="D7"></td>
-                        <td><input type="checkbox" class="seats" value="D8"></td>
-                        <td><input type="checkbox" class="seats" value="D9"></td>
-                        <td><input type="checkbox" class="seats" value="D10"></td>
-                        <td><input type="checkbox" class="seats" value="D11"></td>
-                        <td><input type="checkbox" class="seats" value="D12"></td>
-                    </tr>
-
-                    <tr>
-                        <td>E</td>
-                        <td><input type="checkbox" class="seats" value="E1"></td>
-                        <td><input type="checkbox" class="seats" value="E2"></td>
-                        <td><input type="checkbox" class="seats" value="E3"></td>
-                        <td><input type="checkbox" class="seats" value="E4"></td>
-                        <td><input type="checkbox" class="seats" value="E5"></td>
-                        <td></td>
-                        <td><input type="checkbox" class="seats" value="E6"></td>
-                        <td><input type="checkbox" class="seats" value="E7"></td>
-                        <td><input type="checkbox" class="seats" value="E8"></td>
-                        <td><input type="checkbox" class="seats" value="E9"></td>
-                        <td><input type="checkbox" class="seats" value="E10"></td>
-                        <td><input type="checkbox" class="seats" value="E11"></td>
-                        <td><input type="checkbox" class="seats" value="E12"></td>
-                    </tr>
-
-                    <tr class="seatVGap"></tr>
-
-                    <tr>
-                        <td>F</td>
-                        <td><input type="checkbox" class="seats" value="F1"></td>
-                        <td><input type="checkbox" class="seats" value="F2"></td>
-                        <td><input type="checkbox" class="seats" value="F3"></td>
-                        <td><input type="checkbox" class="seats" value="F4"></td>
-                        <td><input type="checkbox" class="seats" value="F5"></td>
-                        <td></td>
-                        <td><input type="checkbox" class="seats" value="F6"></td>
-                        <td><input type="checkbox" class="seats" value="F7"></td>
-                        <td><input type="checkbox" class="seats" value="F8"></td>
-                        <td><input type="checkbox" class="seats" value="F9"></td>
-                        <td><input type="checkbox" class="seats" value="F10"></td>
-                        <td><input type="checkbox" class="seats" value="F11"></td>
-                        <td><input type="checkbox" class="seats" value="F12"></td>
-                    </tr>
-
-                    <tr>
-                        <td>G</td>
-                        <td><input type="checkbox" class="seats" value="G1"></td>
-                        <td><input type="checkbox" class="seats" value="G2"></td>
-                        <td><input type="checkbox" class="seats" value="G3"></td>
-                        <td><input type="checkbox" class="seats" value="G4"></td>
-                        <td><input type="checkbox" class="seats" value="G5"></td>
-                        <td></td>
-                        <td><input type="checkbox" class="seats" value="G6"></td>
-                        <td><input type="checkbox" class="seats" value="G7"></td>
-                        <td><input type="checkbox" class="seats" value="G8"></td>
-                        <td><input type="checkbox" class="seats" value="G9"></td>
-                        <td><input type="checkbox" class="seats" value="G10"></td>
-                        <td><input type="checkbox" class="seats" value="G11"></td>
-                        <td><input type="checkbox" class="seats" value="G12"></td>
-                    </tr>
-
-                    <tr>
-                        <td>H</td>
-                        <td><input type="checkbox" class="seats" value="H1"></td>
-                        <td><input type="checkbox" class="seats" value="H2"></td>
-                        <td><input type="checkbox" class="seats" value="H3"></td>
-                        <td><input type="checkbox" class="seats" value="H4"></td>
-                        <td><input type="checkbox" class="seats" value="H5"></td>
-                        <td></td>
-                        <td><input type="checkbox" class="seats" value="H6"></td>
-                        <td><input type="checkbox" class="seats" value="H7"></td>
-                        <td><input type="checkbox" class="seats" value="H8"></td>
-                        <td><input type="checkbox" class="seats" value="H9"></td>
-                        <td><input type="checkbox" class="seats" value="H10"></td>
-                        <td><input type="checkbox" class="seats" value="H11"></td>
-                        <td><input type="checkbox" class="seats" value="H12"></td>
-                    </tr>
-
-                    <tr>
-                        <td>I</td>
-                        <td><input type="checkbox" class="seats" value="I1"></td>
-                        <td><input type="checkbox" class="seats" value="I2"></td>
-                        <td><input type="checkbox" class="seats" value="I3"></td>
-                        <td><input type="checkbox" class="seats" value="I4"></td>
-                        <td><input type="checkbox" class="seats" value="I5"></td>
-                        <td></td>
-                        <td><input type="checkbox" class="seats" value="I6"></td>
-                        <td><input type="checkbox" class="seats" value="I7"></td>
-                        <td><input type="checkbox" class="seats" value="I8"></td>
-                        <td><input type="checkbox" class="seats" value="I9"></td>
-                        <td><input type="checkbox" class="seats" value="I10"></td>
-                        <td><input type="checkbox" class="seats" value="I11"></td>
-                        <td><input type="checkbox" class="seats" value="I12"></td>
-                    </tr>
-
-                    <tr>
-                        <td>J</td>
-                        <td><input type="checkbox" class="seats" value="J1"></td>
-                        <td><input type="checkbox" class="seats" value="J2"></td>
-                        <td><input type="checkbox" class="seats" value="J3"></td>
-                        <td><input type="checkbox" class="seats" value="J4"></td>
-                        <td><input type="checkbox" class="seats" value="J5"></td>
-                        <td></td>
-                        <td><input type="checkbox" class="seats" value="J6"></td>
-                        <td><input type="checkbox" class="seats" value="J7"></td>
-                        <td><input type="checkbox" class="seats" value="J8"></td>
-                        <td><input type="checkbox" class="seats" value="J9"></td>
-                        <td><input type="checkbox" class="seats" value="J10"></td>
-                        <td><input type="checkbox" class="seats" value="J11"></td>
-                        <td><input type="checkbox" class="seats" value="J12"></td>
-                    </tr>
-
-
-                </table>
-
-                <br/>
-
+                    </table>
+                </div>
+                #}
             </div>
-
         </div>
-
-        <div class="d-flex justify-content-center mb-4">
-            <button onclick="updateTextArea()" class="btn btn-dark btn-sm">Confirmar selección</button>
-        </div>
-        <div class="displayerBoxes">
-            <table class="table-responsive d-flex justify-content-center">
-                <tr>
-                    <th>Email</th>
-                    <th>Número de asientos</th>
-                    <th>Asientos</th>
-                </tr>
-                <tr>
-                    <td><textarea id="nameDisplay"></textarea></td>
-                    <td><textarea id="NumberDisplay"></textarea></td>
-                    <td><textarea id="seatsDisplay"></textarea></td>
-                </tr>
-            </table>
-        </div>
-
     </div>
 
 {% endblock %}
@@ -274,9 +177,10 @@
     <script>
 
         // Desactivamos la zona interactiva de reservar y el resultado
-        $('.booking-page').ready(function() {
+        $('.booking-page').ready(function () {
             $(".seatStructure *").prop('disabled', true);
             $(".displayerBoxes *").prop('disabled', true);
+            $("#bookingReady").hide();
         });
 
         // Función que toma los datos del usuario (email y numero de asientos)
@@ -292,28 +196,32 @@
         }
 
 
+        // Función para actualizar los texts Areas con los datos de la selección
         function updateTextArea() {
 
             if ($("input:checked").length == ($("#numSeats").val())) {
                 $(".seatStructure *").prop("disabled", true);
 
-                var allNameVals = [];
+                var allEmailVals = [];
                 var allNumberVals = [];
                 var allSeatsVals = [];
 
-                //Storing in Array
-                allNameVals.push($("#userEmail").val());
+                // Guardando los valores en sus arrays respectivamente
+                allEmailVals.push($("#userEmail").val());
                 allNumberVals.push($("#numSeats").val());
                 $('#seatsBlock :checked').each(function () {
                     allSeatsVals.push($(this).val());
                 });
 
-                //Displaying
-                $('#nameDisplay').val(allNameVals);
+                // Mostrando los valores por los texts Areas
+                $('#nameDisplay').val(allEmailVals);
                 $('#NumberDisplay').val(allNumberVals);
                 $('#seatsDisplay').val(allSeatsVals);
+
+                window.location = window.location.origin + "/booking/processBooking?seats="+ $('#seatsDisplay').val()
+
             } else {
-                alert("Please select " + ($("#numSeats").val()) + " seats")
+                alert("Tienes que seleccionar " + ($("#numSeats").val()) + " asientos")
             }
         }
 
@@ -321,23 +229,6 @@
         function myFunction() {
             alert($("input:checked").length);
         }
-
-        /*
-        function getCookie(cname) {
-            var name = cname + "=";
-            var ca = document.cookie.split(';');
-            for(var i = 0; i < ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return "";
-        }
-        */
 
 
         $(":checkbox").click(function () {
@@ -349,6 +240,25 @@
             }
         });
 
+
+        function sendData() {
+            console.log("Holaaa");
+            var formData = new FormData();
+            formData.append("userEmail", $("#nameDisplay").val());
+            formData.append("nSeats", $("#NumberDisplay").val());
+            formData.append("seats", $("#seatsDisplay").val());
+            $.ajax({
+                url: "/booking/processBooking",
+                type: 'POST',
+                cache: false,
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (response) {
+                    alert(response);
+                }
+            });
+        }
 
     </script>
 {% endblock %}

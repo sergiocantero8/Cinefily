@@ -34,7 +34,7 @@ class AddCinemaType extends AbstractType
     {
 
         $builder
-            ->setAction('/cinema/add')
+            ->setAction('/admin/cinema/add')
             ->add('name', TextType::class, array(
                 'label' => 'Nombre'
             ))

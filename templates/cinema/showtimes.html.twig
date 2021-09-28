@@ -46,7 +46,7 @@
                     <td>
                     {% for key,session in sessions %}
                         {% if key != 'event' %}
-                            <a class="btn btn-primary" href="/booking/{{id_event}}" role="button">{{ session.schedule|date("H:i") }}</a>
+                            <a class="btn btn-primary" href="/booking/?session={{session.getId()}}" role="button">{{ session.schedule|date("H:i") }}</a>
                         {% endif %}
                     {% endfor %}
                     </td>

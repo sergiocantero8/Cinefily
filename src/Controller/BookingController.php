@@ -2,6 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Cinema;
+use App\Entity\EventData;
+use App\Entity\Room;
+use App\Entity\Session;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,17 +28,47 @@ class BookingController extends AbstractController
     /**
      * Ruta para añadir un cine a través de un formulario. Un cine solo lo puede añadir un usuario con privilegios
      * de administrador
-     * @Route("/booking/{id}", methods={"GET"},  name="booking_tickets")
+     * @Route("/booking", methods={"GET"},  name="booking_tickets")
      */
-    public function bookingTickets(int $id): Response
+    public function bookingTickets(Request $request): Response
     {
+        $id = $request->get('session');
+
         if ($id === null):
-            $template= 'error.html.twig';
+            $template = 'error.html.twig';
         else:
-            $template= 'booking/room_booking.html.twig';
+            $template = 'booking/room_booking.html.twig';
         endif;
 
-        return $this->render($template, array());
+        // Recuperamos todos los datos de la sesión, la sala, el cine y el evento
+        $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $id));
+
+        if ($session !== null):
+            $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $session->getCinema()));
+            $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()));
+            $room = $this->getDoctrine()->getRepository(Room::class)->findOneBy(array('id' => $session->getRoom()));
+        endif;
+
+
+        $data= array(
+            'session' => $session,
+            'cinema' => $cinema ?? null,
+            'event' => $event ?? null,
+            'room' => $room ?? null
+        );
+
+        return $this->render($template, $data);
+    }
+
+    /**
+     * Ruta para añadir un cine a través de un formulario. Un cine solo lo puede añadir un usuario con privilegios
+     * de administrador
+     * @Route("/booking/processBooking", methods={"GET"},  name="process_booking")
+     */
+    public function processBooking(Request $request): Response
+    {
+        $seats= array_filter(explode(",",$request->get('seats')));
+        dump($seats);die();
     }
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 

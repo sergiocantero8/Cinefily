@@ -2,6 +2,33 @@
 .seatStructure{
   background-color: #26272b;
 }
+
+.booking-page{
+  margin-top: 50px;
+  background-color: #ececec;
+}
+
+.session-details{
+  background-color: #26272b;
+  margin: 35px;
+  margin-left: 100px !important;
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),url("https://suitelife.com/wp-content/uploads/2017/12/empty-cinema-660x369.jpg");
+  background-position: center;
+
+
+  .session-image{
+    height: 200px;
+    width: 170px;
+  }
+}
+
+.divider{
+  border-top: 1px solid #fff;
+  padding-top: 15px;
+  margin-top: 15px;
+}
+
+
 .screen
 {
   width:100%;
