@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Cartelera | Cinefily{% endblock %}
+{% block title %}Asientos | Cinefily{% endblock %}
 
 
 {% block main %}
@@ -11,44 +11,7 @@
         <div class="row">
             {# Detalles de la sesión: nombre del evento, portada, horario... #}
             <div class="col-12 col-md-2">
-                <div class="container session-details d-flex justify-content-end">
-                    <div class="row">
-                        <div class="col-12 h3 mt-3 text-white">
-                            {{ event.getTitle() }}
-                        </div>
-                        <div class="col-12 m-2">
-                            <img src="{{ asset('uploads/images/' ~ event.getPosterPhoto()) }}"
-                                 class="session-image" alt="Poster photo"/>
-                        </div>
-
-                        <div class="col-12 mt-2">
-                            <div class="h6 text-white">{{ cinema.getName() }} ({{ cinema.getLocation() }})</div>
-                        </div>
-
-                        <div class="divider col-12 mt-2">
-                            <div class="h6 text-white">Sala {{ room.getNumber() }}</div>
-                        </div>
-
-                        <div class="divider col-12 mt-2">
-                            <div class="h6 text-white"> {{ session.schedule|date('d/m/y') }} </div>
-                            <p class="h6 text-white"> {{ session.schedule|date("H:i") }}
-                                - {{ session.scheduleEnd|date("H:i") }}</p>
-                        </div>
-
-                        {% if  event.getAgeRating() is not null %}
-                            <div class="divider col-12 mt-2">
-                                <div class="h6 text-white"> {{ event.getAgeRating() }} </div>
-                            </div>
-                        {% endif %}
-                        <div class="divider col-12 mt-2">
-                            <div class="h6 text-white"> {{ ucfirst(session.getLanguage()) }} </div>
-                        </div>
-
-                        <div class="divider col-12 mt-2">
-                            <div class="h6 text-white"> Precio de la entrada: {{ cinema.getTicketsPrice() }}€</div>
-                        </div>
-                    </div>
-                </div>
+                {% include 'booking/includes/session_details.html.twig' %}
             </div>
             <div class="col-12 col-md-10">
                 {# Formulario para introducir email y número de asientos #}
@@ -97,7 +60,12 @@
                             {# Este bucle es sólo para mostrar el número de asiento #}
                             <tr>
                                 <td class="text-white font-weight-bold"> Nº asiento</td>
+                                {% set space= 0 %}
                                 {% for i in 1..room.getNColumns() %}
+                                    {% if space==0 and i>= (room.getNColumns()/2) %}
+                                        {% set space= 1 %}
+                                        <td class="space">space</td>
+                                    {% endif %}
                                     <td class="text-white">{{ i }}</td>
                                 {% endfor %}
                             </tr>
@@ -117,23 +85,21 @@
                                 {% if spaceRow==0 and i>= (room.getNRows()/2) %}
                                     {% set spaceRow= 1 %}
                                     <tr class="seatVGap"></tr>
-                                {% else %}
-                                    <tr>
-                                        <td class="text-white">{{ i }}</td>
-                                        {% for j in 1..room.getNColumns() %}
-                                            {% if spaceColumns == 0 and j>= (room.getNColumns()/2) %}
-                                                <td></td>
-                                                {% set spaceColumns= 1 %}
-                                            {% else %}
-                                                <td>
-                                                    <input type="checkbox" class="seats"
-                                                           value="F{{ i }} C{{ j }},">
-                                                </td>
-                                            {% endif %}
-
-                                        {% endfor %}
-                                    </tr>
                                 {% endif %}
+                                <tr>
+                                    <td class="text-white">{{ i }}</td>
+                                    {% for j in 1..room.getNColumns() %}
+                                        {% if spaceColumns == 0 and j>= (room.getNColumns()/2) %}
+                                            <td></td>
+                                            {% set spaceColumns= 1 %}
+                                        {% endif %}
+                                        <td>
+                                            <input type="checkbox" class="seats"
+                                                   value="Fila {{ i }} Asiento {{ j }},">
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+
 
                             {% endfor %}
 
@@ -148,6 +114,7 @@
                 <div class="d-flex justify-content-center mb-4">
                     <button onclick="updateTextArea()" class="btn btn-dark btn-sm">Confirmar selección</button>
                 </div>
+
                 {#
                 <div class="displayerBoxes">
                     <table class="table-responsive d-flex justify-content-center">
@@ -160,7 +127,6 @@
                             <td><textarea id="nameDisplay"></textarea></td>
                             <td><textarea id="NumberDisplay"></textarea></td>
                             <td><textarea id="seatsDisplay"></textarea></td>
-                            <button onclick="sendData()" class="btn btn-dark btn-sm" id="bookingReady">Pagar</button>
                         </tr>
 
                     </table>
@@ -180,7 +146,6 @@
         $('.booking-page').ready(function () {
             $(".seatStructure *").prop('disabled', true);
             $(".displayerBoxes *").prop('disabled', true);
-            $("#bookingReady").hide();
         });
 
         // Función que toma los datos del usuario (email y numero de asientos)
@@ -213,12 +178,7 @@
                     allSeatsVals.push($(this).val());
                 });
 
-                // Mostrando los valores por los texts Areas
-                $('#nameDisplay').val(allEmailVals);
-                $('#NumberDisplay').val(allNumberVals);
-                $('#seatsDisplay').val(allSeatsVals);
-
-                window.location = window.location.origin + "/booking/processBooking?seats="+ $('#seatsDisplay').val()
+                window.location = window.location.origin + "/booking/processBooking?seats=" + allSeatsVals.toString();
 
             } else {
                 alert("Tienes que seleccionar " + ($("#numSeats").val()) + " asientos")

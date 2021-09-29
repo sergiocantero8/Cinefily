@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pago | Cinefily{% endblock %}
+
+
+{% block main %}
+
+
+    <div class="booking-page">
+
+        <div class="row">
+            {# Detalles de la sesión: nombre del evento, portada, horario... #}
+            <div class="col-12 col-md-2">
+                {% include 'booking/includes/session_details.html.twig' %}
+            </div>
+
+            <div class="col-12 col-md-8">
+                <div class="movie-card">
+                    <div class="movie-header poster-ticket">
+                    </div><!--movie-header-->
+                    <div class="movie-content">
+                        <div class="movie-content-header">
+                            <a href="#">
+                                <h3 class="movie-title">Man of Steel</h3>
+                            </a>
+                            <div class="imax-logo"></div>
+                        </div>
+                        <div class="movie-info">
+                            <div class="info-section">
+                                <label>Fecha</label>
+                                <span>Sun 8 Sept - 10:00PM</span>
+                            </div><!--date,time-->
+                            <div class="info-section">
+                                <label>Sala</label>
+                                <span>03</span>
+                            </div><!--screen-->
+                            <div class="info-section">
+                                <label>Fila</label>
+                                <span>F</span>
+                            </div><!--row-->
+                            <div class="info-section">
+                                <label>Asientos</label>
+                                <span>21,22</span>
+                            </div><!--seat-->
+                        </div>
+                    </div><!--movie-content-->
+                </div><!--movie-card-->
+
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <p class="h6"> Los {{ n_seats }} asientos que has elegido son:
+            {% for seat in seats %}
+                <span class="font-weight-bold">{{ seat }} </span>
+            {% endfor %}
+        </p>
+    </div>
+
+
+
+{% endblock %}
+
+    {% block custom_body_javascript %}
+
+    {% endblock %}

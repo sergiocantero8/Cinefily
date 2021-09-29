@@ -1,0 +1,40 @@
+<div class="container session-details d-flex justify-content-end">
+    <div class="row">
+        <div class="col-12 h3 mt-3 text-white">
+            {{ event.getTitle() }}
+        </div>
+        <div class="col-12 m-2">
+            <img src="{{ asset('uploads/images/' ~ event.getPosterPhoto()) }}"
+                 class="session-image" alt="Poster photo"/>
+        </div>
+
+        <div class="col-12 mt-2">
+            <div class="h6 text-white">{{ cinema.getName() }} ({{ cinema.getLocation() }})</div>
+        </div>
+
+        <div class="divider col-12 mt-2">
+            <div class="h6 text-white">Sala {{ room.getNumber() }}
+                ({{ room.getNRows()*room.getNColumns() }} asientos)
+            </div>
+        </div>
+
+        <div class="divider col-12 mt-2">
+            <div class="h6 text-white"> {{ session.schedule|date('d/m/y') }} </div>
+            <p class="h6 text-white"> {{ session.schedule|date("H:i") }}
+                - {{ session.scheduleEnd|date("H:i") }}</p>
+        </div>
+
+        {% if  event.getAgeRating() is not null %}
+            <div class="divider col-12 mt-2">
+                <div class="h6 text-white"> {{ event.getAgeRating() }} </div>
+            </div>
+        {% endif %}
+        <div class="divider col-12 mt-2">
+            <div class="h6 text-white"> {{ ucfirst(session.getLanguage()) }} </div>
+        </div>
+
+        <div class="divider col-12 mt-2">
+            <div class="h6 text-white"> Precio de la entrada: {{ cinema.getTicketsPrice() }}€</div>
+        </div>
+    </div>
+</div>

@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function count;
 
 
 class BookingController extends AbstractController
@@ -67,8 +68,23 @@ class BookingController extends AbstractController
      */
     public function processBooking(Request $request): Response
     {
-        $seats= array_filter(explode(",",$request->get('seats')));
-        dump($seats);die();
+
+        $s = $request->get('seats');
+
+        if ($s === null):
+            $template = 'error.html.twig';
+        else:
+            $template = 'booking/process_booking.html.twig';
+        endif;
+
+        $seats= array_filter(explode(",",$s));
+
+        $data=array(
+            'seats'=>$seats,
+            'n_seats' => count($seats)
+        );
+
+        return $this->render($template, $data);
     }
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 

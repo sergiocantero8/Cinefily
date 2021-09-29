@@ -1,4 +1,6 @@
-<?php /** @noinspection MultipleReturnStatementsInspection */
+<?php /** @noinspection PhpParamsInspection */
+
+/** @noinspection MultipleReturnStatementsInspection */
 
 namespace App\Controller;
 
@@ -293,6 +295,8 @@ class EventController extends AbstractController
                     'age_rating' => $event_data->getAgeRating(),
                     'tagline' => $event_data->getTagLine(),
                     'backdrop' => $event_data->getBackdropPath(),
+                    'director' => $event_data->getDirector(),
+                    'actors' => $event_data->getActors(),
                     #'youtube_key' => $this->extractYoutubeTrailerTMDB($event_data['videos']),
                     'vote_average' => $event_data->getRating(),
                     'form' => $commentsForm !== NULL ? $commentsForm->createView() : $commentsForm,
