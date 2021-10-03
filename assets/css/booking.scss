@@ -15,14 +15,15 @@
 .session-details{
   background-color: #26272b;
   margin: 35px;
-  margin-left: 100px !important;
+  margin-left: 30px !important;
   background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),url("https://suitelife.com/wp-content/uploads/2017/12/empty-cinema-660x369.jpg");
   background-position: center;
 
 
   .session-image{
-    height: 200px;
-    width: 170px;
+    height: 100%;
+    width: 100%;
+    padding-right: 15px;
   }
 }
 
@@ -32,6 +33,13 @@
   margin-top: 15px;
 }
 
+.film-id-booking{
+  font-style: italic;
+  font-size: 10px;
+  position: absolute;
+  top: -12px;
+  right: 10px;
+}
 
 .screen
 {

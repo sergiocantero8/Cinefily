@@ -1,7 +1,8 @@
-<div class="container session-details d-flex justify-content-end">
+<div class="container session-details d-flex">
     <div class="row">
         <div class="col-12 h3 mt-3 text-white">
             {{ event.getTitle() }}
+            <div class="film-id-booking" id="film-id-booking"> ID: <span>{{ event.getId() }}</span></div>
         </div>
         <div class="col-12 m-2">
             <img src="{{ asset('uploads/images/' ~ event.getPosterPhoto()) }}"

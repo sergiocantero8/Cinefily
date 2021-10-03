@@ -14,50 +14,62 @@
                 {% include 'booking/includes/session_details.html.twig' %}
             </div>
 
-            <div class="col-12 col-md-8">
-                <div class="movie-card">
-                    <div class="movie-header poster-ticket">
-                    </div><!--movie-header-->
-                    <div class="movie-content">
-                        <div class="movie-content-header">
-                            <a href="#">
-                                <h3 class="movie-title">Man of Steel</h3>
-                            </a>
-                            <div class="imax-logo"></div>
+            <div class="col-12 col-md-8 ">
+                <div class="container d-flex justify-content-center m-4">
+                    <div class="row">
+                        <div class="col-12">
+                            {% if n_seats > 1 %}
+                                <p class="h6"> Los {{ n_seats }} asientos que has elegido son:</p>
+                            {% else %}
+                                <p class="h6"> El asiento que has elegido es:</p>
+                            {% endif %}
                         </div>
-                        <div class="movie-info">
-                            <div class="info-section">
-                                <label>Fecha</label>
-                                <span>Sun 8 Sept - 10:00PM</span>
-                            </div><!--date,time-->
-                            <div class="info-section">
-                                <label>Sala</label>
-                                <span>03</span>
-                            </div><!--screen-->
-                            <div class="info-section">
-                                <label>Fila</label>
-                                <span>F</span>
-                            </div><!--row-->
-                            <div class="info-section">
-                                <label>Asientos</label>
-                                <span>21,22</span>
-                            </div><!--seat-->
+                        <div class="col-12">
+                            <ul class="list-group">
+                                {% for seat in seats %}
+                                    <li class="list-group-item font-weight-bold"> {{ seat }} </li>
+                                {% endfor %}
+                            </ul>
                         </div>
-                    </div><!--movie-content-->
-                </div><!--movie-card-->
+                        <div class="col-12">
+                            {% include 'session/includes/ticket_movie.html.twig' %}
+                        </div>
+
+                        <div class="col-12">
+                            <a class="btn btn-success mt-3" href="/booking/payment" role="button"><i class="fas fa-shopping-cart pr-2"></i>Comprar</a>
+                            <a class="btn btn-danger mt-3" href="/booking/payment" data-toggle="modal" data-target="#cancelModal"><i class="fas fa-window-close pr-2"></i>Cancelar</a>
+                        </div>
+
+
+
+                    </div>
+                </div>
 
             </div>
         </div>
     </div>
-    <div class="container">
-        <p class="h6"> Los {{ n_seats }} asientos que has elegido son:
-            {% for seat in seats %}
-                <span class="font-weight-bold">{{ seat }} </span>
-            {% endfor %}
-        </p>
+
+
+
+    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Cancelar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Seguro que quieres cancelar el proceso de reserva de las entradas?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Seguir con el proceso</button>
+                    <button type="button" class="btn btn-danger">Sí, estoy seguro</button>
+                </div>
+            </div>
+        </div>
     </div>
-
-
 
 {% endblock %}
 

@@ -1,0 +1,32 @@
+<div class="movie-ticket">
+    <div class="movie-header poster-ticket"
+         style="background: url({{ asset('uploads/images/' ~ event.getPosterPhoto()) }}); background-size: cover; background-position: center">
+    </div><!--movie-header-->
+    <div class="movie-content">
+        <div class="movie-content-header">
+            <div class="h3 movie-title">{{ event.getTitle() }}</div>
+            {# <div class="imax-logo"></div> #}
+        </div>
+        <div class="movie-info">
+            <div class="info-section">
+                <label>Fecha</label>
+                <span>{{ session.schedule|date('d/m/y H:i') }}</span>
+            </div><!--date,time-->
+            <div class="info-section">
+                <label>Sala</label>
+                <span>{{ room.getNumber() }}</span>
+            </div><!--screen-->
+            <div class="info-section">
+                <label>Fila/Asiento</label>
+                <span>
+                    {% for row,columns in matrixSeats %}
+                        {% for column in columns %}
+                            {{ row }}/{{ column }}
+                        {% endfor %}
+                    {% endfor %}
+                </span>
+            </div><!--row-->
+
+        </div>
+    </div><!--movie-content-->
+</div><!--movie-card-->

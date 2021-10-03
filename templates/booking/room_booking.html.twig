@@ -178,8 +178,9 @@
                     allSeatsVals.push($(this).val());
                 });
 
-                window.location = window.location.origin + "/booking/processBooking?seats=" + allSeatsVals.toString();
 
+                window.location = window.location.origin + "/booking/processBooking?seats=" + allSeatsVals.toString() +
+                "&id_session=" + {{ session.getId() }};
             } else {
                 alert("Tienes que seleccionar " + ($("#numSeats").val()) + " asientos")
             }
