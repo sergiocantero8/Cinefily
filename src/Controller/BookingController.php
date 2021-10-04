@@ -54,6 +54,15 @@ class BookingController extends AbstractController
             $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $session->getCinema()));
             $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()));
             $room = $this->getDoctrine()->getRepository(Room::class)->findOneBy(array('id' => $session->getRoom()));
+            if ($room !== null):
+                $seats = $this->getDoctrine()->getRepository(Seat::class)->findBy(array('room' => $room->getId()));
+                if ($seats !== null):
+                    $matrixStatusSeats=array();
+                    foreach ($seats as $seat):
+                        $matrixStatusSeats[$seat->getRow()][$seat->getNumber()]=$seat->getStatus();
+                    endforeach;
+                endif;
+            endif;
         endif;
 
 
@@ -61,7 +70,8 @@ class BookingController extends AbstractController
             'session' => $session,
             'cinema' => $cinema ?? null,
             'event' => $event ?? null,
-            'room' => $room ?? null
+            'room' => $room ?? null,
+            'matrixStatusSeats'=> $matrixStatusSeats ?? null
         );
 
         return $this->render($template, $data);
@@ -184,7 +194,7 @@ class BookingController extends AbstractController
                                     $message = 'Sus asientos se han reservado correctamente 
                                     y se le ha enviado al correo las entradas.';
                                     if ($this->getUser()):
-                                        $message.='También las tiene disponibles en su perfil, en el apartado Mis entradas.';
+                                        $message .= 'También las tiene disponibles en su perfil, en el apartado Mis entradas.';
                                     endif;
                                     $this->addFlash('success', $message);
 

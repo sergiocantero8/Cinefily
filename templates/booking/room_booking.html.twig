@@ -54,7 +54,8 @@
                                     <div class="screen ml-5">PANTALLA</div>
                                 </td>
                                 <td rowspan="20">
-                                    <div class="smallBox greenBox text-white mr-2 ml-2"><span class="ml-2">Seleccionado</span> </div>
+                                    <div class="smallBox greenBox text-white mr-2 ml-2"><span
+                                                class="ml-2">Seleccionado</span></div>
                                     <br/>
                                     <div class="smallBox redBox text-white mr-2 ml-2">Reservado</div>
                                     <br/>
@@ -102,8 +103,12 @@
                                             {% set spaceColumns= 1 %}
                                         {% endif %}
                                         <td>
-                                            <input type="checkbox" class="seats"
-                                                   value="Fila {{ i }} Asiento {{ j }},">
+                                            {% if matrixStatusSeats[i][j] == true %}
+                                                <input type="checkbox" class="seats"
+                                                       value="Fila {{ i }} Asiento {{ j }},">
+                                            {% else %}
+                                                <div class="smallBox redBox"></div>
+                                            {% endif %}
                                         </td>
                                     {% endfor %}
                                 </tr>
@@ -144,10 +149,9 @@
             // Si no se ha introducido ningún dato
             if (($("#userEmail").val().length == 0) || ($("#numSeats").val().length == 0)) {
                 alert("Introduce tu email y el número de asientos");
-            } else if(($("#numSeats").val() < 0) || ($("#numSeats").val() > 10)){
+            } else if (($("#numSeats").val() < 0) || ($("#numSeats").val() > 10)) {
                 alert("Introduce un número de asientos válido");
-            }
-            else {
+            } else {
                 $(".inputForm *").prop("disabled", true);
                 $(".seatStructure *").prop("disabled", false);
                 document.getElementById("notification").innerHTML = "<b style='margin-top:2px;background:yellow;'>Selecciona tus asientos</b>";
@@ -175,7 +179,6 @@
                 alert("Tienes que seleccionar " + ($("#numSeats").val()) + " asientos")
             }
         }
-
 
 
         // Cambia de color depende de si se selecciona o no

@@ -302,6 +302,7 @@ class UserController extends AbstractController
 
         $myTickets=$this->getDoctrine()->getRepository(Ticket::class)->findBy(array('user' => $this->getUser()));
 
+        dump($myTickets);die();
         $data = array();
 
         return $this->render($template, $data);
