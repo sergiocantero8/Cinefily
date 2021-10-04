@@ -17,17 +17,25 @@
                 {# Formulario para introducir email y número de asientos #}
                 <div class="inputForm d-flex justify-content-center m-4">
                     <div class="row">
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-8 ">
                             <label for="userEmail">Email:</label>
-                            <input type="email" class="form-control" id="userEmail" required>
+                            {% if app.user %}
+                                <input type="email" class="form-control" id="userEmail"
+                                       value={{ app.user.getEmail() }} required>
+                            {% else %}
+                                <input type="email" class="form-control" id="userEmail" required>
+                            {% endif %}
                             <small id="emailHelp" class="form-text text-muted">Email que recibirá las entradas</small>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 mt-2">
                             <label for="numSeats">Número de asientos: </label>
-                            <input type="number" class="form-control" id="numSeats" required>
                         </div>
-                        <div class="col-12 col-md-4">
-                            <button onclick="takeData()" class=" btn btn-dark btn-sm">Empezar seleccion</button>
+                        <div class="col-12 col-md-2">
+                            <input type="number" class="form-control" id="numSeats" required>
+                            <small id="emailHelp" class="form-text text-muted">Máximo 10 asientos</small>
+                        </div>
+                        <div class="col-12 ">
+                            <button onclick="takeData()" class="btn btn-dark btn-sm mt-2">Empezar seleccion</button>
                         </div>
                         <div class="col-12 col-md-6" id="notification"></div>
                     </div>
@@ -46,11 +54,11 @@
                                     <div class="screen ml-5">PANTALLA</div>
                                 </td>
                                 <td rowspan="20">
-                                    <div class="smallBox greenBox text-white ml-2">Seleccionado</div>
+                                    <div class="smallBox greenBox text-white mr-2 ml-2"><span class="ml-2">Seleccionado</span> </div>
                                     <br/>
-                                    <div class="smallBox redBox text-white ml-2">Reservado</div>
+                                    <div class="smallBox redBox text-white mr-2 ml-2">Reservado</div>
                                     <br/>
-                                    <div class="smallBox emptyBox text-white ml-2">Vacío</div>
+                                    <div class="smallBox emptyBox text-white mr-2 ml-2">Vacío</div>
                                     <br/>
                                 </td>
 
@@ -112,26 +120,9 @@
                 </div>
 
                 <div class="d-flex justify-content-center mb-4">
-                    <button onclick="updateTextArea()" class="btn btn-dark btn-sm">Confirmar selección</button>
+                    <button onclick="selectionToPayment()" class="btn btn-dark btn-sm">Confirmar selección</button>
                 </div>
 
-                {#
-                <div class="displayerBoxes">
-                    <table class="table-responsive d-flex justify-content-center">
-                        <tr>
-                            <th>Email</th>
-                            <th>Número de asientos</th>
-                            <th>Asientos</th>
-                        </tr>
-                        <tr>
-                            <td><textarea id="nameDisplay"></textarea></td>
-                            <td><textarea id="NumberDisplay"></textarea></td>
-                            <td><textarea id="seatsDisplay"></textarea></td>
-                        </tr>
-
-                    </table>
-                </div>
-                #}
             </div>
         </div>
     </div>
@@ -153,45 +144,41 @@
             // Si no se ha introducido ningún dato
             if (($("#userEmail").val().length == 0) || ($("#numSeats").val().length == 0)) {
                 alert("Introduce tu email y el número de asientos");
-            } else {
+            } else if(($("#numSeats").val() < 0) || ($("#numSeats").val() > 10)){
+                alert("Introduce un número de asientos válido");
+            }
+            else {
                 $(".inputForm *").prop("disabled", true);
                 $(".seatStructure *").prop("disabled", false);
-                document.getElementById("notification").innerHTML = "<b style='margin-bottom:0px;background:yellow;'>Selecciona tus asientos</b>";
+                document.getElementById("notification").innerHTML = "<b style='margin-top:2px;background:yellow;'>Selecciona tus asientos</b>";
             }
         }
 
 
         // Función para actualizar los texts Areas con los datos de la selección
-        function updateTextArea() {
+        function selectionToPayment() {
 
             if ($("input:checked").length == ($("#numSeats").val())) {
                 $(".seatStructure *").prop("disabled", true);
 
-                var allEmailVals = [];
-                var allNumberVals = [];
                 var allSeatsVals = [];
 
                 // Guardando los valores en sus arrays respectivamente
-                allEmailVals.push($("#userEmail").val());
-                allNumberVals.push($("#numSeats").val());
                 $('#seatsBlock :checked').each(function () {
                     allSeatsVals.push($(this).val());
                 });
 
 
                 window.location = window.location.origin + "/booking/processBooking?seats=" + allSeatsVals.toString() +
-                "&id_session=" + {{ session.getId() }};
+                    "&id_session=" + {{ session.getId() }};
             } else {
                 alert("Tienes que seleccionar " + ($("#numSeats").val()) + " asientos")
             }
         }
 
 
-        function myFunction() {
-            alert($("input:checked").length);
-        }
 
-
+        // Cambia de color depende de si se selecciona o no
         $(":checkbox").click(function () {
             if ($("input:checked").length == ($("#numSeats").val())) {
                 $(":checkbox").prop('disabled', true);
@@ -203,7 +190,6 @@
 
 
         function sendData() {
-            console.log("Holaaa");
             var formData = new FormData();
             formData.append("userEmail", $("#nameDisplay").val());
             formData.append("nSeats", $("#NumberDisplay").val());

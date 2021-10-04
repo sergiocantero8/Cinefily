@@ -26,10 +26,6 @@ class Ticket
      */
     private $price;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $start_date;
 
     /**
      * @ORM\Column(type="blob", nullable=true)
@@ -51,6 +47,12 @@ class Ticket
      */
     private $seat;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Session::class)
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $session;
+
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
     public function getId(): ?int
@@ -70,17 +72,6 @@ class Ticket
         return $this;
     }
 
-    public function getStartDate(): ?\DateTimeInterface
-    {
-        return $this->start_date;
-    }
-
-    public function setStartDate(\DateTimeInterface $start_date): self
-    {
-        $this->start_date = $start_date;
-
-        return $this;
-    }
 
     public function getQrCode()
     {
@@ -136,6 +127,17 @@ class Ticket
         return $this;
     }
 
+    public function getSession(): ?Session
+    {
+        return $this->session;
+    }
+
+    public function setSession(?Session $session): self
+    {
+        $this->session = $session;
+
+        return $this;
+    }
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
 
@@ -146,4 +148,6 @@ class Ticket
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+
 }

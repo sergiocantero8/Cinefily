@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
+use App\Entity\Ticket;
 use App\Entity\User;
 use App\Form\UserRegistrationType;
 use DateTime;
@@ -27,6 +28,8 @@ class UserController extends AbstractController
     # -------------------------------------------------- CONST ------------------------------------------------------- #
 
     public const ROUTE_USER_PROFILE = 'user_profile';
+    public const ROUTE_USER_TICKETS = 'user_tickets';
+    public const ROUTE_USER_REGISTRATION = 'user_registration';
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
@@ -153,6 +156,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * Ruta para visualizar todos los datos del perfil del usuario y con posibilidad de editarlos
      * @Route("/user/profile", name="user_profile")
      */
     public function userProfile(Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
@@ -274,6 +278,31 @@ class UserController extends AbstractController
             'user_comments' => $nComments,
             'created_at' => $date
         );
+
+        return $this->render($template, $data);
+
+    }
+
+
+    /**
+     * Ruta para visualizar todos los datos del perfil del usuario y con posibilidad de editarlos
+     * @Route("/user/myTickets", name="user_tickets")
+     */
+    public function userTickets(Request $request): Response
+    {
+
+        if (!$this->getUser()) :
+            return $this->redirectToRoute('home');
+        endif;
+
+
+        $user = $this->getUser() ?? new User();
+
+        $template = 'user/my_tickets.html.twig';
+
+        $myTickets=$this->getDoctrine()->getRepository(Ticket::class)->findBy(array('user' => $this->getUser()));
+
+        $data = array();
 
         return $this->render($template, $data);
 

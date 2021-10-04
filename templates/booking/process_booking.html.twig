@@ -36,10 +36,11 @@
                         </div>
 
                         <div class="col-12">
-                            <a class="btn btn-success mt-3" href="/booking/payment" role="button"><i class="fas fa-shopping-cart pr-2"></i>Comprar</a>
-                            <a class="btn btn-danger mt-3" href="/booking/payment" data-toggle="modal" data-target="#cancelModal"><i class="fas fa-window-close pr-2"></i>Cancelar</a>
+                            <a class="btn btn-success mt-3" href="/booking/payment" data-toggle="modal"
+                               data-target="#paymentTickets"><i class="fas fa-shopping-cart pr-2"></i>Comprar</a>
+                            <a class="btn btn-danger mt-3" href="/booking/payment" data-toggle="modal"
+                               data-target="#cancelModal"><i class="fas fa-window-close pr-2"></i>Cancelar</a>
                         </div>
-
 
 
                     </div>
@@ -51,11 +52,36 @@
 
 
 
-    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    {# Modal para el pago de entradas por Paypal o reserva de entradas #}
+    <div class="modal fade" id="paymentTickets" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Cancelar</h5>
+                    <h5 class="modal-title" id="paymentTickets">Pago</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Elige el método de pago
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Atrás</button>
+                    <a class="btn btn-warning" onclick="sendSeats('paypal')">
+                        <i class="fab fa-cc-paypal pr-2"></i>PayPal</a>
+                    <a class="btn btn-success" onclick="sendSeats('cash')">
+                        <i class="fas fa-coins pr-2"></i>En taquilla</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal para la cancelación del proceso de entradas #}
+    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelModal">Cancelar</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -65,7 +91,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Seguir con el proceso</button>
-                    <button type="button" class="btn btn-danger">Sí, estoy seguro</button>
+                    <a class="btn btn-danger " href="/showtimes">Sí, estoy seguro</a>
                 </div>
             </div>
         </div>
@@ -74,5 +100,15 @@
 {% endblock %}
 
     {% block custom_body_javascript %}
+
+        <script>
+            // Función para actualizar los texts Areas con los datos de la selección
+            function sendSeats(method) {
+
+                window.location = window.location.origin + "/booking/payment?method=cash&seats=" + "{{ seats|join(', ') }}" +
+                    "&id_session=" + {{ session.getId() }} + '&method=' + method + '&price=' + {{ cinema.getTicketsPrice() }};
+
+            }
+        </script>
 
     {% endblock %}
