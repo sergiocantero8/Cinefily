@@ -43,15 +43,15 @@ class Ticket
     private $sale_date;
 
     /**
-     * @ORM\OneToOne(targetEntity=Seat::class, mappedBy="ticket", cascade={"persist", "remove"})
-     */
-    private $seat;
-
-    /**
      * @ORM\ManyToOne(targetEntity=Session::class)
      * @ORM\JoinColumn(nullable=false)
      */
     private $session;
+
+    /**
+     * @ORM\OneToOne(targetEntity=SeatBooked::class, mappedBy="ticket", cascade={"persist", "remove"})
+     */
+    private $seatBooked;
 
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
@@ -110,22 +110,6 @@ class Ticket
         return $this;
     }
 
-    public function getSeat(): ?Seat
-    {
-        return $this->seat;
-    }
-
-    public function setSeat(Seat $seat): self
-    {
-        // set the owning side of the relation if necessary
-        if ($seat->getTicket() !== $this) {
-            $seat->setTicket($this);
-        }
-
-        $this->seat = $seat;
-
-        return $this;
-    }
 
     public function getSession(): ?Session
     {
@@ -148,6 +132,23 @@ class Ticket
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
+
+    public function getSeatBooked(): ?SeatBooked
+    {
+        return $this->seatBooked;
+    }
+
+    public function setSeatBooked(SeatBooked $seatBooked): self
+    {
+        // set the owning side of the relation if necessary
+        if ($seatBooked->getTicket() !== $this) {
+            $seatBooked->setTicket($this);
+        }
+
+        $this->seatBooked = $seatBooked;
+
+        return $this;
+    }
 
 
 }

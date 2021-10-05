@@ -7,6 +7,7 @@ use App\Entity\EventData;
 use App\Entity\LogInfo;
 use App\Entity\Room;
 use App\Entity\Seat;
+use App\Entity\SeatBooked;
 use App\Entity\Session;
 use App\Entity\Ticket;
 use DateTime;
@@ -57,9 +58,12 @@ class BookingController extends AbstractController
             if ($room !== null):
                 $seats = $this->getDoctrine()->getRepository(Seat::class)->findBy(array('room' => $room->getId()));
                 if ($seats !== null):
-                    $matrixStatusSeats=array();
+                    $matrixStatusSeats = array();
                     foreach ($seats as $seat):
-                        $matrixStatusSeats[$seat->getRow()][$seat->getNumber()]=$seat->getStatus();
+                        $seatBooked = $this->getDoctrine()->getRepository(SeatBooked::class)->findBy(
+                            array('session' => $session, 'seat' => $seat)
+                        );
+                        $matrixStatusSeats[$seat->getRow()][$seat->getNumber()] = empty($seatBooked);
                     endforeach;
                 endif;
             endif;
@@ -71,7 +75,7 @@ class BookingController extends AbstractController
             'cinema' => $cinema ?? null,
             'event' => $event ?? null,
             'room' => $room ?? null,
-            'matrixStatusSeats'=> $matrixStatusSeats ?? null
+            'matrixStatusSeats' => $matrixStatusSeats ?? null
         );
 
         return $this->render($template, $data);
@@ -167,10 +171,12 @@ class BookingController extends AbstractController
                                 # Obtiene el cerrojo para que no haya concurrencia
                                 $lock->acquire(true);
 
+                                $seatBooked = $this->getDoctrine()->getRepository(SeatBooked::class)->findBy(
+                                    array('session' => $session, 'seat' => $seat)
+                                );
                                 # Si el asiento está libre
-                                if ($seat->getStatus()):
+                                if (empty($seatBooked)):
                                     $ticket = new Ticket();
-                                    $ticket->setSeat($seat);
                                     $ticket->setSession($session);
 
                                     if ($this->getUser()):
@@ -180,15 +186,19 @@ class BookingController extends AbstractController
                                     $ticket->setPrice($price);
                                     $ticket->setSaleDate(new DateTime());
 
+
+                                    # Creamos el asiento reservado correspondiente al asiento y a la sesión
+                                    $seatBooked = new SeatBooked();
+                                    $seatBooked->setSession($session);
+                                    $seatBooked->setSeat($seat);
+                                    $seatBooked->setTicket($ticket);
+
                                     # Guardamos toda la información relacionado con el ticket
-                                    $em->persist($ticket);
+                                    $em->persist($seatBooked);
                                     $em->flush();
 
-                                    # Cambiamos el estado del asiento a falso ya que ahora está ocupado
-                                    $seat->setStatus(false);
-                                    $seat->setTicket($ticket);
-
-                                    $em->persist($seat);
+                                    $ticket->setSeatBooked($seatBooked);
+                                    $em->persist($ticket);
                                     $em->flush();
 
                                     $message = 'Sus asientos se han reservado correctamente 

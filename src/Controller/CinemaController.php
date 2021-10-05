@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use function count;
+use function in_array;
 
 class CinemaController extends AbstractController
 {
@@ -42,7 +43,7 @@ class CinemaController extends AbstractController
     {
 
         // Comprobamos que el usuario está identificado y además tiene privilegios de administrador
-        if (!$this->getUser() || ($this->getUser() && !\in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
+        if (!$this->getUser() || ($this->getUser() && !in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
             $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
             return $this->redirectToRoute('home');
         endif;
@@ -87,7 +88,6 @@ class CinemaController extends AbstractController
                             $seat->setRoom($room);
                             $seat->setRow($j);
                             $seat->setNumber($k);
-                            $seat->setStatus(true); #True para indicar que el asiento está libre
                             $em->persist($seat);
                         endfor;
                     endfor;
@@ -111,7 +111,7 @@ class CinemaController extends AbstractController
      * Ruta para mostrar los detalles de todos los cines almacenados en la web
      * @Route("/cinema/all", name="all_cinema")
      */
-    public function showAllCinemas(Request $request): Response
+    public function showAllCinemas(): Response
     {
 
         $data = array();

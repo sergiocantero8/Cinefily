@@ -33,10 +33,6 @@ class Seat
      */
     private $number;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $status;
 
     /**
      * @ORM\ManyToOne(targetEntity=Room::class, inversedBy="seats")
@@ -44,11 +40,6 @@ class Seat
      */
     private $room;
 
-    /**
-     * @ORM\OneToOne(targetEntity=Ticket::class, inversedBy="seat", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private $ticket;
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
 
@@ -84,18 +75,6 @@ class Seat
         return $this;
     }
 
-    public function getStatus(): ?bool
-    {
-        return $this->status;
-    }
-
-    public function setStatus(bool $status): self
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
     public function getRoom(): ?Room
     {
         return $this->room;
@@ -104,18 +83,6 @@ class Seat
     public function setRoom(?Room $room): self
     {
         $this->room = $room;
-
-        return $this;
-    }
-
-    public function getTicket(): ?Ticket
-    {
-        return $this->ticket;
-    }
-
-    public function setTicket(Ticket $ticket): self
-    {
-        $this->ticket = $ticket;
 
         return $this;
     }

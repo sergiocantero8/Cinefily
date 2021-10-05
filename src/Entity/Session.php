@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\SessionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -53,6 +55,16 @@ class Session
      * @ORM\Column(type="datetime")
      */
     private $schedule_end;
+
+    /**
+     * @ORM\OneToMany(targetEntity=SeatBooked::class, mappedBy="session", orphanRemoval=true)
+     */
+    private $seatBookeds;
+
+    public function __construct()
+    {
+        $this->seatBookeds = new ArrayCollection();
+    }
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
 
@@ -137,6 +149,36 @@ class Session
     public function setScheduleEnd(\DateTimeInterface $schedule_end): self
     {
         $this->schedule_end = $schedule_end;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SeatBooked[]
+     */
+    public function getSeatBookeds(): Collection
+    {
+        return $this->seatBookeds;
+    }
+
+    public function addSeatBooked(SeatBooked $seatBooked): self
+    {
+        if (!$this->seatBookeds->contains($seatBooked)) {
+            $this->seatBookeds[] = $seatBooked;
+            $seatBooked->setSession($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSeatBooked(SeatBooked $seatBooked): self
+    {
+        if ($this->seatBookeds->removeElement($seatBooked)) {
+            // set the owning side to null (unless already changed)
+            if ($seatBooked->getSession() === $this) {
+                $seatBooked->setSession(null);
+            }
+        }
 
         return $this;
     }
