@@ -1,8 +1,14 @@
-<?php
+<?php /** @noinspection PhpUndefinedMethodInspection */
 
 namespace App\Controller;
 
+use App\Entity\Cinema;
 use App\Entity\Comment;
+use App\Entity\EventData;
+use App\Entity\Room;
+use App\Entity\Seat;
+use App\Entity\SeatBooked;
+use App\Entity\Session;
 use App\Entity\Ticket;
 use App\Entity\User;
 use App\Form\UserRegistrationType;
@@ -273,8 +279,7 @@ class UserController extends AbstractController
 
         $data = array(
             'form' => $form->createView(),
-            'image' => $this->getUser()->getPhoto(),
-            'name' => $this->getUser()->getName(),
+            'user' => $user,
             'user_comments' => $nComments,
             'created_at' => $date
         );
@@ -288,7 +293,7 @@ class UserController extends AbstractController
      * Ruta para visualizar todos los datos del perfil del usuario y con posibilidad de editarlos
      * @Route("/user/myTickets", name="user_tickets")
      */
-    public function userTickets(Request $request): Response
+    public function userTickets(): Response
     {
 
         if (!$this->getUser()) :
@@ -300,12 +305,29 @@ class UserController extends AbstractController
 
         $template = 'user/my_tickets.html.twig';
 
-        $myTickets=$this->getDoctrine()->getRepository(Ticket::class)->findBy(array('user' => $this->getUser()));
+        $myTickets = $this->getDoctrine()->getRepository(Ticket::class)->findBy(array(
+            'user' => $this->getUser()), array('sale_date' => 'ASC'), 10);
 
-        dump($myTickets);die();
-        $data = array();
 
-        return $this->render($template, $data);
+        $tickets = array();
+        foreach ($myTickets as $ticket):
+            $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $ticket->getSession()));
+            if ($session !== null):
+                $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()));
+                $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $session->getCinema()));
+                $room = $this->getDoctrine()->getRepository(Room::class)->findOneBy(array('id' => $session->getRoom()));
+                $seat = $this->getDoctrine()->getRepository(Seat::class)->findOneBy(array('id' => $ticket->getSeatBooked()->getSeat()));
+                if ($seat !== null):
+                    $row = $seat->getRow();
+                    $column = $seat->getNumber();
+                endif;
+            endif;
+            $tickets[] = compact('session', 'event' ?? null, 'room' ?? null, 'cinema' ?? null,
+                'row' ?? null, 'column' ?? null, 'ticket' ?? null);
+        endforeach;
+
+
+        return $this->render($template, compact('tickets', 'user'));
 
     }
 

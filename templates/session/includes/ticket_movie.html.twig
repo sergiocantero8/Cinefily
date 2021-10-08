@@ -1,10 +1,23 @@
+{% if event is not defined %}
+    {% set event= ticket.event %}
+{% endif %}
+{% if session is not defined %}
+    {% set session= ticket.session %}
+{% endif %}
+{% if room is not defined %}
+    {% set room= ticket.room %}
+{% endif %}
+{% if cinema is not defined %}
+    {% set cinema= ticket.cinema %}
+{% endif %}
+
 <div class="movie-ticket">
     <div class="movie-header poster-ticket"
          style="background: url({{ asset('uploads/images/' ~ event.getPosterPhoto()) }}); background-size: cover; background-position: center">
     </div><!--movie-header-->
     <div class="movie-content">
         <div class="movie-content-header">
-            <div class="h3 movie-title">{{ event.getTitle() }}</div>
+            <div class="h4 movie-title">{{ event.getTitle() }}</div>
             {# <div class="imax-logo"></div> #}
         </div>
         <div class="movie-info">
@@ -19,11 +32,17 @@
             <div class="info-section">
                 <label>Fila/Asiento</label>
                 <span>
-                    {% for row,columns in matrixSeats %}
-                        {% for column in columns %}
-                            {{ row }}/{{ column }}
+                    {% if matrixSeats is defined %}
+
+                        {% for row,columns in matrixSeats %}
+                            {% for column in columns %}
+                                {{ row }}/{{ column }}
+                            {% endfor %}
                         {% endfor %}
-                    {% endfor %}
+
+                    {% else %}
+                        {{ ticket.row }}/ {{ ticket.column }}
+                    {% endif %}
                 </span>
             </div><!--row-->
 

@@ -102,7 +102,7 @@
     {% block custom_body_javascript %}
 
         <script>
-            // Función para actualizar los texts Areas con los datos de la selección
+            // Función para actualizar enviar los datos de toda la reserva
             function sendSeats(method) {
 
                 window.location = window.location.origin + "/booking/payment?method=cash&seats=" + "{{ seats|join(', ') }}" +

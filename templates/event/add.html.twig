@@ -32,11 +32,11 @@
             </div>
 
             <div class="release-date-event col-12 col-md-2">
-                {{ form_row(form.release_date) }}
+                {{ form_row(form.rating) }}
             </div>
 
             <div class="rating-event col-12 col-md-4">
-                {{ form_row(form.rating) }}
+                {{ form_row(form.release_date) }}
             </div>
 
             <div class="age-rating-event col-md-4">
@@ -48,8 +48,11 @@
             </div>
 
             <div class="actors-event col-12 col-md-4">
-
                 {{ form_row(form.actors) }}
+            </div>
+
+            <div class="actors-event col-12 col-md-4">
+                {{ form_row(form.tag_line) }}
             </div>
 
             <div class="poster-photo-event col-12 col-md-4">
@@ -59,12 +62,15 @@
             <div class="backdrop-photo-event col-12 col-md-4">
                 {{ form_row(form.backdrop_photo) }}
             </div>
+            <div class="backdrop-photo-event col-12 col-md-4">
+                {{ form_row(form.youtube_trailer) }}
+            </div>
 
             <div class="status-event col-12 col-md-4">
                 {{ form_row(form.status) }}
             </div>
 
-            <div class="submit-event col-12">
+            <div class="submit-event col-12 text-center">
                 {{ form_row(form.submit) }}
             </div>
 

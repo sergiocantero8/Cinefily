@@ -11,10 +11,17 @@
                 <li><a href="/showtimes" class="nav-link px-2 text-white">Cartelera</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">Precios</a></li>
                 {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
-                    <li><a href="/admin/event/add" class="nav-link px-2 text-white">Añadir evento</a></li>
-                    <li><a href="/admin/cinema/add" class="nav-link px-2 text-white">Añadir cine</a></li>
-                    <li><a href="/admin/session/add" class="nav-link px-2 text-white">Añadir sesión</a></li>
-                    <li><a href="/admin/log" class="nav-link px-2 text-white">Log</a></li>
+                    <li>
+                    <div class="dropdown">
+                        <button class="dropbtn">Mi administración</button>
+                        <div class="dropdown-content">
+                            <a href="/admin/event/add" class="nav-link px-2 text-white">Añadir evento</a>
+                            <a href="/admin/cinema/add" class="nav-link px-2 text-white">Añadir cine</a>
+                            <a href="/admin/session/add" class="nav-link px-2 text-white">Añadir sesión</a>
+                            <a href="/admin/log" class="nav-link px-2 text-white">Log</a>
+                        </div>
+                    </div>
+                    </li>
                 {% endif %}
             </ul>
 
@@ -62,7 +69,6 @@
                                 <a class="dropdown-item " href="/user/profile"><i class="fas fa-user mr-1"></i>Mi perfil</a>
                                 <a class="dropdown-item " href="/user/myTickets"><i class="fas fa-ticket-alt"></i>Mis entradas</a>
                                 <a class="dropdown-item " href="/user/logout"><i class="fas fa-sign-out-alt mr-1"></i>Cerrar sesión</a>
-                                {# }<a class="dropdown-item" href="#">Log Out</a> #}
                             </div>
                         </li>
                     </ul>

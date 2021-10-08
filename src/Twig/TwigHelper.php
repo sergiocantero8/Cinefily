@@ -2,8 +2,8 @@
 
 namespace App\Twig;
 
+use App\Controller\EventController;
 use App\Controller\UserController;
-use phpDocumentor\Reflection\Types\Mixed_;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -27,7 +27,8 @@ class TwigHelper extends AbstractExtension
             new TwigFunction('ucfirst', array($this, 'ucfirstString')),
             new TwigFunction('lengthArray', array($this, 'lengthArray')),
             new TwigFunction('strPosString', array($this, 'strPosString')),
-            new TwigFunction('convertPrivilegesToString', array($this, 'convertPrivilegesToString'))
+            new TwigFunction('convertPrivilegesToString', array($this, 'convertPrivilegesToString')),
+            new TwigFunction('getAllEventGenres', array($this, 'getAllEventGenres'))
         );
     }
 
@@ -69,6 +70,14 @@ class TwigHelper extends AbstractExtension
     public function ucfirstString(string $str): string
     {
         return ucfirst($str);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllEventGenres(): array
+    {
+        return EventController::getAllGenresTypes();
     }
 
     /**

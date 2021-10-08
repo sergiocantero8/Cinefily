@@ -45,12 +45,14 @@ class MainController extends AbstractController
     /**
      * @Route("/", name="home")
      */
-    public function renderHomePage(Request $request, EventController $eventController): Response
+    public function renderHomePage(EventController $eventController): Response
     {
 
         //$configuration = $eventController->getIMDBConfiguration();
 
+        /*
         $upcomingsFilmsPage = $eventController->getTMDBFilmsUpcoming();
+
 
         foreach ($upcomingsFilmsPage as $key => $film):
             if ($key <= static::LIMIT_UPCOMING_FILMS):
@@ -60,46 +62,61 @@ class MainController extends AbstractController
             endif;
         endforeach;
 
+        */
+
+        // Obtenemos los ids de TMDB que queremos mostrar en el home para cargarlos
         $homeIDSFilms = $this->getTMDB_FilmIDs();
 
+        // Hacemos una llamada a la API de TMDB por cada ID que tengamos almacenado
         foreach ($homeIDSFilms as $filmID):
-            $events_data[] = $eventController->getIMDBFilmByID($filmID);
+            $filmsTMDB[] = $eventController->getIMDBFilmByID($filmID);
         endforeach;
 
+        // Obtenemos todos los géneros para eventos
+        $genresTypes = EventController::getAllGenresTypes();
 
-        $eventDataRepository = $this->getDoctrine()->getRepository(EventData::class);
-        $filmsStored = $eventDataRepository->findAll();
+        // Y filtramos las películas por su género
+        foreach ($genresTypes as $genre):
+            $categoryFilms[$genre] = $this->getDoctrine()->getRepository(EventData::class)->findByCategory($genre);
+        endforeach;
 
         $data = array();
 
-        foreach ($filmsStored as $film):
-            $data[] = array(
-                'id' => $film->getID(),
-                'title' => strtoupper($film->getTitle()),
-                'genres' => $film->getGender(),
-                'release_date' => $film->getReleaseDate()->format('Y-m-d'),
-                'duration' => $film->getDuration(),
-                'summary' => EventData::getShortenSummary($film->getDescription()),
-                'poster_photo' => $film->getPosterPhoto()
-            );
-        endforeach;
+        // Si hay alguna película
+        if (!empty($categoryFilms)):
+            // Por cada categoría con sus películas, obtenemos los datos de cada película que queramos mostrar
+            foreach ($categoryFilms as $category => $films):
+                foreach ($films as $film):
+                    $data[$category][] = array(
+                        'id' => $film->getID(),
+                        'title' => strtoupper($film->getTitle()),
+                        'genres' => $film->getGender(),
+                        'release_date' => $film->getReleaseDate()->format('Y-m-d'),
+                        'duration' => $film->getDuration(),
+                        'summary' => EventData::getShortenSummary($film->getDescription()),
+                        'poster_photo' => $film->getPosterPhoto()
+                    );
+                endforeach;
+            endforeach;
+        endif;
 
-        if (isset($events_data)):
-            foreach ($events_data as $event_data):
-                if ($event_data !== NULL):
+        // Si hay películas obtenidas a través de la API de TMDB
+        if (isset($filmsTMDB)):
+            foreach ($filmsTMDB as $filmTMDB):
+                if ($filmTMDB !== NULL):
 
-                    $genres = EventController::gendersToString($event_data['genres']);
+                    $genres = EventController::gendersToString($filmTMDB['genres']);
 
-                    $overview = EventData::getShortenSummary($event_data['overview']);
+                    $overview = EventData::getShortenSummary($filmTMDB['overview']);
 
-                    $data[] = array(
-                        'tmdb_id' => $event_data['id'],
-                        'title' => strtoupper($event_data['title']),
+                    $data['TMDB'][] = array(
+                        'tmdb_id' => $filmTMDB['id'],
+                        'title' => strtoupper($filmTMDB['title']),
                         'genres' => $genres,
-                        'release_date' => $event_data['release_date'],
-                        'duration' => $event_data['runtime'],
+                        'release_date' => $filmTMDB['release_date'],
+                        'duration' => $filmTMDB['runtime'],
                         'summary' => $overview,
-                        'poster_photo' => $eventController->getImageBaseURLIMDB() . 'w154/' . $event_data['poster_path'],
+                        'poster_photo' => $eventController->getImageBaseURLIMDB() . 'w154/' . $filmTMDB['poster_path'],
                     );
 
                 endif;
@@ -198,8 +215,8 @@ class MainController extends AbstractController
                 $sessionsByEvent = array();
                 foreach ($sessions as $session):
                     if (!array_key_exists($session->getEvent()->getId(), $sessionsByEvent)):
-                        $event= $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()->getId()));
-                        $sessionsByEvent[$session->getEvent()->getId()]['event']=$event;
+                        $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()->getId()));
+                        $sessionsByEvent[$session->getEvent()->getId()]['event'] = $event;
                     endif;
                     $sessionsByEvent[$session->getEvent()->getId()][] = $session;
                 endforeach;

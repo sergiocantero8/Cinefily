@@ -111,6 +111,11 @@ class EventData
      */
     private $backdrop_path;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $youtube_trailer;
+
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
 
@@ -390,6 +395,18 @@ class EventData
     public function setBackdropPath(?string $backdrop_path): self
     {
         $this->backdrop_path = $backdrop_path;
+
+        return $this;
+    }
+
+    public function getYoutubeTrailer(): ?string
+    {
+        return $this->youtube_trailer;
+    }
+
+    public function setYoutubeTrailer(?string $youtube_trailer): self
+    {
+        $this->youtube_trailer = $youtube_trailer;
 
         return $this;
     }

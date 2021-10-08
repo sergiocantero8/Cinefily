@@ -1,24 +1,27 @@
 // Add-event form
-.add-event-form{
-  margin: 100px;
+.add-event-form {
+  margin: 80px 100px 100px  100px;
   background-color: #26272b;
   color: white;
   padding: 35px;
   border-radius: 80px;
 
-  .title{
+  .title {
     text-align: center;
   }
 
   ::-webkit-input-placeholder {
     font-style: italic;
   }
+
   :-moz-placeholder {
     font-style: italic;
   }
+
   ::-moz-placeholder {
     font-style: italic;
   }
+
   :-ms-input-placeholder {
     font-style: italic;
   }
@@ -58,16 +61,16 @@
   margin-left: auto;
 }
 
-.poster-photo-event .form-group{
+.poster-photo-event .form-group {
   margin-right: auto;
   margin-left: auto;
 }
 
-.submit-event .form-group{
+.submit-event .form-group {
   margin-left: auto;
 }
 
-.status-event .form-group{
+.status-event .form-group {
   position: relative;
   top: 50px;
   margin-right: auto;
@@ -79,15 +82,15 @@ select#add_event_release_date_date_month {
   margin-left: 10px;
 }
 
-select#add_event_release_date_date_day{
+select#add_event_release_date_date_day {
   margin-right: 3px;
 }
 
-select#add_event_release_date_date_year{
+select#add_event_release_date_date_year {
   margin-right: 3px;
 }
 
-select#add_event_release_date_time_hour{
+select#add_event_release_date_time_hour {
   display: none;
 }
 
@@ -101,9 +104,6 @@ select#add_event_release_date_time_hour{
 }
 
 button#add_event_submit {
-  font-size: 16px;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  margin: 20px;
+  width: 140px;
+  margin-top: 50px;
 }

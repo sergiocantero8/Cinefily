@@ -110,6 +110,12 @@ class AddEventType extends AbstractType
             ->add('director', TextType::class, array(
                 'label' => 'Director/es'
             ))
+            ->add('youtube_trailer', TextType::class, array(
+                'label' => 'Trailer (URL Youtube)'
+            ))
+            ->add('tag_line', TextType::class, array(
+                'label' => 'Frase de película'
+            ))
             ->add('status', CheckboxType::class, array(
                 'label' => 'En cartelera',
                 'data' => false,

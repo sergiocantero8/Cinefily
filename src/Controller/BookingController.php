@@ -206,10 +206,13 @@ class BookingController extends AbstractController
                                     if ($this->getUser()):
                                         $message .= 'También las tiene disponibles en su perfil, en el apartado Mis entradas.';
                                     endif;
-                                    $this->addFlash('success', $message);
+                                    $typeMessage='success';
 
                                 # Si no estuviera libre creamos un error
                                 else:
+                                    $message='No se ha podido realizar la reserva, debido a que se ha intentaod reservar un asiento
+                                    ocupado';
+                                    $typeMessage='error';
                                     $info = new LogInfo(LogInfo::TYPE_ERROR, 'Se intenta reservar un asiento 
                                     que está ocupado');
                                     $em->persist($info);
@@ -222,6 +225,8 @@ class BookingController extends AbstractController
 
                         endforeach;
                     endforeach;
+
+                    $this->addFlash($typeMessage ?? 'error', $message ?? 'No existe la sala');
                 endif;
             endif;
         endif;

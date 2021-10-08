@@ -19,6 +19,24 @@ class EventDataRepository extends ServiceEntityRepository
         parent::__construct($registry, EventData::class);
     }
 
+
+
+    /**
+     * Método para buscar eventos que contengan la categoría que recibe el método
+     * @return EventData[] Returns an array of Session objects
+     */
+    public function findByCategory(string $category): ?array
+    {
+        $qb = $this->createQueryBuilder('e');
+        return $qb
+            ->where(
+                $qb->expr()->like('e.gender', ':category')
+            )
+            ->setParameter('category',"%$category%")
+            ->getQuery()->execute()
+            ;
+    }
+
     // /**
     //  * @return EventData[] Returns an array of EventData objects
     //  */

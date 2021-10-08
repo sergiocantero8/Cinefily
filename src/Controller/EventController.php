@@ -51,6 +51,7 @@ class EventController extends AbstractController
     public const WESTERN_EVENT = 'western';
     public const SCIENCE_FICTION_EVENT = 'ciencia ficción';
     public const INFORMATIVE_EVENT = 'informativa';
+    public const TMDB_EVENT = 'TMDB';
 
     # Rango de edades
     public const TO_ALL_PUBLIC = 'A';
@@ -101,7 +102,7 @@ class EventController extends AbstractController
             array(
                 'data' => array(
                     'event_types' => $this->getAllEventTypes(),
-                    'genders_types' => $this->getAllGenresTypes(),
+                    'genders_types' => static::getAllGenresTypes(),
                     'age_rating_types' => $this->getAllAgeRating())
             )
         );
@@ -119,11 +120,22 @@ class EventController extends AbstractController
             $event->setType($data_form['type']);
             $event->setGender($data_form['gender']);
             $event->setDescription($data_form['description']);
-            $event->setDuration($data_form['duration']);
+            if ($data_form['duration'] !== null && $data_form['duration'] > 0):
+                $event->setDuration($data_form['duration']);
+            endif;
             $event->setReleaseDate($data_form['release_date']);
             $event->setActors($data_form['actors']);
             $event->setRating($data_form['rating']);
             $event->setStatus($data_form['status']);
+            $event->setDirector($data_form['director']);
+            $event->setTagLine($data_form['tag_line']);
+
+            if ($data_form['youtube_trailer'] !== null):
+                parse_str(parse_url($data_form['youtube_trailer'], PHP_URL_QUERY), $vars);
+                if ($vars['v'] !== null):
+                    $event->setYoutubeTrailer($vars['v']);
+                endif;
+            endif;
 
             $img_poster = $data_form['poster_photo'];
             $img_backdrop = $data_form['backdrop_photo'];
@@ -297,7 +309,7 @@ class EventController extends AbstractController
                     'backdrop' => $event_data->getBackdropPath(),
                     'director' => $event_data->getDirector(),
                     'actors' => $event_data->getActors(),
-                    #'youtube_key' => $this->extractYoutubeTrailerTMDB($event_data['videos']),
+                    'youtube_key' => $event_data->getYoutubeTrailer(),
                     'vote_average' => $event_data->getRating(),
                     'form' => $commentsForm !== NULL ? $commentsForm->createView() : $commentsForm,
                     'comments' => $comments
@@ -453,22 +465,23 @@ class EventController extends AbstractController
      * Devuelve todos los tipos de géneros disponibles
      * @return array
      */
-    public function getAllGenresTypes(): array
+    public static function getAllGenresTypes(): array
     {
         return array(
-            'Acción' => self::ACTION_EVENT,
-            'Comedia' => self::COMEDY_EVENT,
-            'Drama' => self::DRAMA_EVENT,
-            'Fantasía' => self::FANTASY_EVENT,
-            'Terror' => self::HORROR_EVENT,
-            'Intriga' => self::MYSTERY_EVENT,
-            'Romántica' => self::ROMANCE_EVENT,
-            'Divulgativo' => self::INFORMATIVE_EVENT,
-            'Thriller' => self::THRILLER_EVENT,
-            'Western' => self::WESTERN_EVENT,
-            'Ciencia Ficción' => self::SCIENCE_FICTION_EVENT,
-            'Aventuras' => self:: ADVENTURE_EVENT,
-            'Animación' => self::ANIMATION_EVENT
+            'Acción' => static::ACTION_EVENT,
+            'Comedia' => static::COMEDY_EVENT,
+            'Drama' => static::DRAMA_EVENT,
+            'Fantasía' => static::FANTASY_EVENT,
+            'Terror' => static::HORROR_EVENT,
+            'Intriga' => static::MYSTERY_EVENT,
+            'Romántica' => static::ROMANCE_EVENT,
+            'Divulgativo' => static::INFORMATIVE_EVENT,
+            'Thriller' => static::THRILLER_EVENT,
+            'Western' => static::WESTERN_EVENT,
+            'Ciencia Ficción' => static::SCIENCE_FICTION_EVENT,
+            'Aventuras' => static:: ADVENTURE_EVENT,
+            'Animación' => static::ANIMATION_EVENT,
+            'TMDB' => static::TMDB_EVENT,
         );
     }
 
