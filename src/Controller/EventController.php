@@ -1,15 +1,22 @@
-<?php /** @noinspection PhpParamsInspection */
+<?php /** @noinspection EfferentObjectCouplingInspection */
+/** @noinspection PhpParamsInspection */
 
 /** @noinspection MultipleReturnStatementsInspection */
 
 namespace App\Controller;
 
+use App\Entity\Cinema;
 use App\Entity\Comment;
 use App\Entity\EventData;
+use App\Entity\Session;
 use App\Entity\User;
 use App\Form\AddEventType;
+use DateInterval;
 use DateTime;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -22,6 +29,7 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use function array_key_exists;
 use function in_array;
 
 class EventController extends AbstractController
@@ -70,6 +78,7 @@ class EventController extends AbstractController
     # Rutas
     public const ROUTE_EVENT_DETAILS = 'event_details';
     public const ROUTE_ADD_EVENT = 'add_event';
+    public const ROUTE_SHOW_TIMES = 'show_times';
 
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
@@ -253,14 +262,7 @@ class EventController extends AbstractController
         if ($tmdbID !== NULL):
             $event_data = $this->getIMDBFilmByID($tmdbID);
             $commentsObject = $this->getDoctrine()->getRepository(Comment::class)->findBy(array('tmdb_id' => $tmdbID));
-            $comments = array();
 
-            foreach ($commentsObject as $item):
-                $comments[$item->getID()]['text'] = $item->getText();
-                $comments[$item->getID()]['username'] = $item->getUser()->getName() . ' ' . $item->getUser()->getSurname();
-                $comments[$item->getID()]['createdAt'] = $item->getCreatedAt()->format('Y-m-d H:i:s');
-                $comments[$item->getID()]['profilePic'] = $item->getUser()->getPhoto();
-            endforeach;
             if ($event_data !== NULL):
                 $data = array(
                     'tmdb_id' => $event_data['id'],
@@ -276,7 +278,6 @@ class EventController extends AbstractController
                     'youtube_key' => $this->extractYoutubeTrailerTMDB($event_data['videos']),
                     'vote_average' => $event_data['vote_average'],
                     'form' => $commentsForm !== NULL ? $commentsForm->createView() : $commentsForm,
-                    'comments' => $comments
                 );
             endif;
 
@@ -287,14 +288,6 @@ class EventController extends AbstractController
             if ($event_data !== NULL):
 
                 $commentsObject = $this->getDoctrine()->getRepository(Comment::class)->findBy(array('event' => $event_data->getID()));
-                $comments = array();
-
-                foreach ($commentsObject as $item):
-                    $comments[$item->getID()]['text'] = $item->getText();
-                    $comments[$item->getID()]['username'] = $item->getUser()->getName() . ' ' . $item->getUser()->getSurname();
-                    $comments[$item->getID()]['createdAt'] = $item->getCreatedAt()->format('Y-m-d H:i:s');
-                    $comments[$item->getID()]['profilePic'] = $item->getUser()->getPhoto();
-                endforeach;
 
                 $data = array(
                     'id' => $event_data->getID(),
@@ -312,12 +305,27 @@ class EventController extends AbstractController
                     'youtube_key' => $event_data->getYoutubeTrailer(),
                     'vote_average' => $event_data->getRating(),
                     'form' => $commentsForm !== NULL ? $commentsForm->createView() : $commentsForm,
-                    'comments' => $comments
                 );
             endif;
 
         endif;
 
+        if (isset($commentsObject)):
+            $comments = array();
+            foreach ($commentsObject as $item):
+                $comments[$item->getID()]['text'] = $item->getText();
+                $comments[$item->getID()]['username'] = $item->getUser()->getName() . ' ' . $item->getUser()->getSurname();
+                $comments[$item->getID()]['createdAt'] = $item->getCreatedAt()->format('Y-m-d H:i:s');
+                $comments[$item->getID()]['profilePic'] = $item->getUser()->getPhoto();
+                $comments[$item->getID()]['userID'] = $item->getUser()->getId();
+            endforeach;
+
+            $data['comments'] = $comments;
+        endif;
+
+        if ($this->getUser()):
+            $data['user'] = $this->getUser();
+        endif;
         // Si los datos son nulos cargamos la página de error
         if ($data === null):
             $template = 'error.html.twig';
@@ -327,6 +335,85 @@ class EventController extends AbstractController
 
         return $this->render($template, array('data' => $data));
     }
+
+    /**
+     * @Route("/showtimes", name="show_times")
+     * @param Request $request
+     * @return Response
+     * @throws Exception
+     */
+    public function renderShowTimes(Request $request): Response
+    {
+        # Obtenemos toda la información del Log
+        $cinemasRe = $this->getDoctrine()->getRepository(Cinema::class)->findAll();
+        $cinemas = array();
+        foreach ($cinemasRe as $cinema):
+            $cinemas[$cinema->getName()] = $cinema->getID();
+        endforeach;
+
+        $sessionsByEvent = null;
+
+        $form = $this->createFormBuilder(array('csrf_protection' => FALSE))
+            ->setMethod(Request::METHOD_GET)
+            ->setAction($this->generateUrl(static::ROUTE_SHOW_TIMES))
+            ->add('cinema', ChoiceType::class, array(
+                'label' => 'Cine',
+                'choices' => $cinemas
+            ))
+            ->add('schedule', DateType::class, array(
+                'label' => 'Fecha',
+                'placeholder' => [
+                    'year' => 'Año', 'month' => 'Mes', 'day' => 'Dia'
+                ],
+                'years' => range(2021, 2023)
+            ))
+            ->add('submit', SubmitType::class, array(
+                'label' => 'Buscar',
+            ))
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()):
+            $dataForm = $form->getData();
+
+            $schedule_start = $dataForm['schedule'];
+            $schedule_end = new DateTime($schedule_start->format('Y-m-d H:i'));
+            $schedule_end->add(new DateInterval(('P1D')));
+
+            $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $dataForm['cinema']));
+
+            if ($cinema !== null):
+                $sessions = $this->getDoctrine()->getRepository(Session::class)->findByDate($cinema,
+                    $schedule_start, $schedule_end);
+            endif;
+
+            if (empty($sessions)):
+                $this->addFlash('warning', "No hay sesiones programadas para ese día ");
+            else:
+                $sessionsByEvent = array();
+                foreach ($sessions as $session):
+                    if (!array_key_exists($session->getEvent()->getId(), $sessionsByEvent)):
+                        $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()->getId()));
+                        $sessionsByEvent[$session->getEvent()->getId()]['event'] = $event;
+                    endif;
+                    $sessionsByEvent[$session->getEvent()->getId()][$session->getRoom()->getNumber()][] = $session;
+                endforeach;
+
+            endif;
+
+
+        endif;
+
+        $data = array(
+            'form' => $form->createView(),
+            'sessionsByEvent' => $sessionsByEvent
+        );
+
+        return $this->render('/cinema/showtimes.html.twig', $data);
+    }
+
+
 
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

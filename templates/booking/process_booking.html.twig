@@ -18,6 +18,9 @@
                 <div class="container d-flex justify-content-center m-4">
                     <div class="row">
                         <div class="col-12">
+                            {% if email is defined and email is not null %}
+                                <p class="h6"><i class="fas fa-info-circle"></i> Las entradas se enviarán al correo <span class="font-weight-bold">{{ email }} </span> </p>
+                            {% endif %}
                             {% if n_seats > 1 %}
                                 <p class="h6"> Los {{ n_seats }} asientos que has elegido son:</p>
                             {% else %}
@@ -29,14 +32,16 @@
                                 {% for seat in seats %}
                                     <li class="list-group-item font-weight-bold"> {{ seat }} </li>
                                 {% endfor %}
+                                <li class="list-group-item list-group-item-secondary"><i class="fas fa-coins mr-2"></i>Precio total:
+                                    {{ cinema.getTicketsPrice()*n_seats }} euros</li>
                             </ul>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 d-flex justify-content-center m-4">
                             {% include 'session/includes/ticket_movie.html.twig' %}
                         </div>
 
-                        <div class="col-12">
-                            <a class="btn btn-success mt-3" href="/booking/payment" data-toggle="modal"
+                        <div class="col-12 d-flex justify-content-center">
+                            <a class="btn btn-success mt-3 mr-2" href="/booking/payment" data-toggle="modal"
                                data-target="#paymentTickets"><i class="fas fa-shopping-cart pr-2"></i>Comprar</a>
                             <a class="btn btn-danger mt-3" href="/booking/payment" data-toggle="modal"
                                data-target="#cancelModal"><i class="fas fa-window-close pr-2"></i>Cancelar</a>
@@ -63,6 +68,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    Total a pagar: <div class="font-weight-bold">{{ cinema.getTicketsPrice()*n_seats }} euros</div> <br>
                     Elige el método de pago
                 </div>
                 <div class="modal-footer">
@@ -99,15 +105,13 @@
 
 {% endblock %}
 
-    {% block custom_body_javascript %}
+{% block custom_body_javascript %}
 
         <script>
             // Función para actualizar enviar los datos de toda la reserva
             function sendSeats(method) {
-
                 window.location = window.location.origin + "/booking/payment?method=cash&seats=" + "{{ seats|join(', ') }}" +
-                    "&id_session=" + {{ session.getId() }} + '&method=' + method + '&price=' + {{ cinema.getTicketsPrice() }};
-
+                    "&id_session=" + {{ session.getId() }} + '&method=' + method + '&price=' +{{ cinema.getTicketsPrice() }} + '&email='+"{{ email }}"
             }
         </script>
 

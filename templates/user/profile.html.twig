@@ -10,7 +10,7 @@
                     <div class="user-profile">
                         <div class="card-body">
                             <div class="d-flex flex-column align-items-center text-center">
-                                {% if user.getPhoto() is defined %}
+                                {% if user.getPhoto() is not null %}
                                     <div class="avatar">
                                         <img class="profile-photo rounded-circle z-depth-2" alt="Foto de perfil"
                                              src="{{ asset('uploads/images/' ~ user.getPhoto()) }}"
@@ -22,15 +22,14 @@
                                          class="p-1 bg-primary" width="100">
                                 {% endif %}
                                 <div class="mt-3">
-                                    {% if user.getName() is defined and user.getName() is not null %}
+                                    {% if user.getName() is not null %}
                                         <h4>{{ user.getName() }}</h4>
                                     {% else %}
                                         <h4>Desconocido</h4>
                                     {% endif %}
                                     <p class="text-secondary mb-1">Miembro desde el {{ user.getCreatedAt()|date('d/m/y') }}</p>
                                     <p class="text-muted font-size-sm">Granada</p>
-                                    <button class="btn btn-primary">Seguir</button>
-                                    <button class="btn btn-outline-primary">Mensaje</button>
+                                    <a class="btn btn-outline-primary" href="/user/myTickets"><i class="fas fa-ticket-alt pr-2"></i>Mis entradas</a>
                                 </div>
                             </div>
                             <hr class="my-4">

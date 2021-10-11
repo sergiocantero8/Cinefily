@@ -2,6 +2,35 @@
 
 {% block title %}{{ data.title }} | Cinefily{% endblock %}
 
+{% set currentPath = app.request.requesturi %}
+
+{% macro delete_comment(id_comment, currentPath) %}
+
+    {# Modal para borrar un comentario #}
+    <div class="modal fade" id="deleteComment-{{ id_comment }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteComment">Borrar comentario</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Seguro que quieres borrar el commentario?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    <a class="btn btn-danger " href="/comment/delete?id_comment={{ id_comment }}&path={{currentPath}}">Sí, estoy seguro</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% import _self as helper %}
+
+
 {% block main %}
 
     <div class="movie-card">
@@ -143,7 +172,7 @@
                                 <div class="clearfix"></div>
                                 <hr>
                                 <ul class="media-list">
-                                    {% for comment in data.comments %}
+                                    {% for key,comment in data.comments %}
                                         <li class="media">
                                             <a href="#" class="pull-left">
                                                 {% if comment['profilePic'] is not null %}
@@ -157,6 +186,11 @@
                                             <div class="media-body">
                                             <span class="text-muted pull-right">
                                                 <small class="text-muted">{{ comment['createdAt'] }}</small>
+
+                                                {% if data.user is defined and data.user.getId() == comment['userID'] %}
+                                                    <a class="delete-comment" data-toggle="modal"
+                                                       data-target="#deleteComment-{{ key }}"><i class="fas fa-trash"></i> </a>
+                                                {% endif %}
                                             </span>
                                                 <strong class="text-success pl-2">{{ comment['username'] }}</strong>
                                                 <p class="font-weight-bold text-dark pl-2">
@@ -179,4 +213,14 @@
 
     </div>
 
+
+    {% for key, comment in data.comments %}
+        {{ helper.delete_comment(key, currentPath) }}
+    {% endfor %} #}
+
+
 {% endblock main %}
+
+{% block custom_body_javascript %}
+
+{% endblock custom_body_javascript %}

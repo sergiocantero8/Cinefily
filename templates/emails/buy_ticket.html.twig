@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=0.75, maximum-scale=0.75" charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css'>
+    <link rel='stylesheet prefetch' href='https://fonts.googleapis.com/icon?family=Material+Icons'>
+    <title></title>
+
+    <style >
+
+        .intro {
+            text-align: center;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+
+        .movie-ticket {
+            background: #ffffff;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            width: 65%;
+            max-width: 315px;
+            margin-top: 50px;
+            border-radius: 10px;
+            display: inline-block;
+            height: 280px;
+        }
+
+        .movie-header {
+            padding: 0;
+            margin: 0;
+            height: 367px;
+            width: 100%;
+            display: block;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .poster-ticket {
+        //background: url("http://henrycavill.org/images/Films/2013-Man-of-Steel/posters/3-Walmart-Superman-a.jpg");
+        //background-size: cover;
+            position: relative;
+            bottom: 46px;
+            height: 70%;
+
+        }
+
+
+        .header-icon-container {
+            position: relative;
+        }
+
+        .movie-ticket:hover {
+            -webkit-transform: scale(1.03);
+            transform: scale(1.03);
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .movie-content {
+            padding: 18px 18px 24px 18px;
+            margin: 0;
+            position: relative;
+            bottom: 55px;
+        }
+
+        .movie-content-header, .movie-info {
+            display: table;
+            width: 100%;
+        }
+
+        .movie-title {
+            font-size: 24px;
+            margin: 0;
+            display: table-cell;
+            color: black;
+        }
+
+        .movie-info {
+            margin-top: 1em;
+        }
+
+        .info-section {
+            display: table-cell;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .info-section:first-of-type {
+            text-align: left;
+        }
+
+        .info-section:last-of-type {
+            text-align: right;
+        }
+
+        .info-section label {
+            display: block;
+            color: #26272b;
+            font-weight: 800;
+            margin-bottom: .5em;
+            font-size: 10px;
+        }
+
+        .info-section span {
+            font-weight: 100;
+            font-size: 12px;
+            color: black;
+        }
+
+        @media screen and (max-width: 500px) {
+            .movie-ticket {
+                width: 95%;
+                max-width: 95%;
+                margin: 1em;
+                display: block;
+            }
+
+            .container {
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+
+<main>
+    {% include 'session/includes/ticket_movie.html.twig' %}
+</main>
+
+</body>
+</html>

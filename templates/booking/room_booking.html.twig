@@ -106,6 +106,7 @@
                                             {% if matrixStatusSeats[i][j] == true %}
                                                 <input type="checkbox" class="seats"
                                                        value="Fila {{ i }} Asiento {{ j }},">
+
                                             {% else %}
                                                 <div class="smallBox redBox"></div>
                                             {% endif %}
@@ -174,7 +175,7 @@
 
 
                 window.location = window.location.origin + "/booking/processBooking?seats=" + allSeatsVals.toString() +
-                    "&id_session=" + {{ session.getId() }};
+                    "&id_session=" + {{ session.getId() }} +"&email=" + $("#userEmail").val();
             } else {
                 alert("Tienes que seleccionar " + ($("#numSeats").val()) + " asientos")
             }

@@ -32,7 +32,7 @@ class MainController extends AbstractController
 
     public const ROUTE_HOME = 'home';
     public const ROUTE_LOG_INFO = 'log_page';
-    public const ROUTE_SHOW_TIMES = 'show_times';
+
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
@@ -157,80 +157,6 @@ class MainController extends AbstractController
         return $this->render('log.html.twig', array('log_info' => $data));
     }
 
-    /**
-     * @Route("/showtimes", name="show_times")
-     * @param Request $request
-     * @return Response
-     * @throws Exception
-     */
-    public function renderShowTimes(Request $request): Response
-    {
-        # Obtenemos toda la información del Log
-        $cinemasRe = $this->getDoctrine()->getRepository(Cinema::class)->findAll();
-        $cinemas = array();
-        foreach ($cinemasRe as $cinema):
-            $cinemas[$cinema->getName()] = $cinema->getID();
-        endforeach;
-
-        $sessionsByEvent = null;
-
-        $form = $this->createFormBuilder(array('csrf_protection' => FALSE))
-            ->setMethod(Request::METHOD_GET)
-            ->setAction($this->generateUrl(static::ROUTE_SHOW_TIMES))
-            ->add('cinema', ChoiceType::class, array(
-                'label' => 'Cine',
-                'choices' => $cinemas
-            ))
-            ->add('schedule', DateType::class, array(
-                'label' => 'Fecha',
-                'placeholder' => [
-                    'year' => 'Año', 'month' => 'Mes', 'day' => 'Dia'
-                ],
-                'years' => range(2021, 2023)
-            ))
-            ->add('submit', SubmitType::class, array(
-                'label' => 'Buscar',
-            ))
-            ->getForm();
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()):
-            $dataForm = $form->getData();
-
-            $schedule_start = $dataForm['schedule'];
-            $schedule_end = new DateTime($schedule_start->format('Y-m-d H:i'));
-            $schedule_end->add(new DateInterval(('P1D')));
-
-            $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $dataForm['cinema']));
-
-            if ($cinema !== null):
-                $sessions = $this->getDoctrine()->getRepository(Session::class)->findByDate($cinema,
-                    $schedule_start, $schedule_end);
-            endif;
-
-            if (empty($sessions)):
-                $this->addFlash('warning', "No hay sesiones programadas para ese día ");
-            else:
-                $sessionsByEvent = array();
-                foreach ($sessions as $session):
-                    if (!array_key_exists($session->getEvent()->getId(), $sessionsByEvent)):
-                        $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()->getId()));
-                        $sessionsByEvent[$session->getEvent()->getId()]['event'] = $event;
-                    endif;
-                    $sessionsByEvent[$session->getEvent()->getId()][] = $session;
-                endforeach;
-
-            endif;
-        endif;
-
-        $data = array(
-            'form' => $form->createView(),
-            'sessionsByEvent' => $sessionsByEvent
-        );
-
-        return $this->render('/cinema/showtimes.html.twig', $data);
-    }
 
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

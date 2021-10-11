@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpUndefinedMethodInspection */
+<?php /** @noinspection NotOptimalIfConditionsInspection */
+
+/** @noinspection PhpUndefinedMethodInspection */
 
 namespace App\Controller;
 
@@ -14,8 +16,12 @@ use App\Entity\User;
 use App\Form\UserRegistrationType;
 use DateTime;
 use Exception;
+use LogicException;
+use Swift_Mailer;
+use Swift_Message;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -35,6 +41,9 @@ class UserController extends AbstractController
 
     public const ROUTE_USER_PROFILE = 'user_profile';
     public const ROUTE_USER_TICKETS = 'user_tickets';
+    public const ROUTE_FORGOT_PASSWORD = 'forgot_password';
+    public const ROUTE_LOGIN = 'app_login';
+    public const ROUTE_LOGOUT = 'app_logout';
     public const ROUTE_USER_REGISTRATION = 'user_registration';
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
@@ -119,28 +128,31 @@ class UserController extends AbstractController
      * @Route("/user/forgotPassword", name="forgot_password")
      * @throws Exception
      */
-    public function forgotPassword(Request $request, \Swift_Mailer $mailer, UserPasswordEncoderInterface $passwordEncoder): RedirectResponse
+    public function forgotPassword(Request $request, Swift_Mailer $mailer, UserPasswordEncoderInterface $passwordEncoder): RedirectResponse
     {
         $email = $request->get('email');
 
-        $userRepository = $this->getDoctrine()->getRepository(User::class);
-        $user = $userRepository->findOneBy(array('email' => $email));
+        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(array('email' => $email));
         if (!empty($user) && $user instanceof User):
             $randomPassword = $this->generateRandomPassword();
-            $message = (new \Swift_Message('Recuperación de contraseña'))
+            $message = (new Swift_Message('Recuperación de contraseña'))
                 ->setFrom('cinefily@gmail.com')
-                ->setTo('sergiocantero8@gmail.com')
+                ->setTo($email)
                 ->setBody(
                     'Hemos recibido tu solicitud de que no recuerdas la contraseña. No te preocupes tu nueva contraseña
                     es ' . $randomPassword,
                     'text/plain'
                 );
+
             if ($mailer->send($message)):
+
                 $user->setPassword($passwordEncoder->encodePassword($user, $randomPassword));
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($user);
                 $entityManager->flush();
+
                 $this->addFlash('success', 'Te hemos enviado un email a tu correo con la nueva contraseña');
+
             else:
                 $this->addFlash('error', 'No ha sido posible enviarte el email de recuperación de contraseña');
             endif;
@@ -158,7 +170,7 @@ class UserController extends AbstractController
      */
     public function logout(): void
     {
-        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        throw new LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
     /**
@@ -193,7 +205,7 @@ class UserController extends AbstractController
                 'label' => 'Email',
                 'data' => $user->getUsername()
             ))
-            ->add('password', TextType::class, array(
+            ->add('password', PasswordType::class, array(
                 'required' => FALSE,
                 'label' => 'Contraseña',
             ))
@@ -260,7 +272,7 @@ class UserController extends AbstractController
             $user->setSurname($formData['surname']);
 
             if ($formData['password'] !== NULL):
-                $user->setPassword($user->setPassword($passwordEncoder->encodePassword($user, $formData['password'])));
+                $user->setPassword($passwordEncoder->encodePassword($user, $formData['password']));
             endif;
             $user->setEmail($formData['email']);
 
@@ -306,7 +318,7 @@ class UserController extends AbstractController
         $template = 'user/my_tickets.html.twig';
 
         $myTickets = $this->getDoctrine()->getRepository(Ticket::class)->findBy(array(
-            'user' => $this->getUser()), array('sale_date' => 'ASC'), 10);
+            'user' => $this->getUser()), array('sale_date' => 'DESC'), 6);
 
 
         $tickets = array();
@@ -329,6 +341,28 @@ class UserController extends AbstractController
 
         return $this->render($template, compact('tickets', 'user'));
 
+    }
+
+    /**
+     * @Route("/comment/delete", name="comment_delete")
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function commentDelete(Request $request): RedirectResponse
+    {
+        $eventPath=$request->get('path');
+        $comment=$this->getDoctrine()->getRepository(Comment::class)->find($request->get('id_comment'));
+        if (!$this->getUser() || $comment===null || ($comment->getUser() !== $this->getUser())) :
+            return $this->redirectToRoute('home');
+        endif;
+
+        $em = $this->getDoctrine()->getManager();
+
+        $em->remove($comment);
+        $em->flush();
+
+        $this->addFlash('success','El comentario se ha eliminado correctamente');
+        return $this->redirect($eventPath);
     }
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

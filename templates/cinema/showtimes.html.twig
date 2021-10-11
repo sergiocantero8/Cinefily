@@ -15,7 +15,7 @@
                 {{ form_row(form.schedule) }}
             </div>
 
-            <div class="col-12 col-md-1">
+            <div class="col-12 col-md-1 ml-2">
                 {{ form_widget(form.submit,{'attr': {'class': 'btn-primary btn submit-search-showtimes'}}) }}
             </div>
 
@@ -37,18 +37,26 @@
             {% for id_event,sessions in sessionsByEvent %}
                 <tr>
                     <td><img src="{{ asset('uploads/images/' ~ sessions.event.getPosterPhoto()) }}"
-                                         class="db_poster_photo" alt="Poster photo" height="200" width="170"/>
+                             class="db_poster_photo" alt="Poster photo" height="200" width="170"/>
 
                     </td>
                     <td>
-                        <div class="h5">{{ sessions.event.getTitle()}}</div>
+                        <div class="h5">{{ sessions.event.getTitle() }}</div>
                     </td>
                     <td>
-                    {% for key,session in sessions %}
-                        {% if key != 'event' %}
-                            <a class="btn btn-primary" href="/booking/?session={{session.getId()}}" role="button">{{ session.schedule|date("H:i") }}</a>
-                        {% endif %}
-                    {% endfor %}
+                        <div class="row">
+                        {% for room_number,session in sessions %}
+                            {% if room_number != 'event' %}
+                                <div class="col-12 mt-2">
+                                    <div class="h6">Sala {{ room_number }}</div>
+                                {% for one_session in session %}
+                                    <a class="btn btn-primary button-showtimes" href="/booking/?session={{ one_session.getId() }}"
+                                       role="button">{{ one_session.schedule|date("H:i") }}</a>
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
                     </td>
                 </tr>
             {% endfor %}

@@ -11,6 +11,8 @@ use App\Entity\SeatBooked;
 use App\Entity\Session;
 use App\Entity\Ticket;
 use DateTime;
+use Swift_Mailer;
+use Swift_Message;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -90,6 +92,8 @@ class BookingController extends AbstractController
 
         $s = $request->get('seats');
         $sessionID = (int)$request->get('id_session');
+        $email = $request->get('email');
+
 
         if ($sessionID !== null):
             $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $sessionID));
@@ -117,7 +121,8 @@ class BookingController extends AbstractController
             'session' => $session ?? null,
             'room' => $room ?? null,
             'cinema' => $cinema ?? null,
-            'matrixSeats' => $matrixSeats
+            'matrixSeats' => $matrixSeats,
+            'email' => $email
         );
 
         return $this->render($template, $data);
@@ -129,15 +134,18 @@ class BookingController extends AbstractController
      * se tendría que pagar en taquilla.
      * @Route("/booking/payment", methods={"GET"},  name="payment_booking")
      */
-    public function payment(Request $request, LockFactory $lockFactory): Response
+    public function payment(Request $request, LockFactory $lockFactory, Swift_Mailer $mailer): Response
     {
 
-        # Obtenemos el método de pago, los asientos y el id de la sesión
+        # Obtenemos el método de pago, los asientos, el id de la sesión, el precio total y el email al que hay que enviar
+        # las entradas
         $s = $request->get('seats');
         $sessionID = (int)$request->get('id_session');
         $method = $request->get('method');
         $price = (float)$request->get('price');
+        $email = $request->get('email');
 
+        # Si alguna de las anteriores variables es nula, renderizamos un error
         if ($method === null || $s === null || $sessionID === null):
             $template = 'error.html.twig';
         else:
@@ -149,11 +157,12 @@ class BookingController extends AbstractController
             $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $sessionID));
             if ($session !== null):
                 $room = $this->getDoctrine()->getRepository(Room::class)->findOneBy(array('id' => $session->getRoom()));
-
+                $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $session->getCinema()));
+                $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()));
                 if ($room !== null):
                     # Obtenemos la matriz con los asientos y creamos el cerrojo para que no haya concurrencia a
                     # la hora de reservar el asiento
-                    $seats = array_filter(explode(",", $s));
+                    $seats = array_filter(explode(',', $s));
                     $n_seats = count($seats);
                     $matrixSeats = $this->getMatrixSeats($seats);
 
@@ -176,6 +185,7 @@ class BookingController extends AbstractController
                                 );
                                 # Si el asiento está libre
                                 if (empty($seatBooked)):
+
                                     $ticket = new Ticket();
                                     $ticket->setSession($session);
 
@@ -201,18 +211,24 @@ class BookingController extends AbstractController
                                     $em->persist($ticket);
                                     $em->flush();
 
-                                    $message = 'Sus asientos se han reservado correctamente 
-                                    y se le ha enviado al correo las entradas.';
+
+                                    $message = 'Sus asientos se han reservado correctamente. ';
+
+                                    $logInfo = new LogInfo(LogInfo::TYPE_SUCCESS, 'Se han reservado ' . $n_seats . ' asientos para la session
+                                                                        con ID' . $session->getID() . ' y con email asociado ' . $email);
+                                    $em->persist($logInfo);
+                                    $em->flush();
+
                                     if ($this->getUser()):
-                                        $message .= 'También las tiene disponibles en su perfil, en el apartado Mis entradas.';
+                                        $message .= 'También las tiene disponibles en su perfil, en el apartado Mis entradas';
                                     endif;
-                                    $typeMessage='success';
+                                    $typeMessage = 'success';
 
                                 # Si no estuviera libre creamos un error
                                 else:
-                                    $message='No se ha podido realizar la reserva, debido a que se ha intentaod reservar un asiento
+                                    $message = 'No se ha podido realizar la reserva, debido a que se ha intentaod reservar un asiento
                                     ocupado';
-                                    $typeMessage='error';
+                                    $typeMessage = 'error';
                                     $info = new LogInfo(LogInfo::TYPE_ERROR, 'Se intenta reservar un asiento 
                                     que está ocupado');
                                     $em->persist($info);
@@ -226,12 +242,48 @@ class BookingController extends AbstractController
                         endforeach;
                     endforeach;
 
+                    $emailMessage = (new Swift_Message('Tus entradas'))
+                        ->setFrom('cinefily@gmail.com')
+                        ->setTo((string)$email)
+                        ->setBody(
+                            $this->renderView(
+                                'emails/buy_ticket.html.twig',
+                                ['session' => $session,
+                                    'room' => $room,
+                                    'cinema' => $cinema,
+                                    'event' => $event,
+                                    'matrixSeats' => $matrixSeats
+                                ]
+                            ),
+                            'text/html'
+                        );
+
+
+                    if ($mailer->send($emailMessage)):
+                        $message .= '  y se le ha enviado al correo las entradas';
+
+                        $logInfo = new LogInfo(LogInfo::TYPE_SUCCESS, 'Se le han enviado las entradas correctamente al email '
+                            . $email);
+                        $em->persist($logInfo);
+                        $em->flush();
+
+                    else:
+                        $this->addFlash('error', 'Error al enviarle las entradas al email');
+
+                        $logInfo = new LogInfo(LogInfo::TYPE_ERROR, 'No se ha podido enviarle las entradas al email '
+                            . $email);
+                        $em->persist($logInfo);
+                        $em->flush();
+
+                    endif;
+
+
                     $this->addFlash($typeMessage ?? 'error', $message ?? 'No existe la sala');
                 endif;
             endif;
         endif;
 
-        return $this->redirectToRoute('home');
+        return $this->redirectToRoute($template);
     }
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 

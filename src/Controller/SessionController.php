@@ -98,6 +98,7 @@ class SessionController extends AbstractController
                 $schedule_end->add(new DateInterval(('PT' . $event->getDuration() . 'M')));
             endif;
 
+
             # Si la fecha de la sesión es anterior a la actual mostramos un mensaje
             if ($formData['schedule'] < $now):
                 $this->addFlash('error', 'La fecha de la sesión es anterior a la fecha actual');
