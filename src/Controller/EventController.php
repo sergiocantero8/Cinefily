@@ -19,6 +19,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -79,6 +80,7 @@ class EventController extends AbstractController
     public const ROUTE_EVENT_DETAILS = 'event_details';
     public const ROUTE_ADD_EVENT = 'add_event';
     public const ROUTE_SHOW_TIMES = 'show_times';
+    public const ROUTE_SEARCH_EVENT = 'search_event';
 
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
@@ -411,6 +413,32 @@ class EventController extends AbstractController
         );
 
         return $this->render('/cinema/showtimes.html.twig', $data);
+    }
+
+    /**
+     * @Route("/search", name="search_event")
+     * @param Request $request
+     * @return Response
+     * @throws Exception
+     */
+    public function search(Request $request): Response
+    {
+        $eventTitle = $request->get('event');
+
+        if ($eventTitle !== null):
+            $searchResults = $this->getDoctrine()->getRepository(EventData::class)->findByTitle($eventTitle);
+
+            if (!empty($searchResults)):
+                foreach ($searchResults as $event):
+                    $eventID = $event->getId();
+                    $sessions[$eventID] = $this->getDoctrine()->getRepository(Session::class)->findByActiveSessionsEvent($event);
+                endforeach;
+            endif;
+        endif;
+
+
+        return $this->render('event/search.html.twig', array('results' => $searchResults ?? null, 'sessions' => $sessions ?? null));
+
     }
 
 

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Cinema;
+use App\Entity\EventData;
 use App\Entity\Room;
 use App\Entity\Session;
 use DateTime;
@@ -39,6 +40,22 @@ class SessionRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * Método que devuelve todas las sesiones que sean posteriores a la fecha actual de un evento concreto,
+     * es decir, que estén activas
+     * @return Session[] Returns an array of Session objects
+     */
+    public function findByActiveSessionsEvent(EventData $event): ?array
+    {
+        $now = new DateTime();
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.event = :event')
+            ->andWhere('s.schedule > :now')
+            ->setParameter('event',$event)
+            ->setParameter('now', $now)
+            ->getQuery()->execute()
+            ;
+    }
     /**
      * Método que devuelve las sesiones que entrarian en conflicto con otra sesión con una hora de inicio y fin concretos.
      * Al método hay que indicarle que cine y sala se quieren comparar.

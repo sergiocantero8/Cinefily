@@ -12,23 +12,36 @@
                 <li><a href="#" class="nav-link px-2 text-white">Precios</a></li>
                 {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
                     <li>
-                    <div class="dropdown">
-                        <button class="dropbtn">Mi administración</button>
-                        <div class="dropdown-content">
-                            <a href="/admin/event/add" class="nav-link px-2 text-white">Añadir evento</a>
-                            <a href="/admin/cinema/add" class="nav-link px-2 text-white">Añadir cine</a>
-                            <a href="/admin/session/add" class="nav-link px-2 text-white">Añadir sesión</a>
-                            <a href="/admin/log" class="nav-link px-2 text-white">Log</a>
+                        <div class="dropdown">
+                            <button class="dropbtn">Mi administración</button>
+                            <div class="dropdown-content">
+                                <a href="/admin/event/add" class="nav-link px-2 text-white">Añadir evento</a>
+                                <a href="/admin/cinema/add" class="nav-link px-2 text-white">Añadir cine</a>
+                                <a href="/admin/session/add" class="nav-link px-2 text-white">Añadir sesión</a>
+                                <a href="/admin/log" class="nav-link px-2 text-white">Log</a>
+                            </div>
                         </div>
-                    </div>
                     </li>
                 {% endif %}
             </ul>
 
 
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-                <input type="search" class="search-field form-control form-control-dark" placeholder="Buscar..."
-                       aria-label="Search">
+            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" action="/search" method="get">
+                <div class="row">
+                    <div class="col-10">
+                        <input type="search" id="input-search" name="event" class="search-field form-control form-control-dark"
+                               placeholder="Buscar..."
+                               aria-label="Search">
+                    </div>
+                    <div class="col-2 pl-1 pr-0">
+                            <button id="search-button" type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+
+
+                    </div>
+
+                </div>
             </form>
             {% if not app.user %}
                 <div class="text-end">
@@ -64,11 +77,15 @@
 
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <p class="signed-as"> Conectado como <b>{{ app.user.getEmail() }} </b><br><i>{{ convertPrivilegesToString(app.user.getPrivileges()) }}</i> </p>
+                                <p class="signed-as"> Conectado como
+                                    <b>{{ app.user.getEmail() }} </b><br><i>{{ convertPrivilegesToString(app.user.getPrivileges()) }}</i>
+                                </p>
                                 <hr class="horizontal-divider">
                                 <a class="dropdown-item " href="/user/profile"><i class="fas fa-user mr-1"></i>Mi perfil</a>
-                                <a class="dropdown-item " href="/user/myTickets"><i class="fas fa-ticket-alt"></i>Mis entradas</a>
-                                <a class="dropdown-item " href="/user/logout"><i class="fas fa-sign-out-alt mr-1"></i>Cerrar sesión</a>
+                                <a class="dropdown-item " href="/user/myTickets"><i class="fas fa-ticket-alt"></i>Mis
+                                    entradas</a>
+                                <a class="dropdown-item " href="/user/logout"><i class="fas fa-sign-out-alt mr-1"></i>Cerrar
+                                    sesión</a>
                             </div>
                         </li>
                     </ul>

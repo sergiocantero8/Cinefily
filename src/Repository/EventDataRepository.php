@@ -37,6 +37,24 @@ class EventDataRepository extends ServiceEntityRepository
             ;
     }
 
+
+
+    /**
+     * Método para buscar eventos que contengan el título que recibe
+     * @return EventData[] Returns an array of Session objects
+     */
+    public function findByTitle(string $title): ?array
+    {
+        $qb = $this->createQueryBuilder('e');
+        return $qb
+            ->where(
+                $qb->expr()->like('e.title', ':title')
+            )
+            ->setParameter('title',"%$title%")
+            ->getQuery()->execute()
+            ;
+    }
+
     // /**
     //  * @return EventData[] Returns an array of EventData objects
     //  */

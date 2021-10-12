@@ -286,13 +286,17 @@ class UserController extends AbstractController
         $template = 'user/profile.html.twig';
         $date = $this->getUser()->getCreatedAt()->format('d/m/Y');
 
-        $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(array('user' => $this->getUser()->getID())));
+        $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(
+                            array('user' => $this->getUser()->getID())));
+        $nTickets = count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
+            array('user' => $this->getUser()->getID())));
 
 
         $data = array(
             'form' => $form->createView(),
             'user' => $user,
             'user_comments' => $nComments,
+            'user_tickets' => $nTickets,
             'created_at' => $date
         );
 
@@ -324,18 +328,12 @@ class UserController extends AbstractController
         $tickets = array();
         foreach ($myTickets as $ticket):
             $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $ticket->getSession()));
+
             if ($session !== null):
-                $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()));
-                $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $session->getCinema()));
-                $room = $this->getDoctrine()->getRepository(Room::class)->findOneBy(array('id' => $session->getRoom()));
-                $seat = $this->getDoctrine()->getRepository(Seat::class)->findOneBy(array('id' => $ticket->getSeatBooked()->getSeat()));
-                if ($seat !== null):
-                    $row = $seat->getRow();
-                    $column = $seat->getNumber();
-                endif;
+                $tickets[] = array('session' => $session, 'event' => $session->getEvent(), 'room' => $session->getRoom(),
+                    'cinema' => $session->getCinema(), 'seat' => $ticket->getSeatBooked()->getSeat(), 'ticket'=> $ticket);
             endif;
-            $tickets[] = compact('session', 'event' ?? null, 'room' ?? null, 'cinema' ?? null,
-                'row' ?? null, 'column' ?? null, 'ticket' ?? null);
+
         endforeach;
 
 
@@ -350,9 +348,9 @@ class UserController extends AbstractController
      */
     public function commentDelete(Request $request): RedirectResponse
     {
-        $eventPath=$request->get('path');
-        $comment=$this->getDoctrine()->getRepository(Comment::class)->find($request->get('id_comment'));
-        if (!$this->getUser() || $comment===null || ($comment->getUser() !== $this->getUser())) :
+        $eventPath = $request->get('path');
+        $comment = $this->getDoctrine()->getRepository(Comment::class)->find($request->get('id_comment'));
+        if (!$this->getUser() || $comment === null || ($comment->getUser() !== $this->getUser())) :
             return $this->redirectToRoute('home');
         endif;
 
@@ -361,7 +359,7 @@ class UserController extends AbstractController
         $em->remove($comment);
         $em->flush();
 
-        $this->addFlash('success','El comentario se ha eliminado correctamente');
+        $this->addFlash('success', 'El comentario se ha eliminado correctamente');
         return $this->redirect($eventPath);
     }
 
