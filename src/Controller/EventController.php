@@ -32,6 +32,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use function array_key_exists;
 use function in_array;
+use Knp\Component\Pager\PaginatorInterface;
 
 class EventController extends AbstractController
 {
@@ -418,17 +419,27 @@ class EventController extends AbstractController
     /**
      * @Route("/search", name="search_event")
      * @param Request $request
+     * @param PaginatorInterface $paginator
      * @return Response
-     * @throws Exception
      */
-    public function search(Request $request): Response
+    public function search(Request $request, PaginatorInterface $paginator): Response
     {
         $eventTitle = $request->get('event');
 
         if ($eventTitle !== null):
-            $searchResults = $this->getDoctrine()->getRepository(EventData::class)->findByTitle($eventTitle);
+            $searchQuery = $this->getDoctrine()->getRepository(EventData::class)->findByTitleQuery($eventTitle);
 
-            if (!empty($searchResults)):
+            // Paginar los resultados de la consulta
+            $searchResults = $paginator->paginate(
+            // Consulta Doctrine, no resultados
+                $searchQuery,
+                // Definir el parámetro de la página
+                $request->query->getInt('page', 1),
+                // Items per page
+                5
+            );
+
+            if ($searchResults !== null):
                 foreach ($searchResults as $event):
                     $eventID = $event->getId();
                     $sessions[$eventID] = $this->getDoctrine()->getRepository(Session::class)->findByActiveSessionsEvent($event);
@@ -437,7 +448,8 @@ class EventController extends AbstractController
         endif;
 
 
-        return $this->render('event/search.html.twig', array('results' => $searchResults ?? null, 'sessions' => $sessions ?? null));
+        return $this->render('event/search.html.twig', array('results' => $searchResults ?? null,
+            'sessions' => $sessions ?? null, 'event_title' => $eventTitle));
 
     }
 

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\EventData;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -52,6 +53,22 @@ class EventDataRepository extends ServiceEntityRepository
             )
             ->setParameter('title',"%$title%")
             ->getQuery()->execute()
+            ;
+    }
+
+    /**
+     * Método para buscar eventos que contengan el título que recibe
+     * @return Query Returns an array of Session objects
+     */
+    public function findByTitleQuery(string $title): Query
+    {
+        $qb = $this->createQueryBuilder('e');
+        return $qb
+            ->where(
+                $qb->expr()->like('e.title', ':title')
+            )
+            ->setParameter('title',"%$title%")
+            ->getQuery()
             ;
     }
 
