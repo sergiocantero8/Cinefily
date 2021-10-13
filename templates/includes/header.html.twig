@@ -9,6 +9,8 @@
             <ul class="nav-section nav col-12 col-lg-auto me-lg-auto mb-2 mb-md-0">
                 <li><a href="/cinema/all" class="nav-link px-2 text-white">Nuestros cines</a></li>
                 <li><a href="/showtimes" class="nav-link px-2 text-white">Cartelera</a></li>
+                <li><a href="/search?event_type=película" class="nav-link px-2 text-white">Películas</a></li>
+                <li><a href="/search?event_type=evento" class="nav-link px-2 text-white">Eventos</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">Precios</a></li>
                 {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
                     <li>
@@ -18,6 +20,7 @@
                                 <a href="/admin/event/add" class="nav-link px-2 text-white">Añadir evento</a>
                                 <a href="/admin/cinema/add" class="nav-link px-2 text-white">Añadir cine</a>
                                 <a href="/admin/session/add" class="nav-link px-2 text-white">Añadir sesión</a>
+                                <a href="/admin/users" class="nav-link px-2 text-white">Usuarios</a>
                                 <a href="/admin/log" class="nav-link px-2 text-white">Log</a>
                             </div>
                         </div>

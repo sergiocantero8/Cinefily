@@ -10,6 +10,7 @@ use App\Entity\User;
 use DateInterval;
 use DateTime;
 use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -130,9 +131,10 @@ class MainController extends AbstractController
     /**
      * @Route("/admin/log", name="log_page")
      * @param Request $request
+     * @param PaginatorInterface $paginator
      * @return Response
      */
-    public function renderLogInfo(Request $request): Response
+    public function renderLogInfo(Request $request, PaginatorInterface $paginator): Response
     {
         # Si el usuario está identificado pero no es administrador no podrá acceder
         if (!$this->getUser() || ($this->getUser() && !\in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
@@ -141,10 +143,24 @@ class MainController extends AbstractController
         endif;
 
         # Obtenemos toda la información del Log
-        $logInfo = $this->getDoctrine()->getRepository(LogInfo::class)->findBy([], [], 10, null);
+        $logInfoQuery = $this->getDoctrine()->getRepository(LogInfo::class)->createQueryBuilder('L')
+            ->getQuery();
+        $logResults = null;
+
+        if ($logInfoQuery !== null):
+            // Paginar los resultados de la consulta
+            $logResults = $paginator->paginate(
+            // Consulta Doctrine, no resultados
+                $logInfoQuery,
+                // Definir el parámetro de la página
+                $request->query->getInt('page', 1),
+                // Items per page
+                10
+            );
+        endif;
 
         $data = array();
-        foreach ($logInfo as $info):
+        foreach ($logResults as $info):
             $data[] = array(
                 'id' => $info->getId(),
                 'date' => $info->getDate()->format('Y-m-d H:i'),
@@ -154,9 +170,8 @@ class MainController extends AbstractController
         endforeach;
 
 
-        return $this->render('log.html.twig', array('log_info' => $data));
+        return $this->render('log.html.twig', array('log_info' => $data, 'results' => $logResults));
     }
-
 
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

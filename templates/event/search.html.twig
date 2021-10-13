@@ -2,16 +2,50 @@
 
 {% block title %}Buscar | Cinefily{% endblock %}
 
+{% set currentPath = app.request.requesturi %}
+
+{% macro delete_event(id_event, currentPath) %}
+
+    {# Modal para borrar un evento #}
+    <div class="modal fade" id="deleteEvent-{{ id_event }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteEvent">Borrar evento</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿ Seguro que quieres borrar el evento ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    <a class="btn btn-danger " href="/event/delete?id_event={{ id_event }}&path={{ currentPath }}">Sí,
+                        estoy seguro</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% import _self as helper %}
 
 {% block main %}
-<div class="h4 m-5"> Busquedas para "{{ event_title }}"</div>
+    {% if event_title is empty and event_type is not null and event_type!='evento' %}
+        <div class="h4 m-5"> Todas las películas</div>
+    {% elseif event_title is empty and event_type is not null and event_type=='evento' %}
+        <div class="h4 m-5"> Todos los eventos</div>
+    {% else %}
+        <div class="h4 m-5"> Busquedas para "{{ event_title }}"</div>
+    {% endif %}
     <table class="table mt-3">
         <thead>
         <tr>
             <th scope="col">Evento</th>
             <th scope="col">Descripcion</th>
             <th scope="col">Sesiones activas</th>
-            <th scope="col">Acciones administrativas</th>
+            <th scope="col">Acciones</th>
         </tr>
         </thead>
         <tbody>
@@ -52,12 +86,15 @@
                             <i class="fas fa-pencil-alt"></i>
                         </button>
 
-                        <button class="btn btn-danger">
+                        <button class="btn btn-danger" data-toggle="modal"
+                                data-target="#deleteEvent-{{ event.getId() }}">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     {% endif %}
                 </td>
             </tr>
+
+            {{ helper.delete_event(event.getId(), currentPath) }}
         {% endfor %}
         </tbody>
 
@@ -70,6 +107,8 @@
             'rounded': true,
         }) }}
     </div>
+
+
 {% endblock %}
 
 {% block custom_body_javascript %}

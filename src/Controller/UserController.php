@@ -16,6 +16,7 @@ use App\Entity\User;
 use App\Form\UserRegistrationType;
 use DateTime;
 use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use LogicException;
 use Swift_Mailer;
 use Swift_Message;
@@ -33,6 +34,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use function count;
+use function in_array;
 
 class UserController extends AbstractController
 {
@@ -287,7 +289,7 @@ class UserController extends AbstractController
         $date = $this->getUser()->getCreatedAt()->format('d/m/Y');
 
         $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(
-                            array('user' => $this->getUser()->getID())));
+            array('user' => $this->getUser()->getID())));
         $nTickets = count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
             array('user' => $this->getUser()->getID())));
 
@@ -331,7 +333,7 @@ class UserController extends AbstractController
 
             if ($session !== null):
                 $tickets[] = array('session' => $session, 'event' => $session->getEvent(), 'room' => $session->getRoom(),
-                    'cinema' => $session->getCinema(), 'seat' => $ticket->getSeatBooked()->getSeat(), 'ticket'=> $ticket);
+                    'cinema' => $session->getCinema(), 'seat' => $ticket->getSeatBooked()->getSeat(), 'ticket' => $ticket);
             endif;
 
         endforeach;
@@ -361,6 +363,44 @@ class UserController extends AbstractController
 
         $this->addFlash('success', 'El comentario se ha eliminado correctamente');
         return $this->redirect($eventPath);
+    }
+
+
+    /**
+     * @Route("/admin/users", name="admin_users")
+     * @param Request $request
+     * @param PaginatorInterface $paginator
+     * @return RedirectResponse
+     */
+    public function adminUsers(Request $request, PaginatorInterface $paginator): Response
+    {
+
+        if (!$this->getUser() || ($this->getUser() && !in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
+            $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
+            return $this->redirectToRoute('home');
+        endif;
+
+
+        $usersResults=null;
+        $usersQuery = $this->getDoctrine()->getRepository(User::class)
+            ->createQueryBuilder('u')
+            ->getQuery();
+
+
+        if ($usersQuery !== null):
+            // Paginar los resultados de la consulta
+            $usersResults = $paginator->paginate(
+            // Consulta Doctrine, no resultados
+                $usersQuery,
+                // Definir el parámetro de la página
+                $request->query->getInt('page', 1),
+                // Items per page
+                10
+            );
+        endif;
+
+
+        return $this->render('user/admin_users.html.twig', array('results' => $usersResults));
     }
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

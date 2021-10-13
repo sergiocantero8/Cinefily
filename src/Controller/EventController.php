@@ -15,12 +15,13 @@ use DateInterval;
 use DateTime;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -425,10 +426,21 @@ class EventController extends AbstractController
     public function search(Request $request, PaginatorInterface $paginator): Response
     {
         $eventTitle = $request->get('event');
+        $eventType = $request->get('event_type');
+        $searchResults = null;
+        $searchQuery = null;
 
-        if ($eventTitle !== null):
+        if ($eventType !== null):
+            if ($eventType === static::FILM_EVENT_TYPE):
+                $searchQuery = $this->getDoctrine()->getRepository(EventData::class)->findByEventTypeQuery($eventType);
+            else:
+                $searchQuery = $this->getDoctrine()->getRepository(EventData::class)->findByEventTypeQuery(null);
+            endif;
+        elseif ($eventTitle !== null):
             $searchQuery = $this->getDoctrine()->getRepository(EventData::class)->findByTitleQuery($eventTitle);
+        endif;
 
+        if ($searchQuery !== null):
             // Paginar los resultados de la consulta
             $searchResults = $paginator->paginate(
             // Consulta Doctrine, no resultados
@@ -438,18 +450,64 @@ class EventController extends AbstractController
                 // Items per page
                 5
             );
+        endif;
 
-            if ($searchResults !== null):
-                foreach ($searchResults as $event):
-                    $eventID = $event->getId();
-                    $sessions[$eventID] = $this->getDoctrine()->getRepository(Session::class)->findByActiveSessionsEvent($event);
-                endforeach;
-            endif;
+        if ($searchResults !== null):
+            foreach ($searchResults as $event):
+                $eventID = $event->getId();
+                $sessions[$eventID] = $this->getDoctrine()->getRepository(Session::class)->findByActiveSessionsEvent($event);
+            endforeach;
         endif;
 
 
         return $this->render('event/search.html.twig', array('results' => $searchResults ?? null,
-            'sessions' => $sessions ?? null, 'event_title' => $eventTitle));
+            'sessions' => $sessions ?? null, 'event_title' => $eventTitle, 'event_type' => $eventType));
+
+    }
+
+
+    /**
+     * @Route("/event/delete", name="delete_event")
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function deleteEvent(Request $request): RedirectResponse
+    {
+
+        if (!$this->getUser() || ($this->getUser() && !in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
+            $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
+            return $this->redirectToRoute('home');
+        endif;
+
+
+        $eventID = $request->get('id_event');
+
+        if ($eventID !== null):
+            $event = $this->getDoctrine()->getRepository(EventData::class)->find($eventID);
+            $em = $this->getDoctrine()->getManager();
+
+            if ($event !== null):
+                if ($event->getPosterPhoto() !== null):
+                    $fs = new Filesystem();
+                    $fs->remove($this->getParameter('images_directory') . '/' . $event->getPosterPhoto());
+                endif;
+
+                if ($event->getBackdropPhoto() !== null):
+                    $fs = new Filesystem();
+                    $fs->remove($this->getParameter('images_directory') . '/' . $event->getBackdropPhoto());
+                endif;
+
+                $em->remove($event);
+                $em->flush();
+                $this->addFlash('success', 'El evento se ha eliminado correctamente');
+            else:
+                $this->addFlash('error', 'No existe el evento con ese ID');
+            endif;
+
+        endif;
+
+
+        return $this->redirectToRoute('home');
 
     }
 

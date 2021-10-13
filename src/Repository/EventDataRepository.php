@@ -21,7 +21,6 @@ class EventDataRepository extends ServiceEntityRepository
     }
 
 
-
     /**
      * Método para buscar eventos que contengan la categoría que recibe el método
      * @return EventData[] Returns an array of Session objects
@@ -33,11 +32,9 @@ class EventDataRepository extends ServiceEntityRepository
             ->where(
                 $qb->expr()->like('e.gender', ':category')
             )
-            ->setParameter('category',"%$category%")
-            ->getQuery()->execute()
-            ;
+            ->setParameter('category', "%$category%")
+            ->getQuery()->execute();
     }
-
 
 
     /**
@@ -51,9 +48,8 @@ class EventDataRepository extends ServiceEntityRepository
             ->where(
                 $qb->expr()->like('e.title', ':title')
             )
-            ->setParameter('title',"%$title%")
-            ->getQuery()->execute()
-            ;
+            ->setParameter('title', "%$title%")
+            ->getQuery()->execute();
     }
 
     /**
@@ -67,9 +63,33 @@ class EventDataRepository extends ServiceEntityRepository
             ->where(
                 $qb->expr()->like('e.title', ':title')
             )
-            ->setParameter('title',"%$title%")
-            ->getQuery()
-            ;
+            ->setParameter('title', "%$title%")
+            ->getQuery();
+    }
+
+
+    /**
+     * Método para buscar eventos que contengan el título que recibe
+     * @param string|null $eventType
+     * @return Query Returns an array of Session objects
+     */
+    public function findByEventTypeQuery(?string $eventType): Query
+    {
+
+        $qb = $this->createQueryBuilder('e');
+
+        if ($eventType === null):
+            return $qb
+                ->andWhere('e.type != :type')
+                ->setParameter('type', 'película')
+                ->getQuery();
+        else:
+            return $qb
+                ->andWhere('e.type = :type')
+                ->setParameter('type', $eventType)
+                ->getQuery();
+        endif;
+
     }
 
     // /**

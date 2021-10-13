@@ -24,5 +24,13 @@
         {% endfor %}
         </tbody>
     </table>
+    <div class="navigation ">
+        {{ knp_pagination_render(results, null, {}, {
+            'align': 'center',
+            'size': 'large',
+            'rounded': true,
+        }) }}
+    </div>
+
 
 {% endblock %}
