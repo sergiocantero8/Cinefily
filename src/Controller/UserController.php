@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Cinema;
 use App\Entity\Comment;
 use App\Entity\EventData;
+use App\Entity\LogInfo;
 use App\Entity\Room;
 use App\Entity\Seat;
 use App\Entity\SeatBooked;
@@ -225,6 +226,11 @@ class UserController extends AbstractController
                 'label' => 'Teléfono',
                 'data' => $user->getPhoneNumber() ?? '',
             ))
+            ->add('city', TextType::class, array(
+                'required' => FALSE,
+                'label' => 'Ciudad',
+                'data' => $user->getCity() ?? '',
+            ))
             ->add('profile_photo', FileType::class, array(
                 'label' => 'Foto de perfil',
                 'data_class' => null,
@@ -381,7 +387,7 @@ class UserController extends AbstractController
         endif;
 
 
-        $usersResults=null;
+        $usersResults = null;
         $usersQuery = $this->getDoctrine()->getRepository(User::class)
             ->createQueryBuilder('u')
             ->getQuery();
@@ -401,6 +407,91 @@ class UserController extends AbstractController
 
 
         return $this->render('user/admin_users.html.twig', array('results' => $usersResults));
+    }
+
+    /**
+     * @Route("/admin/user/delete", name="delete_user")
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function deleteUser(Request $request): RedirectResponse
+    {
+
+        if (!$this->getUser() || ($this->getUser() && !in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
+            $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
+            return $this->redirectToRoute('home');
+        endif;
+
+        $userID = $request->get('id_user');
+
+
+        if ($userID !== null):
+            $user = $this->getDoctrine()->getRepository(User::class)->find($userID);
+
+            if ($user !== null && $user !== $this->getUser()):
+
+                # Borramos la foto de perfil del servidor
+                if ($user->getPhoto() !== null):
+                    $fs = new Filesystem();
+                    $fs->remove($this->getParameter('images_directory') . '/' . $user->getPhoto());
+                endif;
+
+                $em = $this->getDoctrine()->getManager();
+
+                # Buscamos si tiene algún ticket comprado para setear a null el usuario asociado
+                $tickets = $this->getDoctrine()->getRepository(Ticket::class)->findBy(array('user' => $user));
+
+                foreach ($tickets as $ticket):
+                    $ticket->setUser(null);
+                    $em->persist($ticket);
+                endforeach;
+                $em->flush();
+
+                # Borramos el usuario
+                $em->remove($user);
+                $em->flush();
+
+                $logInfo = new LogInfo(LogInfo::TYPE_SUCCESS, 'Se ha eliminado el usuario con ID ' . $userID);
+                $em->persist($logInfo);
+                $em->flush();
+                $this->addFlash('success', 'Se ha eliminado el usuario correctamente');
+            else:
+                $this->addFlash('error', 'Error al eliminar un usuario');
+            endif;
+        endif;
+
+
+        return $this->redirectToRoute('home');
+    }
+
+    /**
+     * @Route("/admin/user/details", name="user_details")
+     * @param Request $request
+     * @return Response
+     */
+    public function viewUserDetails(Request $request): Response
+    {
+
+        if (!$this->getUser() || ($this->getUser() && !in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
+            $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
+            return $this->redirectToRoute('home');
+        endif;
+
+        $userID = $request->get('id');
+
+
+        if ($userID !== null):
+            $user = $this->getDoctrine()->getRepository(User::class)->find($userID);
+            if ($user !== null):
+                $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(array('user' => $user->getId())));
+                $nTickets = count($this->getDoctrine()->getRepository(Ticket::class)->findBy(array('user' => $user->getId())));
+                $privileges = static::convertPrivilegesToString($user->getPrivileges());
+            endif;
+        endif;
+
+
+        return $this->render('user/admin_profile_details.html.twig', array('user' => $user ?? null,
+            'user_comments'=>$nComments ?? null , 'user_tickets'=>$nTickets ?? null, 'privileges' => $privileges ?? null));
     }
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

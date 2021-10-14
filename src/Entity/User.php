@@ -92,6 +92,11 @@ class User implements UserInterface
      */
     private $created_at;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $city;
+
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
 
@@ -408,6 +413,18 @@ class User implements UserInterface
             self::ROLE_USER,
             self::ROLE_MODERATOR
         );
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(?string $city): self
+    {
+        $this->city = $city;
+
+        return $this;
     }
 
 

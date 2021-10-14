@@ -20,7 +20,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                    <a class="btn btn-danger " href="/user/delete?id_user={{ id_user }}">Sí,
+                    <a class="btn btn-danger " href="/admin/user/delete?id_user={{ id_user }}">Sí,
                         estoy seguro</a>
                 </div>
             </div>
@@ -68,7 +68,7 @@
                 <td class="col-md-3">{{ user.getCreatedAt()|date("Y/m/d H:i") }}</td>
 
                 <td class="col-md-3">
-                    <a class="btn btn-info" href="/user/details?id={{ user.getId() }}">
+                    <a class="btn btn-info" href="/admin/user/details?id={{ user.getId() }}">
                         <i class="fas fa-eye"></i>
                     </a>
 
