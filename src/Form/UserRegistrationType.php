@@ -43,9 +43,12 @@ class UserRegistrationType extends AbstractType
                 'label' => 'Email'
             ))
             ->add('phone_number',TextType::class,array(
-                'label' => 'Telefono',
-                'required' => false,
-                'empty_data' => 'Opcional'
+                'label' => 'Telefono (Opcional)',
+                'required' => false
+            ))
+            ->add('city',TextType::class,array(
+                'label' => 'Ciudad (Opcional)',
+                'required' => false
             ))
             ->add('submit', SubmitType::class,array(
                 'label' => 'Registrar'

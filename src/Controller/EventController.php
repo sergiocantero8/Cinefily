@@ -341,6 +341,7 @@ class EventController extends AbstractController
     }
 
     /**
+     * Ruta para ver la cartelera dependiendo del cine y fecha elegidos
      * @Route("/showtimes", name="show_times")
      * @param Request $request
      * @return Response
@@ -460,6 +461,10 @@ class EventController extends AbstractController
         endif;
 
 
+        if (empty($searchResults->getItems())):
+            $this->addFlash('warning', 'No hay resultados');
+        endif;
+
         return $this->render('event/search.html.twig', array('results' => $searchResults ?? null,
             'sessions' => $sessions ?? null, 'event_title' => $eventTitle, 'event_type' => $eventType));
 
@@ -492,9 +497,9 @@ class EventController extends AbstractController
                     $fs->remove($this->getParameter('images_directory') . '/' . $event->getPosterPhoto());
                 endif;
 
-                if ($event->getBackdropPhoto() !== null):
+                if ($event->getBackdropPath() !== null):
                     $fs = new Filesystem();
-                    $fs->remove($this->getParameter('images_directory') . '/' . $event->getBackdropPhoto());
+                    $fs->remove($this->getParameter('images_directory') . '/' . $event->getBackdropPath());
                 endif;
 
                 $em->remove($event);

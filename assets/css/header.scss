@@ -87,3 +87,13 @@ hr.horizontal-divider{
 
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .dropbtn {background-color: #38383e;}
+
+
+.dropdown-toggle::after {
+  border-top: 0.4em solid !important;
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
+  margin-left: 0 !important;
+  vertical-align: 0 !important;
+}

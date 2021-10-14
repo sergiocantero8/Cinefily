@@ -16,6 +16,7 @@ use App\Entity\Ticket;
 use App\Entity\User;
 use App\Form\UserRegistrationType;
 use DateTime;
+use Doctrine\Bundle\DoctrineBundle\DependencyInjection\DoctrineExtension;
 use Exception;
 use Knp\Component\Pager\PaginatorInterface;
 use LogicException;
@@ -68,11 +69,11 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()):
             $data_form = $form->getData();
+            $email = $data_form['email'];
+            $users = $this->getDoctrine()->getRepository(User::class)->findBy(array('email' => $email));
 
-            $userRepository = $this->getDoctrine()->getRepository(User::class);
-            $users_array = $userRepository->findBy(array('email' => $data_form['email']));
-
-            if ($data_form['password'] === $data_form['password_repeated'] && empty($users_array)):
+            if ($data_form['password'] === $data_form['password_repeated'] && empty($users) &&
+                filter_var($email, FILTER_VALIDATE_EMAIL)):
                 # Creamos un nuevo usuario
                 $user = new User();
 
@@ -80,7 +81,7 @@ class UserController extends AbstractController
                 $user->setName($data_form['name']);
                 $user->setSurname($data_form['surname']);
                 $user->setPassword($passwordEncoder->encodePassword($user, $data_form['password']));
-                $user->setEmail($data_form['email']);
+                $user->setEmail($email);
                 $user->setCreatedAt(new DateTime());
 
 
@@ -88,13 +89,18 @@ class UserController extends AbstractController
                     $user->setPhoneNumber($data_form['phone_number']);
                 endif;
 
+                if ($data_form['city'] !== null):
+                    $user->setCity($data_form['city']);
+                endif;
 
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($user);
                 $entityManager->flush();
                 $this->addFlash('success', '¡Te has registrado correctamente!');
+                $this->redirectToRoute('home');
             else:
-                $this->addFlash('error', 'Ha ocurrido un error al registrarte ');
+                $this->addFlash('error', 'Ha ocurrido un error al registrarte. Revisa que todos los campos 
+                 están correctos.');
             endif;
 
         endif;
@@ -344,8 +350,14 @@ class UserController extends AbstractController
 
         endforeach;
 
+        $nTickets = count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
+            array('user' => $this->getUser()->getID())));
+        $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(
+            array('user' => $this->getUser()->getID())));
 
-        return $this->render($template, compact('tickets', 'user'));
+
+        return $this->render($template, array('tickets' => $tickets, 'user' => $user, 'user_tickets'=>$nTickets,
+            'user_comments'=> $nComments));
 
     }
 
@@ -491,7 +503,7 @@ class UserController extends AbstractController
 
 
         return $this->render('user/admin_profile_details.html.twig', array('user' => $user ?? null,
-            'user_comments'=>$nComments ?? null , 'user_tickets'=>$nTickets ?? null, 'privileges' => $privileges ?? null));
+            'user_comments' => $nComments ?? null, 'user_tickets' => $nTickets ?? null, 'privileges' => $privileges ?? null));
     }
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

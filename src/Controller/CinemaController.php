@@ -93,6 +93,8 @@ class CinemaController extends AbstractController
                     endfor;
                 endfor;
                 $em->flush();
+                $this->addFlash('success', 'El cine se ha añadido correctamente');
+                $this->redirectToRoute('home');
             else:
                 $this->addFlash('danger', 'Los número de salas, filas y asientos no pueden ser negativos 
                 y tienen que ser iguales o menores que sus máximos permitidos.');
@@ -136,6 +138,37 @@ class CinemaController extends AbstractController
         endforeach;
 
         return $this->render('cinema/all.html.twig', array('data'=>$data));
+    }
+
+    /**
+     * Ruta para borrar un cine junto con sus salas
+     * @Route("/cinema/delete", name="delete_cinema")
+     */
+    public function deleteCinema(Request $request): Response
+    {
+
+        if (!$this->getUser() || ($this->getUser() && !in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
+            $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
+            return $this->redirectToRoute('home');
+        endif;
+
+        $cinemaID = $request->get('id_cinema');
+
+        if ($cinemaID !== null):
+            $cinema = $this->getDoctrine()->getRepository(Cinema::class)->find($cinemaID);
+            $em = $this->getDoctrine()->getManager();
+
+            if ($cinema !== null):
+                $em->remove($cinema);
+                $em->flush();
+                $this->addFlash('success', 'El cine se ha eliminado correctamente');
+            else:
+                $this->addFlash('error', 'No existe el cine con ese ID');
+            endif;
+
+        endif;
+
+        return $this->redirectToRoute('home');
     }
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

@@ -2,6 +2,33 @@
 
 {% block title %}Nuestros cines | Cinefily{% endblock %}
 
+{% macro delete_cinema(id_cinema) %}
+
+    {# Modal para borrar un evento #}
+    <div class="modal fade" id="deleteCinema-{{ id_cinema }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteCinema">Borrar cine</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ¿Seguro que quieres borrar el cine junto con sus salas y sesiones?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                    <a class="btn btn-danger " href="/cinema/delete?id_cinema={{ id_cinema }}">Sí,
+                        estoy seguro</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% import _self as helper %}
+
 {% block main %}
 
     <table class="table">
@@ -12,6 +39,9 @@
             <th scope="col">Número de salas</th>
             <th scope="col">Asientos totales</th>
             <th scope="col">Precio de las entradas</th>
+            {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
+                <th scope="col">Acciones</th>
+            {% endif %}
         </tr>
         </thead>
         <tbody>
@@ -21,8 +51,17 @@
                 <td>{{ cinema.location }}</td>
                 <td>{{ cinema.n_rooms }}</td>
                 <td>{{ cinema.n_seats }}</td>
-                <td>{{ cinema.tickets_price }}</td>
+                <td>{{ cinema.tickets_price }}€</td>
+                {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
+                    <td>
+                        <button class="btn btn-danger" data-toggle="modal"
+                                data-target="#deleteCinema-{{ cinema.id }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                {% endif %}
             </tr>
+            {{ helper.delete_cinema(cinema.id) }}
         {% endfor %}
         </tbody>
     </table>
