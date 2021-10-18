@@ -1,4 +1,5 @@
-<?php /** @noinspection NotOptimalIfConditionsInspection */
+<?php /** @noinspection PhpParamsInspection */
+/** @noinspection NotOptimalIfConditionsInspection */
 
 /** @noinspection PhpUndefinedMethodInspection */
 
@@ -323,7 +324,7 @@ class UserController extends AbstractController
      * Ruta para visualizar todos los datos del perfil del usuario y con posibilidad de editarlos
      * @Route("/user/myTickets", name="user_tickets")
      */
-    public function userTickets(): Response
+    public function userTickets(Request $request, PaginatorInterface $paginator): Response
     {
 
         if (!$this->getUser()) :
@@ -335,9 +336,25 @@ class UserController extends AbstractController
 
         $template = 'user/my_tickets.html.twig';
 
+        /*
         $myTickets = $this->getDoctrine()->getRepository(Ticket::class)->findBy(array(
             'user' => $this->getUser()), array('sale_date' => 'DESC'), 6);
+*/
+        $myTickets = null;
+        $myTicketsQuery = $this->getDoctrine()->getRepository(Ticket::class)->findByUser($this->getUser());
 
+
+        if ($myTicketsQuery !== null):
+            // Paginar los resultados de la consulta
+            $myTickets = $paginator->paginate(
+            // Consulta Doctrine, no resultados
+                $myTicketsQuery,
+                // Definir el parámetro de la página
+                $request->query->getInt('page', 1),
+                // Items per page
+                6
+            );
+        endif;
 
         $tickets = array();
         foreach ($myTickets as $ticket):
@@ -350,14 +367,15 @@ class UserController extends AbstractController
 
         endforeach;
 
+
         $nTickets = count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
             array('user' => $this->getUser()->getID())));
         $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(
             array('user' => $this->getUser()->getID())));
 
 
-        return $this->render($template, array('tickets' => $tickets, 'user' => $user, 'user_tickets'=>$nTickets,
-            'user_comments'=> $nComments));
+        return $this->render($template, array('tickets' => $tickets, 'user' => $user, 'user_tickets' => $nTickets,
+            'user_comments' => $nComments));
 
     }
 

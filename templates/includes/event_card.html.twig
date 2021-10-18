@@ -9,9 +9,9 @@
 
 <div class="card">
     <div class="card_left">
-        {% if strPosString(data_film.poster_photo,'image.tmdb.org',8) != false %}
+        {% if data_film.poster_photo is not null and strPosString(data_film.poster_photo,'image.tmdb.org',8) != false %}
             <img src="{{ data_film.poster_photo }}" alt="Poster photo"/>
-        {% else %}
+        {% elseif data_film.poster_photo is not null %}
             <img src="{{ asset('uploads/images/' ~ data_film.poster_photo) }}" class="db_poster_photo" alt="Poster photo"/>
         {% endif %}
     </div>

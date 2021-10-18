@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Ticket;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,22 +21,21 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
-    // /**
-    //  * @return Ticket[] Returns an array of Ticket objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param User $user
+     * @return Query Devuelve la query para encontrar los tickets de un usuario
+     */
+
+    public function findByUser(User $user) : Query
     {
         return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
+            ->andWhere('t.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('t.sale_date', 'DESC')
             ->getQuery()
-            ->getResult()
         ;
     }
-    */
+
 
     /*
     public function findOneBySomeField($value): ?Ticket

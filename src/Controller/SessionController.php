@@ -125,6 +125,11 @@ class SessionController extends AbstractController
                 # Como es la primera sesión del cine, le asignamos la primera sala
                 $session->setRoom($rooms[0]);
 
+                if (!$event->getStatus()):
+                    $event->setStatus(true);
+                    $em->persist($event);
+                endif;
+
                 $this->addFlash('success', '¡La sesión ha sido añadida correctamente!');
                 $info = new LogInfo(LogInfo::TYPE_SUCCESS, 'Se ha añadido una nueva sesión del evento ' .
                     $event->getTitle() . ' con fecha de inicio ' . $schedule_start->format('Y-m-d H:i') .
@@ -147,6 +152,11 @@ class SessionController extends AbstractController
                         $session->setSchedule($schedule_start);
                         $session->setScheduleEnd($schedule_end);
                         $session->setRoom($room);
+
+                        if (!$event->getStatus()):
+                            $event->setStatus(true);
+                            $em->persist($event);
+                        endif;
 
                         $assigned = true;
                         $info = new LogInfo(LogInfo::TYPE_SUCCESS, 'Se ha añadido una nueva sesión del evento ' .

@@ -74,6 +74,7 @@ class EventController extends AbstractController
     # API KEY
     private const API_KEY = '99e1f232e39064087b6bbd5255d957b4';
 
+
     #Códigos de estado
     public const SUCCESS_STATUS_CODE = 200;
 
@@ -83,6 +84,7 @@ class EventController extends AbstractController
     public const ROUTE_ADD_EVENT = 'add_event';
     public const ROUTE_SHOW_TIMES = 'show_times';
     public const ROUTE_SEARCH_EVENT = 'search_event';
+    public const ROUTE_EDIT_EVENT = 'edit_event';
 
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
@@ -116,7 +118,8 @@ class EventController extends AbstractController
                 'data' => array(
                     'event_types' => $this->getAllEventTypes(),
                     'genders_types' => static::getAllGenresTypes(),
-                    'age_rating_types' => $this->getAllAgeRating())
+                    'age_rating_types' => $this->getAllAgeRating(),
+                    'action'=> $this->generateUrl(static::ROUTE_ADD_EVENT))
             )
         );
         $form->handleRequest($request);
@@ -150,10 +153,11 @@ class EventController extends AbstractController
                 endif;
             endif;
 
+
             $img_poster = $data_form['poster_photo'];
             $img_backdrop = $data_form['backdrop_photo'];
 
-            if ($img_poster) {
+            if ($img_poster !== null) {
                 $fileName = md5(uniqid('', false)) . '' . $img_poster->guessExtension();
 
                 try {
@@ -168,7 +172,7 @@ class EventController extends AbstractController
                 $event->setPosterPhoto($fileName);
             }
 
-            if ($img_backdrop) {
+            if ($img_backdrop !==null) {
                 $fileName = md5(uniqid('', false)) . '' . $img_backdrop->guessExtension();
 
                 try {
@@ -370,7 +374,8 @@ class EventController extends AbstractController
                 'placeholder' => [
                     'year' => 'Año', 'month' => 'Mes', 'day' => 'Dia'
                 ],
-                'years' => range(2021, 2023)
+                'years' => range(2021, 2023),
+                'data' => new DateTime()
             ))
             ->add('submit', SubmitType::class, array(
                 'label' => 'Buscar',
@@ -386,7 +391,7 @@ class EventController extends AbstractController
             $schedule_end = new DateTime($schedule_start->format('Y-m-d H:i'));
             $schedule_end->add(new DateInterval(('P1D')));
 
-            $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $dataForm['cinema']));
+            $cinema = $this->getDoctrine()->getRepository(Cinema::class)->find($dataForm['cinema']);
 
             if ($cinema !== null):
                 $sessions = $this->getDoctrine()->getRepository(Session::class)->findByDate($cinema,
@@ -399,7 +404,7 @@ class EventController extends AbstractController
                 $sessionsByEvent = array();
                 foreach ($sessions as $session):
                     if (!array_key_exists($session->getEvent()->getId(), $sessionsByEvent)):
-                        $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()->getId()));
+                        $event = $session->getEvent();
                         $sessionsByEvent[$session->getEvent()->getId()]['event'] = $event;
                     endif;
                     $sessionsByEvent[$session->getEvent()->getId()][$session->getRoom()->getNumber()][] = $session;
@@ -517,6 +522,131 @@ class EventController extends AbstractController
     }
 
 
+    /**
+     * @Route("/event/edit", name="edit_event")
+     * @param Request $request
+     * @return Response
+     */
+    public function editEvent(Request $request): Response
+    {
+
+        if (!$this->getUser() || ($this->getUser() && !in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
+            $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
+            return $this->redirectToRoute('home');
+        endif;
+
+
+        $eventID = $request->get('id');
+
+        if ($eventID !== null):
+            $event = $this->getDoctrine()->getRepository(EventData::class)->find($eventID);
+
+            if ($event !== null):
+                $form = $this->createForm(AddEventType::class, NULL,
+                    array(
+                        'data' => array(
+                            'event_types' => $this->getAllEventTypes(),
+                            'genders_types' => static::getAllGenresTypes(),
+                            'age_rating_types' => $this->getAllAgeRating(),
+                            'event' => $event,
+                            'action'=> '/event/edit?id='. $eventID)
+                    )
+                );
+                $form->handleRequest($request);
+
+            endif;
+
+        endif;
+
+        if ($form->isSubmitted() && $form->isValid()):
+            $dataForm = $form->getData();
+
+            # Creamos un nuevo evento
+            $event = new EventData();
+
+            # Seteamos todas las propiedades
+            $event->setTitle($dataForm['title']);
+            $event->setType($dataForm['type']);
+            $event->setGender($dataForm['gender']);
+            $event->setDescription($dataForm['description']);
+            if ($dataForm['duration'] !== null && $dataForm['duration'] > 0):
+                $event->setDuration($dataForm['duration']);
+            endif;
+            $event->setReleaseDate($dataForm['release_date']);
+            $event->setActors($dataForm['actors']);
+            $event->setRating($dataForm['rating']);
+            $event->setStatus($dataForm['status']);
+            $event->setDirector($dataForm['director']);
+            $event->setTagLine($dataForm['tag_line']);
+
+            if (($dataForm['youtube_trailer'] !== null) && str_contains($dataForm['youtube_trailer'], 'youtube.com')):
+                parse_str(parse_url($dataForm['youtube_trailer'], PHP_URL_QUERY), $vars);
+                if ($vars['v'] !== null):
+                    $event->setYoutubeTrailer($vars['v']);
+                endif;
+            endif;
+
+            $imgPoster = $dataForm['poster_photo'];
+            $imgBackdrop = $dataForm['backdrop_photo'];
+
+
+            if ($imgPoster !== null && $imgPoster !== $event->getPosterPhoto()) {
+
+                $fs = new Filesystem();
+                $fs->remove($this->getParameter('images_directory') . '/' . $event->getPosterPhoto());
+
+                $fileName = md5(uniqid('', false)) . '' . $imgPoster->guessExtension();
+
+                try {
+                    $imgPoster->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+                } catch (FileException $e) {
+                    $this->createNotFoundException('Directorio images no encontrado');
+                }
+
+                $event->setPosterPhoto($fileName);
+            }
+
+            if ($imgBackdrop!== null && $imgBackdrop !== $event->getBackdropPath()) {
+
+                $fs = new Filesystem();
+                $fs->remove($this->getParameter('images_directory') . '/' . $event->getBackdropPath());
+
+                $fileName = md5(uniqid('', false)) . '' . $imgBackdrop->guessExtension();
+
+                try {
+                    $imgBackdrop->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+                } catch (FileException $e) {
+                    $this->createNotFoundException('Directorio images no encontrado');
+                }
+
+                $event->setBackdropPath($fileName);
+            }
+
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($event);
+            $em->flush();
+            $this->addFlash('success', '¡El evento se ha editado correctamente!');
+
+        endif;
+
+
+        $data = array(
+            'form' => $form->createView(),
+            'event' => $event ?? null
+        );
+
+        return $this->render('event/add.html.twig', $data);
+
+    }
+
+
 
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
@@ -574,6 +704,7 @@ class EventController extends AbstractController
 
         return $result;
     }
+
 
     /**
      *  Devuelve los datos de una película con el id que se le pase por parámetro,
@@ -734,6 +865,11 @@ class EventController extends AbstractController
         endforeach;
 
         return $genresString;
+    }
+
+    public static function gendersToArray(string $genres): array
+    {
+        return explode(',', $genres);
     }
 
 

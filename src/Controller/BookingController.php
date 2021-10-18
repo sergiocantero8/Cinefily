@@ -2,10 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Cinema;
-use App\Entity\EventData;
 use App\Entity\LogInfo;
-use App\Entity\Room;
 use App\Entity\Seat;
 use App\Entity\SeatBooked;
 use App\Entity\Session;
@@ -17,6 +14,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use function count;
 use Symfony\Component\Lock\LockFactory;
 
@@ -28,12 +31,20 @@ class BookingController extends AbstractController
 
     public const METHOD_PAYPAL = 'paypal';
     public const METHOD_CASH = 'cash';
+
+    private const API_QR_GENERATOR_KEY = 'wwVIbVZF0U3w4ZxansmDVYukx0q03gc9JRd5kbI_6CuFlv3kSFct4200fpqaPZFG';
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
+    // Para peticiones HTTP
+    private $client;
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
 
+    public function __construct(HttpClientInterface $client)
+    {
+        $this->client = $client;
+    }
     # ------------------------------------------------- ROUTES ------------------------------------------------------- #
 
     /**
@@ -51,12 +62,12 @@ class BookingController extends AbstractController
         endif;
 
         // Recuperamos todos los datos de la sesión, la sala, el cine y el evento
-        $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $id));
+        $session = $this->getDoctrine()->getRepository(Session::class)->find($id);
 
         if ($session !== null):
-            $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $session->getCinema()));
-            $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()));
-            $room = $this->getDoctrine()->getRepository(Room::class)->findOneBy(array('id' => $session->getRoom()));
+            $cinema = $session->getCinema();
+            $event = $session->getEvent();
+            $room = $session->getRoom();
             if ($room !== null):
                 $seats = $this->getDoctrine()->getRepository(Seat::class)->findBy(array('room' => $room->getId()));
                 if ($seats !== null):
@@ -96,11 +107,11 @@ class BookingController extends AbstractController
 
 
         if ($sessionID !== null):
-            $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $sessionID));
+            $session = $this->getDoctrine()->getRepository(Session::class)->find($sessionID);
             if ($session !== null):
-                $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()));
-                $room = $this->getDoctrine()->getRepository(Room::class)->findOneBy(array('id' => $session->getRoom()));
-                $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $session->getCinema()));
+                $event = $session->getEvent();
+                $room = $session->getRoom();
+                $cinema = $session->getCinema();
             endif;
         endif;
 
@@ -113,7 +124,7 @@ class BookingController extends AbstractController
 
         $seats = array_filter(explode(',', $s));
         $matrixSeats = $this->getMatrixSeats($seats);
-
+        $qr= $this->generateTicketQR(7);
         $data = array(
             'seats' => $seats,
             'n_seats' => count($seats),
@@ -122,7 +133,8 @@ class BookingController extends AbstractController
             'room' => $room ?? null,
             'cinema' => $cinema ?? null,
             'matrixSeats' => $matrixSeats,
-            'email' => $email
+            'email' => $email,
+            'qr' => $qr
         );
 
         return $this->render($template, $data);
@@ -154,11 +166,11 @@ class BookingController extends AbstractController
 
         # Obtenemos la sesión junto con el cine y la sala correspondientes y seguimos con el proceso de reserva
         if ($sessionID !== null):
-            $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $sessionID));
+            $session = $this->getDoctrine()->getRepository(Session::class)->find($sessionID);
             if ($session !== null):
-                $room = $this->getDoctrine()->getRepository(Room::class)->findOneBy(array('id' => $session->getRoom()));
-                $cinema = $this->getDoctrine()->getRepository(Cinema::class)->findOneBy(array('id' => $session->getCinema()));
-                $event = $this->getDoctrine()->getRepository(EventData::class)->findOneBy(array('id' => $session->getEvent()));
+                $room = $session->getRoom();
+                $cinema = $session->getCinema();
+                $event = $session->getEvent();
                 if ($room !== null):
                     # Obtenemos la matriz con los asientos y creamos el cerrojo para que no haya concurrencia a
                     # la hora de reservar el asiento
@@ -285,6 +297,24 @@ class BookingController extends AbstractController
 
         return $this->redirectToRoute($template);
     }
+
+
+    /**
+     * Ruta para validar un ticket
+     * @Route("/ticket/validate", methods={"GET"},  name="validate_ticket")
+     */
+    public function validateTicket(Request $request): Response
+    {
+
+        # Obtenemos el id del ticket
+        $id = $request->get('id');
+
+        if ($id !== null):
+            $this->getDoctrine()->getRepository(Ticket::class)->find($id);
+        endif;
+
+
+    }
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
     /**
@@ -302,6 +332,43 @@ class BookingController extends AbstractController
         endforeach;
 
         return $matrixSeats;
+    }
+
+    /**
+     *  Devuelve los datos de las películas que se estrenarán proximamente
+     * @param int $ticketID
+     * @return array|null
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function generateTicketQR(int $ticketID): string
+    {
+        $result = NULL;
+
+        $url='https://api.qr-code-generator.com/v1/create?access-token='.static::API_QR_GENERATOR_KEY;
+        $response = $this->client->request(
+            'POST',
+            $url,
+            [
+                'body' => [
+                    'frame_name' => 'no-frame',
+                    'qr_code_text' => 'ticket/validate?id=' . $ticketID,
+                    'image_format' => 'SVG',
+                    'qr_code_logo' => 'scan-me-square'
+                ]
+            ]
+
+        );
+
+
+        if ($response->getStatusCode() === EventController::SUCCESS_STATUS_CODE):
+            $result = $response->getContent();
+        endif;
+
+        return $result;
     }
 
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #

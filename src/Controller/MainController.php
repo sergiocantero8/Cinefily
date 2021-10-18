@@ -51,7 +51,8 @@ class MainController extends AbstractController
 
         //$configuration = $eventController->getIMDBConfiguration();
 
-        /*
+
+
         $upcomingsFilmsPage = $eventController->getTMDBFilmsUpcoming();
 
 
@@ -63,17 +64,17 @@ class MainController extends AbstractController
             endif;
         endforeach;
 
-        */
+
 
         // Obtenemos los ids de TMDB que queremos mostrar en el home para cargarlos
-        /*
+
         $homeIDSFilms = $this->getTMDB_FilmIDs();
 
         // Hacemos una llamada a la API de TMDB por cada ID que tengamos almacenado
         foreach ($homeIDSFilms as $filmID):
             $filmsTMDB[] = $eventController->getIMDBFilmByID($filmID);
         endforeach;
-        */
+
         // Obtenemos todos los géneros para eventos
         $genresTypes = EventController::getAllGenresTypes();
 
@@ -98,6 +99,7 @@ class MainController extends AbstractController
                         'summary' => EventData::getShortenSummary($film->getDescription()),
                         'poster_photo' => $film->getPosterPhoto()
                     );
+
                 endforeach;
             endforeach;
         endif;

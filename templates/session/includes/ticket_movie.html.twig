@@ -46,7 +46,13 @@
                     {% endif %}
                 </span>
             </div><!--row-->
-
         </div>
+        {% if qr is defined and qr is not null %}
+            <div>
+                <svg height="90">
+                    {{ qr|raw }}
+                </svg>
+            </div>
+        {% endif %}
     </div><!--movie-content-->
 </div><!--movie-card-->

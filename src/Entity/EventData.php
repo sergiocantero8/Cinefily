@@ -224,7 +224,7 @@ class EventData
         return $this;
     }
 
-    public function getPosterPhoto(): string
+    public function getPosterPhoto(): ?string
     {
         return $this->poster_photo;
     }
@@ -280,6 +280,42 @@ class EventData
     public function setDirector(?string $director): self
     {
         $this->director = $director;
+
+        return $this;
+    }
+
+    public function getTagLine(): ?string
+    {
+        return $this->tag_line;
+    }
+
+    public function setTagLine(?string $tag_line): self
+    {
+        $this->tag_line = $tag_line;
+
+        return $this;
+    }
+
+    public function getBackdropPath(): ?string
+    {
+        return $this->backdrop_path;
+    }
+
+    public function setBackdropPath(?string $backdrop_path): self
+    {
+        $this->backdrop_path = $backdrop_path;
+
+        return $this;
+    }
+
+    public function getYoutubeTrailer(): ?string
+    {
+        return $this->youtube_trailer;
+    }
+
+    public function setYoutubeTrailer(?string $youtube_trailer): self
+    {
+        $this->youtube_trailer = $youtube_trailer;
 
         return $this;
     }
@@ -375,39 +411,5 @@ class EventData
         return $overview;
     }
 
-    public function getTagLine(): ?string
-    {
-        return $this->tag_line;
-    }
 
-    public function setTagLine(?string $tag_line): self
-    {
-        $this->tag_line = $tag_line;
-
-        return $this;
-    }
-
-    public function getBackdropPath(): ?string
-    {
-        return $this->backdrop_path;
-    }
-
-    public function setBackdropPath(?string $backdrop_path): self
-    {
-        $this->backdrop_path = $backdrop_path;
-
-        return $this;
-    }
-
-    public function getYoutubeTrailer(): ?string
-    {
-        return $this->youtube_trailer;
-    }
-
-    public function setYoutubeTrailer(?string $youtube_trailer): self
-    {
-        $this->youtube_trailer = $youtube_trailer;
-
-        return $this;
-    }
 }

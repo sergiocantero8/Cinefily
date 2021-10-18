@@ -82,9 +82,9 @@
                         <i class="fas fa-eye"></i>
                     </a>
                     {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
-                        <button class="btn btn-warning">
+                        <a class="btn btn-warning" href="/event/edit?id={{ event.getId() }}">
                             <i class="fas fa-pencil-alt"></i>
-                        </button>
+                        </a>
 
                         <button class="btn btn-danger" data-toggle="modal"
                                 data-target="#deleteEvent-{{ event.getId() }}">
