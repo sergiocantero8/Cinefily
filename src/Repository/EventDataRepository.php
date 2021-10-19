@@ -25,7 +25,7 @@ class EventDataRepository extends ServiceEntityRepository
      * Método para buscar eventos que contengan la categoría que recibe el método
      * @return EventData[] Returns an array of Session objects
      */
-    public function findByCategory(string $category): ?array
+    public function findByCategory(string $category, ?int $maxResults): ?array
     {
         $qb = $this->createQueryBuilder('e');
         return $qb
@@ -33,6 +33,7 @@ class EventDataRepository extends ServiceEntityRepository
                 $qb->expr()->like('e.gender', ':category')
             )
             ->setParameter('category', "%$category%")
+            ->setMaxResults($maxResults)
             ->getQuery()->execute();
     }
 

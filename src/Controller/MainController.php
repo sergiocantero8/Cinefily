@@ -14,8 +14,10 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,6 +35,7 @@ class MainController extends AbstractController
 
     public const ROUTE_HOME = 'home';
     public const ROUTE_LOG_INFO = 'log_page';
+    public const ROUTE_CONTACT = 'contact';
 
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
@@ -52,7 +55,6 @@ class MainController extends AbstractController
         //$configuration = $eventController->getIMDBConfiguration();
 
 
-
         $upcomingsFilmsPage = $eventController->getTMDBFilmsUpcoming();
 
 
@@ -63,7 +65,6 @@ class MainController extends AbstractController
                 break;
             endif;
         endforeach;
-
 
 
         // Obtenemos los ids de TMDB que queremos mostrar en el home para cargarlos
@@ -80,7 +81,8 @@ class MainController extends AbstractController
 
         // Y filtramos las películas por su género
         foreach ($genresTypes as $genre):
-            $categoryFilms[$genre] = $this->getDoctrine()->getRepository(EventData::class)->findByCategory($genre);
+            $categoryFilms[$genre] = $this->getDoctrine()->getRepository(EventData::class)->findByCategory($genre, 9);
+
         endforeach;
 
         $data = array();
@@ -174,6 +176,46 @@ class MainController extends AbstractController
 
 
         return $this->render('log.html.twig', array('log_info' => $data, 'results' => $logResults));
+    }
+
+    /**
+     * @Route("/contact", name="contact")
+     * @param Request $request
+     * @param PaginatorInterface $paginator
+     * @return Response
+     */
+    public function contact(Request $request): Response
+    {
+
+        $user=$this->getUser();
+        $form = $this->createFormBuilder(array('csrf_protection' => FALSE))
+            ->setMethod(Request::METHOD_GET)
+            ->setAction($this->generateUrl(static::ROUTE_CONTACT))
+            ->add('reason', ChoiceType::class, array(
+                'label' => 'Motivo',
+                'choices' => array('Opinion'=>'Opinión',
+                    'Solicitud de sala para evento'=>'Solicitud de sala para evento', 'Mejoras'=>'Mejoras')
+            ))
+            ->add('email', EmailType::class, array(
+                'label' => 'Email',
+                'data' => $user!== null ? $user->getUsername() : null
+            ))
+            ->add('description', TextareaType::class, array(
+                'label' => 'Descripción',
+                'attr' => array(
+                    'rows' => 4
+                ),
+            ))
+            ->add('submit', SubmitType::class, array(
+                'label' => 'Enviar',
+            ))
+            ->getForm();
+
+        $form->handleRequest($request);
+
+
+
+        return $this->render('contact.html.twig', array('form' => $form->createView()));
     }
 
 

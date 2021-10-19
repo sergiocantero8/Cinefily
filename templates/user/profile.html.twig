@@ -7,7 +7,8 @@
         <div class="main-body">
             <div class="row">
                 <div class="col-lg-4">
-                    {% include 'user/includes/data_profile.html.twig' %}
+                    {% include 'user/includes/data_profile.html.twig' with
+                        {'link': '/user/myTickets','link_name': 'Mis entradas' , 'icon': 'fas fa-ticket-alt'} %}
                 </div>
                 <div class="col-lg-8">
                     <div class="user-profile">
