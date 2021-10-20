@@ -8,6 +8,7 @@ use App\Entity\SeatBooked;
 use App\Entity\Session;
 use App\Entity\Ticket;
 use DateTime;
+use Exception;
 use Swift_Mailer;
 use Swift_Message;
 use Symfony\Component\HttpFoundation\Request;
@@ -145,6 +146,7 @@ class BookingController extends AbstractController
      * efectivo. Por paypal se hace la pasarela de pago y se utiliza la API de paypal, en efectivo reserva la entrada y
      * se tendría que pagar en taquilla.
      * @Route("/booking/payment", methods={"GET"},  name="payment_booking")
+     * @throws Exception
      */
     public function payment(Request $request, LockFactory $lockFactory, Swift_Mailer $mailer): Response
     {
@@ -201,6 +203,7 @@ class BookingController extends AbstractController
                                     $ticket = new Ticket();
                                     $ticket->setSession($session);
 
+
                                     if ($this->getUser()):
                                         $ticket->setUser($this->getUser());
                                     endif;
@@ -231,6 +234,19 @@ class BookingController extends AbstractController
                                     $em->persist($logInfo);
                                     $em->flush();
 
+                                    try {
+                                        $ticket->setQrCode($this->generateTicketQR($ticket->getId()));
+                                    } catch(ClientExceptionInterface
+                                    | RedirectionExceptionInterface |
+                                    DecodingExceptionInterface | TransportExceptionInterface | ServerExceptionInterface $e){
+                                        new LogInfo(LogInfo::TYPE_ERROR, 'Error al generar código QR');
+                                        $em->persist($logInfo);
+                                        $em->flush();
+                                        throw new Exception("Error al generar código QR", $e);
+
+                                    }
+                                    $em->persist($ticket);
+                                    $em->flush();
                                     if ($this->getUser()):
                                         $message .= 'También las tiene disponibles en su perfil, en el apartado Mis entradas';
                                     endif;

@@ -119,7 +119,7 @@ class EventController extends AbstractController
                     'event_types' => $this->getAllEventTypes(),
                     'genders_types' => static::getAllGenresTypes(),
                     'age_rating_types' => $this->getAllAgeRating(),
-                    'action'=> $this->generateUrl(static::ROUTE_ADD_EVENT))
+                    'action' => $this->generateUrl(static::ROUTE_ADD_EVENT))
             )
         );
         $form->handleRequest($request);
@@ -172,7 +172,7 @@ class EventController extends AbstractController
                 $event->setPosterPhoto($fileName);
             }
 
-            if ($img_backdrop !==null) {
+            if ($img_backdrop !== null) {
                 $fileName = md5(uniqid('', false)) . '' . $img_backdrop->guessExtension();
 
                 try {
@@ -549,7 +549,7 @@ class EventController extends AbstractController
                             'genders_types' => static::getAllGenresTypes(),
                             'age_rating_types' => $this->getAllAgeRating(),
                             'event' => $event,
-                            'action'=> '/event/edit?id='. $eventID)
+                            'action' => '/event/edit?id=' . $eventID)
                     )
                 );
                 $form->handleRequest($request);
@@ -609,7 +609,7 @@ class EventController extends AbstractController
                 $event->setPosterPhoto($fileName);
             }
 
-            if ($imgBackdrop!== null && $imgBackdrop !== $event->getBackdropPath()) {
+            if ($imgBackdrop !== null && $imgBackdrop !== $event->getBackdropPath()) {
 
                 $fs = new Filesystem();
                 $fs->remove($this->getParameter('images_directory') . '/' . $event->getBackdropPath());
@@ -647,7 +647,39 @@ class EventController extends AbstractController
     }
 
 
+    /**
+     * @Route("/upcoming", name="upcoming")
+     * @param Request $request
+     * @return Response
+     */
+    public function upcomingFilms(): Response
+    {
 
+        # Películas que se estrenarán proximamente
+        $upcomingsFilms = $this->getTMDBFilmsUpcoming()['results'];
+
+        $data = null;
+
+        foreach ($upcomingsFilms as $filmTMDB):
+            if ($filmTMDB !== NULL):
+
+                $overview = EventData::getShortenSummary($filmTMDB['overview'], 25);
+
+                $data[] = array(
+                    'tmdb_id' => $filmTMDB['id'],
+                    'title' => strtoupper($filmTMDB['title']),
+                    'release_date' => $filmTMDB['release_date'],
+                    'summary' => $overview,
+                    'poster_photo' => $this->getImageBaseURLIMDB() . 'w154/' . $filmTMDB['poster_path'],
+                    'mark' => $filmTMDB['vote_average']
+                );
+
+            endif;
+        endforeach;
+
+        return $this->render('event/upcoming.html.twig', array('films' => $data));
+
+    }
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
 
@@ -854,15 +886,20 @@ class EventController extends AbstractController
     }
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
-    public static function gendersToString(array $genres): string
+    public static function gendersToString(?array $genres): ?string
     {
         $genresString = '';
-        foreach ($genres as $genre):
-            if (!empty($genresString)):
-                $genresString .= ', ';
-            endif;
-            $genresString .= ucfirst($genre['name']);
-        endforeach;
+
+        if ($genres !== null):
+            foreach ($genres as $genre):
+                if (!empty($genresString)):
+                    $genresString .= ', ';
+                endif;
+                $genresString .= ucfirst($genre['name']);
+            endforeach;
+        else:
+            $genresString = null;
+        endif;
 
         return $genresString;
     }

@@ -12,7 +12,7 @@
         {% if films != null and films is not empty %}
             {% for genre in filmGenres %}
                 {% if films[genre] is defined %}
-                    <div class="h4"> {{ ucfirst(genre) }} <i class="fas fa-award"></i></div>
+                    <div class="h4"> {{ ucfirst(genre) }} </div>
                     <div class="row mt-5">
                     {% for film in films[genre] %}
                         <div class="card-box col-12 col-md-6 col-xl-4 ">

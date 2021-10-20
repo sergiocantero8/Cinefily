@@ -12,31 +12,60 @@
         {% if data_film.poster_photo is not null and strPosString(data_film.poster_photo,'image.tmdb.org',8) != false %}
             <img src="{{ data_film.poster_photo }}" alt="Poster photo"/>
         {% elseif data_film.poster_photo is not null %}
-            <img src="{{ asset('uploads/images/' ~ data_film.poster_photo) }}" class="db_poster_photo" alt="Poster photo"/>
+            <img src="{{ asset('uploads/images/' ~ data_film.poster_photo) }}" class="db_poster_photo"
+                 alt="Poster photo"/>
         {% endif %}
     </div>
     <div class="card_right">
         <div class="film-id">
             {% if id is defined and id is not null %}
-               <p class="mt-3">ID: {{ id }}</p>
+                <p class="mt-3">ID: {{ id }}</p>
             {% else %}
                 TMDB ID: {{ tmdb_id }}
             {% endif %}
         </div>
         <h1>{{ data_film.title }}</h1>
-        <div class="card_right__details" onclick="location.href = '{{ href_movie }}';" style="cursor: pointer;">
+        <div class="card_right__details">
             <ul>
-                <li> <i class="fas fa-calendar pr-2"></i>{{ data_film.release_date }}</li>
-                <li><i class="fas fa-stopwatch pr-2"></i>{{ data_film.duration }} min</li>
-                <li><i class="fas fa-tags pr-2"></i> {{ data_film.genres }}</li>
+                <li><i class="fas fa-calendar pr-2"></i>{{ data_film.release_date }}</li>
+                {% if data_film.duration is defined and data_film.duration is not null %}
+                    <li><i class="fas fa-stopwatch pr-2"></i>{{ data_film.duration }} min</li>
+                {% endif %}
+                {% if data_film.genres is defined and data_film.genres is not null %}
+                    <li><i class="fas fa-tags pr-2"></i> {{ data_film.genres }}</li>
+                {% endif %}
+                {% if data_film.mark is defined and data_film.mark is not null %}
+                    <li><i class="fab fa-imdb pr-2"></i> {{ data_film.mark }}</li>
+                {% endif %}
             </ul>
 
             <div class="card_right__review">
                 {{ data_film.summary }}
-                <a href="http://www.imdb.com/title/tt0266697/plotsummary?ref_=tt_stry_pl" target="_blank">Leer más</a>
+            </div>
 
-                <div class="card_right__button" onclick="location.href = 'https://www.youtube.com/watch?v=ot6C1ZKyiME';">
-                    <a href="https://www.youtube.com/watch?v=ot6C1ZKyiME" target="_blank">TRAILER</a>
+            <div class="card_right_actions">
+                <div class="row">
+                    {% if data_film.youtube_trailer is defined and data_film.youtube_trailer is not null %}
+                        {% set class="col-6" %}
+                    {% else %}
+                        {% set class="col-12 justify-content-center" %}
+                    {% endif %}
+                    <div class="{{ class }}">
+                        <div class="card_right__button_l">
+                            <i class="fas fa-play"></i><a
+                                    href="http://www.imdb.com/title/tt0266697/plotsummary?ref_=tt_stry_pl"
+                                    target="_blank">Leer
+                                más</a>
+                        </div>
+                    </div>
+                    {% if data_film.youtube_trailer is defined and data_film.youtube_trailer is not null %}
+                        <div class="col-6">
+                            <div class="card_right__button"
+                                 onclick="location.href = 'https://www.youtube.com/watch?v=ot6C1ZKyiME';">
+                                <a href="https://www.youtube.com/watch?v=ot6C1ZKyiME" target="_blank">Trailer</a>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 

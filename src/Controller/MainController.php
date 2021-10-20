@@ -11,6 +11,8 @@ use DateInterval;
 use DateTime;
 use Exception;
 use Knp\Component\Pager\PaginatorInterface;
+use Swift_Mailer;
+use Swift_Message;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -32,6 +34,7 @@ class MainController extends AbstractController
     # -------------------------------------------------- CONST ------------------------------------------------------- #
 
     public const LIMIT_UPCOMING_FILMS = 5;
+    public const LIMIT_FILMS = 6;
 
     public const ROUTE_HOME = 'home';
     public const ROUTE_LOG_INFO = 'log_page';
@@ -52,36 +55,13 @@ class MainController extends AbstractController
     public function renderHomePage(EventController $eventController): Response
     {
 
-        //$configuration = $eventController->getIMDBConfiguration();
-
-
-        $upcomingsFilmsPage = $eventController->getTMDBFilmsUpcoming();
-
-
-        foreach ($upcomingsFilmsPage as $key => $film):
-            if ($key <= static::LIMIT_UPCOMING_FILMS):
-                $upcoming_data[] = $eventController->getIMDBFilmByID($film);
-            else:
-                break;
-            endif;
-        endforeach;
-
-
-        // Obtenemos los ids de TMDB que queremos mostrar en el home para cargarlos
-
-        $homeIDSFilms = $this->getTMDB_FilmIDs();
-
-        // Hacemos una llamada a la API de TMDB por cada ID que tengamos almacenado
-        foreach ($homeIDSFilms as $filmID):
-            $filmsTMDB[] = $eventController->getIMDBFilmByID($filmID);
-        endforeach;
-
         // Obtenemos todos los géneros para eventos
         $genresTypes = EventController::getAllGenresTypes();
 
         // Y filtramos las películas por su género
         foreach ($genresTypes as $genre):
-            $categoryFilms[$genre] = $this->getDoctrine()->getRepository(EventData::class)->findByCategory($genre, 9);
+            $categoryFilms[$genre] = $this->getDoctrine()->getRepository(EventData::class)->findByCategory
+            ($genre, static::LIMIT_FILMS);
 
         endforeach;
 
@@ -99,20 +79,21 @@ class MainController extends AbstractController
                         'release_date' => $film->getReleaseDate()->format('Y-m-d'),
                         'duration' => $film->getDuration(),
                         'summary' => EventData::getShortenSummary($film->getDescription()),
-                        'poster_photo' => $film->getPosterPhoto()
+                        'poster_photo' => $film->getPosterPhoto(),
+                        'youtube_trailer' => $film->getYoutubeTrailer()
                     );
 
                 endforeach;
             endforeach;
         endif;
 
+        /*
         // Si hay películas obtenidas a través de la API de TMDB
         if (isset($filmsTMDB)):
-            foreach ($filmsTMDB as $filmTMDB):
+            foreach ($upcomingsFilms as $filmTMDB):
                 if ($filmTMDB !== NULL):
 
-                    $genres = EventController::gendersToString($filmTMDB['genres']);
-
+                    $genres = EventController::gendersToString(isset($filmTMDB['genres']) ? $filmsTMDB['genres'] : null);
                     $overview = EventData::getShortenSummary($filmTMDB['overview']);
 
                     $data['TMDB'][] = array(
@@ -120,7 +101,7 @@ class MainController extends AbstractController
                         'title' => strtoupper($filmTMDB['title']),
                         'genres' => $genres,
                         'release_date' => $filmTMDB['release_date'],
-                        'duration' => $filmTMDB['runtime'],
+                        'duration' => isset($filmTMDB['runtime']) ? $filmsTMDB['runtime'] : null,
                         'summary' => $overview,
                         'poster_photo' => $eventController->getImageBaseURLIMDB() . 'w154/' . $filmTMDB['poster_path'],
                     );
@@ -128,6 +109,7 @@ class MainController extends AbstractController
                 endif;
             endforeach;
         endif;
+    */
 
         return $this->render('home.html.twig', array('films' => $data));
 
@@ -181,24 +163,24 @@ class MainController extends AbstractController
     /**
      * @Route("/contact", name="contact")
      * @param Request $request
-     * @param PaginatorInterface $paginator
+     * @param Swift_Mailer $mailer
      * @return Response
      */
-    public function contact(Request $request): Response
+    public function contact(Request $request, Swift_Mailer $mailer): Response
     {
 
-        $user=$this->getUser();
+        $user = $this->getUser();
         $form = $this->createFormBuilder(array('csrf_protection' => FALSE))
             ->setMethod(Request::METHOD_GET)
             ->setAction($this->generateUrl(static::ROUTE_CONTACT))
             ->add('reason', ChoiceType::class, array(
                 'label' => 'Motivo',
-                'choices' => array('Opinion'=>'Opinión',
-                    'Solicitud de sala para evento'=>'Solicitud de sala para evento', 'Mejoras'=>'Mejoras')
+                'choices' => array('Opinion' => 'Opinión',
+                    'Solicitud de sala para evento' => 'Solicitud de sala para evento', 'Mejoras' => 'Mejoras')
             ))
             ->add('email', EmailType::class, array(
                 'label' => 'Email',
-                'data' => $user!== null ? $user->getUsername() : null
+                'data' => $user !== null ? $user->getUsername() : null
             ))
             ->add('description', TextareaType::class, array(
                 'label' => 'Descripción',
@@ -214,6 +196,20 @@ class MainController extends AbstractController
         $form->handleRequest($request);
 
 
+        if ($form->isSubmitted() && $form->isValid()):
+            $dataForm = $form->getData();
+
+            $emailMessage = (new Swift_Message($dataForm['reason']))
+                ->setFrom('cinefily@gmail.com')
+                ->setTo('cinefily@gmail.com')
+                ->setSubject($dataForm['reason'])
+                ->setBody($dataForm['description'] . ' escrito por ' . $dataForm['email'], 'text/plain');
+
+            if ($mailer->send($emailMessage)):
+                $this->addFlash('success', 'Tu mensaje se ha enviado correctamente');
+                $this->redirectToRoute('home');
+            endif;
+        endif;
 
         return $this->render('contact.html.twig', array('form' => $form->createView()));
     }

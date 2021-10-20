@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Próximamente | Cinefily{% endblock %}
+
+
+{% block main %}
+    <div class="h4 m-5"> <i class="fas fa-forward"></i> Próximamente</div>
+    <div class="h6 ml-5 mr-5 mt-2"> Estas son las próximas películas que serán estrenadas en los cines</div>
+    <div class="row mt-5">
+        {% for film in films %}
+            <div class="card-box col-12 col-md-6 col-xl-4 ">
+                {% include 'includes/event_card.html.twig' with {'tmdb_id': film.tmdb_id , 'data_film' : film} %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

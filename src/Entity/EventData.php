@@ -390,15 +390,19 @@ class EventData
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
 
-    public static function getShortenSummary(string $overview):string
+    public static function getShortenSummary(string $overview, ?int $maxWords=null): string
     {
 
         $words = explode(' ', $overview);
 
-        if (count($words) >= self::MAX_WORDS):
+        if ($maxWords === null):
+            $maxWords=static::MAX_WORDS;
+        endif;
+
+        if (count($words) >= $maxWords):
             $overview = '';
             foreach ($words as $number => $word):
-                if ($number !== self::MAX_WORDS):
+                if ($number !== $maxWords):
                     $overview .= $word;
                     $overview .= ' ';
                 else:
