@@ -214,6 +214,15 @@ class MainController extends AbstractController
         return $this->render('contact.html.twig', array('form' => $form->createView()));
     }
 
+    /**
+     * @Route("/error", name="page_error")
+     * @return Response
+     */
+    public function renderPageError(): Response
+    {
+        return $this->render('error.html.twig', null);
+    }
+
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
     private function getTMDB_FilmIDs(): array

@@ -47,12 +47,24 @@
                 </span>
             </div><!--row-->
         </div>
-        {% if qr is defined and qr is not null %}
-            <div>
-                <svg height="90">
+
+
+        {% if ticket.ticket is defined and ticket.ticket.getQrCode() is not null %}
+            {% set qr= ticket.ticket.getQrCode() %}
+        {% endif %}
+        <div class="row">
+            <div class="col-6">
+                <div class="info-section">
+                    <label class="text-left mt-3">Cine</label>
+                    <span>{{ room.getCinema().getName() }}</span>
+                </div>
+            </div>
+
+            {% if qr is defined and qr is not null %}
+                <svg class="col-6" height="90">
                     {{ qr|raw }}
                 </svg>
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div><!--movie-content-->
 </div><!--movie-card-->

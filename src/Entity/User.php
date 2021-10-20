@@ -97,6 +97,11 @@ class User implements UserInterface
      */
     private $city;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Coupon::class, mappedBy="user")
+     */
+    private $coupons;
+
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
 
@@ -113,6 +118,7 @@ class User implements UserInterface
 
         $this->tickets = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->coupons = new ArrayCollection();
     }
 
 
@@ -423,6 +429,36 @@ class User implements UserInterface
     public function setCity(?string $city): self
     {
         $this->city = $city;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Coupon[]
+     */
+    public function getCoupons(): Collection
+    {
+        return $this->coupons;
+    }
+
+    public function addCoupon(Coupon $coupon): self
+    {
+        if (!$this->coupons->contains($coupon)) {
+            $this->coupons[] = $coupon;
+            $coupon->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCoupon(Coupon $coupon): self
+    {
+        if ($this->coupons->removeElement($coupon)) {
+            // set the owning side to null (unless already changed)
+            if ($coupon->getUser() === $this) {
+                $coupon->setUser(null);
+            }
+        }
 
         return $this;
     }

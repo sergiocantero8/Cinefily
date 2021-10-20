@@ -53,16 +53,14 @@
                     <div class="{{ class }}">
                         <div class="card_right__button_l">
                             <i class="fas fa-play"></i><a
-                                    href="http://www.imdb.com/title/tt0266697/plotsummary?ref_=tt_stry_pl"
-                                    target="_blank">Leer
+                                    href="/event/details?id={{ data_film.id }}">Leer
                                 más</a>
                         </div>
                     </div>
                     {% if data_film.youtube_trailer is defined and data_film.youtube_trailer is not null %}
                         <div class="col-6">
-                            <div class="card_right__button"
-                                 onclick="location.href = 'https://www.youtube.com/watch?v=ot6C1ZKyiME';">
-                                <a href="https://www.youtube.com/watch?v=ot6C1ZKyiME" target="_blank">Trailer</a>
+                            <div class="card_right__button">
+                                <a href={{ data_film.youtube_trailer}} target="_blank">Trailer</a>
                             </div>
                         </div>
                     {% endif %}

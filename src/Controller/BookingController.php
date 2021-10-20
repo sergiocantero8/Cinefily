@@ -138,6 +138,7 @@ class BookingController extends AbstractController
             'qr' => $qr
         );
 
+
         return $this->render($template, $data);
     }
 
@@ -161,9 +162,9 @@ class BookingController extends AbstractController
 
         # Si alguna de las anteriores variables es nula, renderizamos un error
         if ($method === null || $s === null || $sessionID === null):
-            $template = 'error.html.twig';
+            $route = 'error_page';
         else:
-            $template = 'home.html.twig';
+            $route = 'home';
         endif;
 
         # Obtenemos la sesión junto con el cine y la sala correspondientes y seguimos con el proceso de reserva
@@ -311,7 +312,7 @@ class BookingController extends AbstractController
             endif;
         endif;
 
-        return $this->redirectToRoute($template);
+        return $this->redirectToRoute($route);
     }
 
 

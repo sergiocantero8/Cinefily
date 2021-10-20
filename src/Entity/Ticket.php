@@ -28,7 +28,7 @@ class Ticket
 
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
     private $qr_code;
 
@@ -73,12 +73,12 @@ class Ticket
     }
 
 
-    public function getQrCode()
+    public function getQrCode(): ?string
     {
         return $this->qr_code;
     }
 
-    public function setQrCode(string $qr_code): string
+    public function setQrCode(string $qr_code): self
     {
         $this->qr_code = $qr_code;
 
