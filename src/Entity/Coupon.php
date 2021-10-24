@@ -32,6 +32,11 @@ class Coupon
      */
     private $user;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $discount;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,6 +74,18 @@ class Coupon
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getDiscount(): ?int
+    {
+        return $this->discount;
+    }
+
+    public function setDiscount(int $discount): self
+    {
+        $this->discount = $discount;
 
         return $this;
     }

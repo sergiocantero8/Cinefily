@@ -52,7 +52,7 @@
                         <div class="col-12 ">
                             <button onclick="takeData()" class="btn btn-dark btn-sm mt-2">Empezar seleccion</button>
                         </div>
-                        <div class="col-12 col-md-6" id="notification"></div>
+                        <div class="col-12 col-md-6 mt-2" id="notification"></div>
                     </div>
                 </div>
                 {# Termina formulario #}
@@ -88,7 +88,7 @@
                                 {% for i in 1..room.getNColumns() %}
                                     {% if space==0 and i>= (room.getNColumns()/2) %}
                                         {% set space= 1 %}
-                                        <td class="space">space</td>
+                                        {# <td class="space">space</td>#}
                                     {% endif %}
                                     <td class="text-white">{{ i }}</td>
                                 {% endfor %}
@@ -108,13 +108,13 @@
                                 {% set spaceColumns= 0 %}
                                 {% if spaceRow==0 and i>= (room.getNRows()/2) %}
                                     {% set spaceRow= 1 %}
-                                    <tr class="seatVGap"></tr>
+                                    {# <tr class="seatVGap"></tr>#}
                                 {% endif %}
                                 <tr>
                                     <td class="text-white">{{ i }}</td>
                                     {% for j in 1..room.getNColumns() %}
                                         {% if spaceColumns == 0 and j>= (room.getNColumns()/2) %}
-                                            <td></td>
+                                           {# <td></td>#}
                                             {% set spaceColumns= 1 %}
                                         {% endif %}
                                         <td>
@@ -151,7 +151,7 @@
 {% endblock %}
 
 {% block custom_body_javascript %}
-
+    {{ parent() }}
     <script>
 
         // Desactivamos la zona interactiva de reservar y el resultado
@@ -170,7 +170,8 @@
             } else {
                 $(".inputForm *").prop("disabled", true);
                 $(".seatStructure *").prop("disabled", false);
-                document.getElementById("notification").innerHTML = "<b style='margin-top:2px;background:yellow;'>Selecciona tus asientos</b>";
+                document.getElementById("notification").innerHTML = "<b style='margin-top:2px;background:lightyellow;'>" +
+                    "<i class='fas fa-hand-pointer'></i> Selecciona tus asientos</b>";
             }
         }
 

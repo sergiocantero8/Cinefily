@@ -7,6 +7,7 @@ namespace App\Controller;
 
 use App\Entity\Cinema;
 use App\Entity\Comment;
+use App\Entity\Coupon;
 use App\Entity\EventData;
 use App\Entity\LogInfo;
 use App\Entity\Room;
@@ -97,6 +98,16 @@ class UserController extends AbstractController
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($user);
                 $entityManager->flush();
+
+                $coupon = new Coupon();
+                $coupon->setUser($user);
+                $coupon->setActive(true);
+                $coupon->setCode('BIENVENIDO');
+                $coupon->setDiscount(10);
+
+                $entityManager->persist($coupon);
+                $entityManager->flush();
+
                 $this->addFlash('success', '¡Te has registrado correctamente!');
                 $this->redirectToRoute('home');
             else:
@@ -336,17 +347,13 @@ class UserController extends AbstractController
 
         $template = 'user/my_tickets.html.twig';
 
-        /*
-        $myTickets = $this->getDoctrine()->getRepository(Ticket::class)->findBy(array(
-            'user' => $this->getUser()), array('sale_date' => 'DESC'), 6);
-*/
-        $myTickets = null;
+        $ticketsPagination = null;
         $myTicketsQuery = $this->getDoctrine()->getRepository(Ticket::class)->findByUser($this->getUser());
 
 
         if ($myTicketsQuery !== null):
             // Paginar los resultados de la consulta
-            $myTickets = $paginator->paginate(
+            $ticketsPagination = $paginator->paginate(
             // Consulta Doctrine, no resultados
                 $myTicketsQuery,
                 // Definir el parámetro de la página
@@ -357,7 +364,7 @@ class UserController extends AbstractController
         endif;
 
         $tickets = array();
-        foreach ($myTickets as $ticket):
+        foreach ($ticketsPagination as $ticket):
             $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $ticket->getSession()));
 
             if ($session !== null):
@@ -375,7 +382,7 @@ class UserController extends AbstractController
 
 
         return $this->render($template, array('tickets' => $tickets, 'user' => $user, 'user_tickets' => $nTickets,
-            'user_comments' => $nComments));
+            'user_comments' => $nComments, 'tickets_pagination' => $ticketsPagination));
 
     }
 

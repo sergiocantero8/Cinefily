@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Coupon;
 use App\Entity\LogInfo;
 use App\Entity\Seat;
 use App\Entity\SeatBooked;
@@ -116,6 +117,19 @@ class BookingController extends AbstractController
             endif;
         endif;
 
+        if ($this->getUser()):
+            $couponsObject = $this->getDoctrine()->getRepository(Coupon::class)->findBy(array('user' => $this->getUser()));
+            $coupons = array();
+
+            if ($couponsObject !== null):
+                foreach ($couponsObject as $coupon):
+                    $coupons[] = array(
+                        'id' => $coupon->getId(), 'code' => $coupon->getCode(), 'discount' => $coupon->getDiscount(),
+                        'active' => $coupon->getActive());
+                endforeach;
+            endif;
+        endif;
+
         if ($s === null || $sessionID === null):
             $template = 'error.html.twig';
         else:
@@ -125,7 +139,7 @@ class BookingController extends AbstractController
 
         $seats = array_filter(explode(',', $s));
         $matrixSeats = $this->getMatrixSeats($seats);
-        $qr= $this->generateTicketQR(7);
+        $qr = $this->generateTicketQR(7);
         $data = array(
             'seats' => $seats,
             'n_seats' => count($seats),
@@ -135,7 +149,8 @@ class BookingController extends AbstractController
             'cinema' => $cinema ?? null,
             'matrixSeats' => $matrixSeats,
             'email' => $email,
-            'qr' => $qr
+            'qr' => $qr,
+            'coupons' => $coupons ?? null
         );
 
 
@@ -159,6 +174,8 @@ class BookingController extends AbstractController
         $method = $request->get('method');
         $price = (float)$request->get('price');
         $email = $request->get('email');
+        $couponID = (int)$request->get('id_coupon');
+
 
         # Si alguna de las anteriores variables es nula, renderizamos un error
         if ($method === null || $s === null || $sessionID === null):
@@ -209,9 +226,20 @@ class BookingController extends AbstractController
                                         $ticket->setUser($this->getUser());
                                     endif;
 
-                                    $ticket->setPrice($price);
+
                                     $ticket->setSaleDate(new DateTime());
 
+                                    if ($couponID !== 0):
+                                        $coupon = $this->getDoctrine()->getRepository(Coupon::class)->find($couponID);
+                                        if ($coupon !== null):
+                                            $coupon->setActive(false);
+                                            $ticket->setPrice($price - (($coupon->getDiscount()/100)*$price));
+                                            $em->persist($coupon);
+                                            $em->flush();
+                                        endif;
+                                    else:
+                                        $ticket->setPrice($price);
+                                    endif;
 
                                     # Creamos el asiento reservado correspondiente al asiento y a la sesión
                                     $seatBooked = new SeatBooked();
@@ -237,9 +265,9 @@ class BookingController extends AbstractController
 
                                     try {
                                         $ticket->setQrCode($this->generateTicketQR($ticket->getId()));
-                                    } catch(ClientExceptionInterface
+                                    } catch (ClientExceptionInterface
                                     | RedirectionExceptionInterface |
-                                    DecodingExceptionInterface | TransportExceptionInterface | ServerExceptionInterface $e){
+                                    DecodingExceptionInterface | TransportExceptionInterface | ServerExceptionInterface $e) {
                                         new LogInfo(LogInfo::TYPE_ERROR, 'Error al generar código QR');
                                         $em->persist($logInfo);
                                         $em->flush();
@@ -365,7 +393,7 @@ class BookingController extends AbstractController
     {
         $result = NULL;
 
-        $url='https://api.qr-code-generator.com/v1/create?access-token='.static::API_QR_GENERATOR_KEY;
+        $url = 'https://api.qr-code-generator.com/v1/create?access-token=' . static::API_QR_GENERATOR_KEY;
         $response = $this->client->request(
             'POST',
             $url,

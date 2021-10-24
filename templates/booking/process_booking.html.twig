@@ -2,7 +2,6 @@
 
 {% block title %}Pago | Cinefily{% endblock %}
 
-
 {% block main %}
 
 
@@ -48,11 +47,30 @@
                                 {% for seat in seats %}
                                     <li class="list-group-item font-weight-bold"> {{ seat }} </li>
                                 {% endfor %}
-                                <li class="list-group-item list-group-item-secondary"><i class="fas fa-coins mr-2"></i>Precio
+                                <li class="list-group-item list-group-item-secondary" id="totalPrice">
+                                    <i class="fas fa-coins mr-2"></i>Precio
                                     total:
                                     {{ cinema.getTicketsPrice()*n_seats }} euros
                                 </li>
                             </ul>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="row">
+
+                                <div class="col-12 mt-3 mb-2 font-weight-bold"><i class="fas fa-tag mr-2"></i>Cupón de
+                                    descuento:
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <input type="text" name="coupon" id="coupon" class="form-control"
+                                           title="Introduce el cupon">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <button id="in" class="btn btn-info" onclick="validate()">Validar</button>
+                                </div>
+                                <div class="col-12 col-md-5" id="notification"></div>
+
+                            </div>
                         </div>
                         <div class="col-12 d-flex justify-content-center m-4">
                             {% include 'session/includes/ticket_movie.html.twig' %}
@@ -64,7 +82,6 @@
                             <a class="btn btn-danger mt-3" href="/booking/payment" data-toggle="modal"
                                data-target="#cancelModal"><i class="fas fa-window-close pr-2"></i>Cancelar</a>
                         </div>
-
 
 
                     </div>
@@ -128,12 +145,58 @@
 
 {% block custom_body_javascript %}
 
+    {{ parent() }}
     <script>
+        var resultCoupon = undefined;
+
         // Función para actualizar enviar los datos de toda la reserva
         function sendSeats(method) {
             window.location = window.location.origin + "/booking/payment?method=cash&seats=" + "{{ seats|join(', ') }}" +
-                "&id_session=" + {{ session.getId() }} +'&method=' + method + '&price=' +{{ cinema.getTicketsPrice() }} +'&email=' + "{{ email }}"
+                "&id_session=" + {{ session.getId() }} +'&method=' + method + '&price=' +{{ cinema.getTicketsPrice() }}
+                +'&email=' + "{{ email }}" + '&id_coupon=' +  resultCoupon;
         }
+
+        // Función para convertir los arrays de twig en arrays de javascript
+        function getJSonObject(value) {
+            return $.parseJSON(value.replace(/&quot;/ig, '"'));
+        }
+
+
+       // Función para validar el cupón de descuento
+        function validate() {
+
+            let couponInput = $("#coupon").val();
+            let coupons = getJSonObject("{{ coupons|json_encode() }}");
+            if (coupons.length === 0) {
+                document.getElementById("notification").innerHTML = "<b style='margin-left:2px;background:#ffa2a2;'>" +
+                    "<i class='fas fa-exclamation p-2'></i> No hay cupones disponibles para ti</b>";
+            } else {
+                $.each(coupons, function (k, coupon) {
+
+                    if (coupon['code'] === couponInput && coupon['active']) {
+                        document.getElementById("notification").innerHTML = "<b style='margin-left:2px;background:lightgreen;'>" +
+                            "<i class='fas fa-check-square'></i> Cupón aplicado " + coupon['discount'] + "% de descuento</b>";
+                        var discount=coupon['discount']/100;
+                        var oldPrice={{ cinema.getTicketsPrice()*n_seats }};
+                        var newPrice= oldPrice - (oldPrice*discount);
+                        var oldMessage= "Precio total: "+ oldPrice + " euros";
+                        var newMessage= "Precio total: "+ newPrice + " euros";
+                        document.getElementById("totalPrice").innerHTML = "<b>" +
+                            "<i class='fas fa-coins mr-2'></i>"+  oldMessage.strike() + "</b> <br> " +
+                            "<b>"+  newMessage + "</b> <br> ";
+                        resultCoupon= coupon['id'];
+                        return false;
+                    }else{
+                        document.getElementById("notification").innerHTML = "<b style='margin-left:2px;background:#ffa2a2;'>" +
+                            "<i class='fas fa-exclamation p-2'></i> Código de cupón no válido</b>";
+                    }
+                });
+            }
+
+
+        }
+
+
     </script>
 
 {% endblock %}

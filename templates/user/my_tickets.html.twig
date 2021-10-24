@@ -23,6 +23,13 @@
                                         {% include 'session/includes/ticket_movie.html.twig' %}
                                     </div>
                                 {% endfor %}
+                                <div class="col-12 navigation mt-5">
+                                    {{ knp_pagination_render(tickets_pagination, null, {}, {
+                                        'align': 'center',
+                                        'size': 'large',
+                                        'rounded': true,
+                                    }) }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -37,6 +44,6 @@
 
 {% endblock %}
 
-    {% block custom_body_javascript %}
+{% block custom_body_javascript %}
 
-    {% endblock %}
+{% endblock %}
