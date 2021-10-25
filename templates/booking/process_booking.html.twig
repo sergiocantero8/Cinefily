@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Pago | Cinefily{% endblock %}
-
+{% set totalPrice=  cinema.getTicketsPrice()*n_seats %}
 {% block main %}
 
 
@@ -50,7 +50,7 @@
                                 <li class="list-group-item list-group-item-secondary" id="totalPrice">
                                     <i class="fas fa-coins mr-2"></i>Precio
                                     total:
-                                    {{ cinema.getTicketsPrice()*n_seats }} euros
+                                    {{ totalPrice }} euros
                                 </li>
                             </ul>
                         </div>
@@ -105,16 +105,29 @@
                 </div>
                 <div class="modal-body">
                     Total a pagar:
-                    <div class="font-weight-bold">{{ cinema.getTicketsPrice()*n_seats }} euros</div>
+                    <div class="font-weight-bold">{{ totalPrice }} euros</div>
                     <br>
                     Elige el método de pago
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Atrás</button>
-                    <a class="btn btn-warning" onclick="sendSeats('paypal')">
-                        <i class="fab fa-cc-paypal pr-2"></i>PayPal</a>
-                    <a class="btn btn-success" onclick="sendSeats('cash')">
-                        <i class="fas fa-coins pr-2"></i>En taquilla</a>
+                    <div class="row">
+                        {# <a class="btn btn-warning" onclick="sendSeats('paypal')">
+                        <i class="fab fa-cc-paypal pr-2"></i>PayPal</a> #}
+                        <div class="col-12">
+                            <div id="smart-button-container">
+                                <div style="text-align: center;">
+                                    <div id="paypal-button-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" class="btn btn-danger w-100" data-dismiss="modal">Atrás</button>
+                        </div>
+                        <div class="col-6">
+                            <a class="btn btn-success w-100" onclick="sendSeats('cash')">
+                                <i class="fas fa-coins pr-2"></i>En taquilla</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,11 +185,11 @@
                     "<i class='fas fa-exclamation p-2'></i> No hay cupones disponibles para ti</b>";
             } else {
                 $.each(coupons, function (k, coupon) {
-                    if (coupon['code'] === couponInput && coupon['active'] && (coupon['expiration']===undefined || new Date()< coupon['expiration'])) {
+                    if (coupon['code'] === couponInput && coupon['active'] && (coupon['expiration'] === undefined || new Date() < coupon['expiration'])) {
                         document.getElementById("notification").innerHTML = "<b style='margin-left:2px;background:lightgreen;'>" +
                             "<i class='fas fa-check-square'></i> Cupón aplicado " + coupon['discount'] + "% de descuento</b>";
                         var discount = coupon['discount'] / 100;
-                        var oldPrice ={{ cinema.getTicketsPrice()*n_seats }};
+                        var oldPrice ={{ totalPrice }};
                         var newPrice = oldPrice - (oldPrice * discount);
                         var oldMessage = "Precio total: " + oldPrice + " euros";
                         var newMessage = "Precio total: " + newPrice + " euros";
@@ -196,6 +209,51 @@
         }
 
 
+
+        function initPayPalButton() {
+            paypal.Buttons({
+                style: {
+                    shape: 'rect',
+                    color: 'gold',
+                    layout: 'vertical',
+                    label: 'paypal',
+
+                },
+
+                createOrder: function (data, actions) {
+                    var amount={{ totalPrice }};
+                    return actions.order.create({
+                        purchase_units: [{"amount": {"currency_code": "EUR", "value": 0.01}}]
+                    });
+                },
+
+                onApprove: function (data, actions) {
+                    return actions.order.capture().then(function (orderData) {
+
+                        // Full available details
+                        console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+
+                        // Show a success message within this page, e.g.
+                        const element = document.getElementById('paypal-button-container');
+                        element.innerHTML = '';
+                        element.innerHTML = '<h3>¡Gracias por el pago!</h3>';
+
+                        window.location= window.location.origin + "/booking/payment?method=cash&seats=" + "{{ seats|join(', ') }}" +
+                            "&id_session=" + {{ session.getId() }} +'&method=paypal' + '&price=' +{{ cinema.getTicketsPrice() }}
+                            +'&email=' + "{{ email }}" + '&id_coupon=' + resultCoupon;
+
+                    });
+                },
+
+                onError: function (err) {
+                    console.log(err);
+                }
+            }).render('#paypal-button-container');
+        }
+
+        initPayPalButton();
+
     </script>
+
 
 {% endblock %}

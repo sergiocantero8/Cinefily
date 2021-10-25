@@ -363,7 +363,7 @@ class UserController extends AbstractController
 
             if ($session !== null):
                 $tickets[] = array('session' => $session, 'event' => $session->getEvent(), 'room' => $session->getRoom(),
-                    'cinema' => $session->getCinema(), 'seat' => $ticket->getSeatBooked()->getSeat(), 'ticket' => $ticket);
+                    'cinema' => $session->getCinema(), 'seat' => $ticket->getSeatBooked(), 'ticket' => $ticket);
             endif;
 
         endforeach;
