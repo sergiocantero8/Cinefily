@@ -81,16 +81,6 @@ class CinemaController extends AbstractController
                     # Guardamos en la base de datos la sala
                     $em->persist($room);
 
-                    # Por cada sala creamos los asientos teniendo en cuenta las filas y asientos que tienen las salas
-                    for ($j = 1; $j <= $nRows; $j++):
-                        for ($k = 1; $k <= $nColumns; $k++):
-                            $seat = new Seat();
-                            $seat->setRoom($room);
-                            $seat->setRow($j);
-                            $seat->setNumber($k);
-                            $em->persist($seat);
-                        endfor;
-                    endfor;
                 endfor;
                 $em->flush();
                 $this->addFlash('success', 'El cine se ha añadido correctamente');

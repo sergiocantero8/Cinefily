@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Coupon;
 use App\Entity\LogInfo;
-use App\Entity\Seat;
 use App\Entity\SeatBooked;
 use App\Entity\Session;
 use App\Entity\Ticket;
@@ -12,6 +11,7 @@ use DateTime;
 use Exception;
 use Swift_Mailer;
 use Swift_Message;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -71,16 +71,15 @@ class BookingController extends AbstractController
             $event = $session->getEvent();
             $room = $session->getRoom();
             if ($room !== null):
-                $seats = $this->getDoctrine()->getRepository(Seat::class)->findBy(array('room' => $room->getId()));
-                if ($seats !== null):
-                    $matrixStatusSeats = array();
-                    foreach ($seats as $seat):
+                $matrixStatusSeats = array();
+                for ($row = 1; $row <= $room->getNRows(); $row++):
+                    for($number = 1; $number <= $room->getNColumns(); $number++):
                         $seatBooked = $this->getDoctrine()->getRepository(SeatBooked::class)->findBy(
-                            array('session' => $session, 'seat' => $seat)
+                            array('session' => $session, 'row' => $row, 'number' => $number)
                         );
-                        $matrixStatusSeats[$seat->getRow()][$seat->getNumber()] = empty($seatBooked);
-                    endforeach;
-                endif;
+                        $matrixStatusSeats[$row][$number] = empty($seatBooked);
+                    endfor;
+                endfor;
             endif;
         endif;
 
@@ -204,16 +203,11 @@ class BookingController extends AbstractController
                     foreach ($matrixSeats as $row => $columns):
                         foreach ($columns as $column):
 
-                            $seat = $this->getDoctrine()->getRepository(Seat::class)->findOneBy(
-                                array('row' => (int)$row, 'number' => (int)$column, 'room' => $room->getId())
-                            );
-
-                            if ($seat !== null):
                                 # Obtiene el cerrojo para que no haya concurrencia
                                 $lock->acquire(true);
 
                                 $seatBooked = $this->getDoctrine()->getRepository(SeatBooked::class)->findBy(
-                                    array('session' => $session, 'seat' => $seat)
+                                    array('session' => $session, 'row'=>(int)$row, 'number'=> (int)$column, 'room'=> $room->getId())
                                 );
                                 # Si el asiento está libre
                                 if (empty($seatBooked)):
@@ -233,7 +227,7 @@ class BookingController extends AbstractController
                                         $coupon = $this->getDoctrine()->getRepository(Coupon::class)->find($couponID);
                                         if ($coupon !== null):
                                             $coupon->setActive(false);
-                                            $ticket->setPrice($price - (($coupon->getDiscount()/100)*$price));
+                                            $ticket->setPrice($price - (($coupon->getDiscount() / 100) * $price));
                                             $em->persist($coupon);
                                             $em->flush();
                                         endif;
@@ -244,7 +238,6 @@ class BookingController extends AbstractController
                                     # Creamos el asiento reservado correspondiente al asiento y a la sesión
                                     $seatBooked = new SeatBooked();
                                     $seatBooked->setSession($session);
-                                    $seatBooked->setSeat($seat);
                                     $seatBooked->setTicket($ticket);
 
                                     # Guardamos toda la información relacionado con el ticket
@@ -294,7 +287,7 @@ class BookingController extends AbstractController
 
                                 # Libera el cerrojo
                                 $lock->release();
-                            endif;
+
 
                         endforeach;
                     endforeach;
@@ -348,7 +341,7 @@ class BookingController extends AbstractController
      * Ruta para validar un ticket
      * @Route("/ticket/validate", methods={"GET"},  name="validate_ticket")
      */
-    public function validateTicket(Request $request): Response
+    public function validateTicket(Request $request): RedirectResponse
     {
 
         # Obtenemos el id del ticket
@@ -358,6 +351,8 @@ class BookingController extends AbstractController
             $this->getDoctrine()->getRepository(Ticket::class)->find($id);
         endif;
 
+
+        return $this->redirectToRoute('home');
 
     }
     # ------------------------------------------------- METHODS ------------------------------------------------------ #

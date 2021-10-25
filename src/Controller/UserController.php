@@ -5,20 +5,14 @@
 
 namespace App\Controller;
 
-use App\Entity\Cinema;
 use App\Entity\Comment;
 use App\Entity\Coupon;
-use App\Entity\EventData;
 use App\Entity\LogInfo;
-use App\Entity\Room;
-use App\Entity\Seat;
-use App\Entity\SeatBooked;
 use App\Entity\Session;
 use App\Entity\Ticket;
 use App\Entity\User;
 use App\Form\UserRegistrationType;
 use DateTime;
-use Doctrine\Bundle\DoctrineBundle\DependencyInjection\DoctrineExtension;
 use Exception;
 use Knp\Component\Pager\PaginatorInterface;
 use LogicException;
