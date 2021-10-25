@@ -51,17 +51,18 @@ class Room
      */
     private $cinema;
 
+
     /**
-     * @ORM\OneToMany(targetEntity=Seat::class, mappedBy="room", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=SeatBooked::class, mappedBy="room")
      */
-    private $seats;
+    private $seatBookeds;
 
     # ------------------------------------------------ CONSTRUCT ----------------------------------------------------- #
 
     public function __construct()
     {
         $this->sessions = new ArrayCollection();
-        $this->seats = new ArrayCollection();
+        $this->seatBookeds = new ArrayCollection();
     }
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
@@ -127,14 +128,6 @@ class Room
         return $this;
     }
 
-    /**
-     * @return Collection|Seat[]
-     */
-    public function getSeats(): Collection
-    {
-        return $this->seats;
-    }
-
 
 
     # ------------------------------------------------ LIFECYCLE ----------------------------------------------------- #
@@ -153,18 +146,6 @@ class Room
         return $this;
     }
 
-    public function removeSeat(Seat $seat): self
-    {
-        if ($this->seats->removeElement($seat)) {
-            // set the owning side to null (unless already changed)
-            if ($seat->getRoom() === $this) {
-                $seat->setRoom(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function addSession(Session $session): self
     {
         if (!$this->sessions->contains($session)) {
@@ -175,16 +156,38 @@ class Room
         return $this;
     }
 
-    public function addSeat(Seat $seat): self
+
+    /**
+     * @return Collection|SeatBooked[]
+     */
+    public function getSeatBookeds(): Collection
     {
-        if (!$this->seats->contains($seat)) {
-            $this->seats[] = $seat;
-            $seat->setRoom($this);
+        return $this->seatBookeds;
+    }
+
+    public function addSeatBooked(SeatBooked $seatBooked): self
+    {
+        if (!$this->seatBookeds->contains($seatBooked)) {
+            $this->seatBookeds[] = $seatBooked;
+            $seatBooked->setRoom($this);
         }
 
         return $this;
     }
+
+    public function removeSeatBooked(SeatBooked $seatBooked): self
+    {
+        if ($this->seatBookeds->removeElement($seatBooked)) {
+            // set the owning side to null (unless already changed)
+            if ($seatBooked->getRoom() === $this) {
+                $seatBooked->setRoom(null);
+            }
+        }
+
+        return $this;
+    }
+}
     # --------------------------------------------- PRIVATE METHODS -------------------------------------------------- #
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
-}
+
