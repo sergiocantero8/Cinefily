@@ -220,7 +220,6 @@ class BookingController extends AbstractController
                                         $ticket->setUser($this->getUser());
                                     endif;
 
-
                                     $ticket->setSaleDate(new DateTime());
 
                                     if ($couponID !== 0):
@@ -239,6 +238,9 @@ class BookingController extends AbstractController
                                     $seatBooked = new SeatBooked();
                                     $seatBooked->setSession($session);
                                     $seatBooked->setTicket($ticket);
+                                    $seatBooked->setRoom($room);
+                                    $seatBooked->setRow($row);
+                                    $seatBooked->setNumber($column);
 
                                     # Guardamos toda la información relacionado con el ticket
                                     $em->persist($seatBooked);

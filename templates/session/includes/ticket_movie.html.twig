@@ -41,8 +41,8 @@
                         {% endfor %}
 
                     {% else %}
-                        {{ ticket.ticket.getSeatBooked().getSeat().getRow() }} /
-                        {{ ticket.ticket.getSeatBooked().getSeat().getNumber() }}
+                        {{ ticket.ticket.getSeatBooked().getRow() }} /
+                        {{ ticket.ticket.getSeatBooked().getNumber() }}
                     {% endif %}
                 </span>
             </div><!--row-->

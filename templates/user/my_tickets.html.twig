@@ -23,6 +23,9 @@
                                         {% include 'session/includes/ticket_movie.html.twig' %}
                                     </div>
                                 {% endfor %}
+                                {% if tickets is empty %}
+                                    <div class="h6 m-3">Aún no has comprado ninguna entrada</div>
+                                {% endif %}
                                 <div class="col-12 navigation mt-5">
                                     {{ knp_pagination_render(tickets_pagination, null, {}, {
                                         'align': 'center',

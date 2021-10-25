@@ -65,7 +65,7 @@
                         <table id="seatsBlock">
 
                             <tr>
-                                <td colspan="14">
+                                <td colspan="17">
                                     <div class="screen ml-5">PANTALLA</div>
                                 </td>
                                 <td rowspan="20">
@@ -88,7 +88,7 @@
                                 {% for i in 1..room.getNColumns() %}
                                     {% if space==0 and i>= (room.getNColumns()/2) %}
                                         {% set space= 1 %}
-                                        {# <td class="space">space</td>#}
+                                        {# <td class="space">space</td> #}
                                     {% endif %}
                                     <td class="text-white">{{ i }}</td>
                                 {% endfor %}
@@ -108,13 +108,13 @@
                                 {% set spaceColumns= 0 %}
                                 {% if spaceRow==0 and i>= (room.getNRows()/2) %}
                                     {% set spaceRow= 1 %}
-                                    {# <tr class="seatVGap"></tr>#}
+                                    {# <tr class="seatVGap"></tr> #}
                                 {% endif %}
                                 <tr>
                                     <td class="text-white">{{ i }}</td>
                                     {% for j in 1..room.getNColumns() %}
                                         {% if spaceColumns == 0 and j>= (room.getNColumns()/2) %}
-                                           {# <td></td>#}
+                                            {# <td></td> #}
                                             {% set spaceColumns= 1 %}
                                         {% endif %}
                                         <td>
@@ -229,3 +229,52 @@
 
     </script>
 {% endblock %}
+
+{#
+<div id="smart-button-container">
+    <div style="text-align: center;">
+        <div id="paypal-button-container"></div>
+    </div>
+</div>
+<script src="https://www.paypal.com/sdk/js?client-id=sb&enable-funding=venmo&currency=USD" data-sdk-integration-source="button-factory"></script>
+<script>
+    function initPayPalButton() {
+        paypal.Buttons({
+            style: {
+                shape: 'rect',
+                color: 'gold',
+                layout: 'vertical',
+                label: 'paypal',
+
+            },
+
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{"amount":{"currency_code":"USD","value":1}}]
+                });
+            },
+
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(orderData) {
+
+                    // Full available details
+                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+
+                    // Show a success message within this page, e.g.
+                    const element = document.getElementById('paypal-button-container');
+                    element.innerHTML = '';
+                    element.innerHTML = '<h3>Thank you for your payment!</h3>';
+
+                    // Or go to another URL:  actions.redirect('thank_you.html');
+
+                });
+            },
+
+            onError: function(err) {
+                console.log(err);
+            }
+        }).render('#paypal-button-container');
+    }
+    initPayPalButton();
+</script>
+     #}

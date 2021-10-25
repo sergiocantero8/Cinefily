@@ -37,6 +37,11 @@ class Coupon
      */
     private $discount;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $expiration;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -86,6 +91,18 @@ class Coupon
     public function setDiscount(int $discount): self
     {
         $this->discount = $discount;
+
+        return $this;
+    }
+
+    public function getExpiration(): ?\DateTimeInterface
+    {
+        return $this->expiration;
+    }
+
+    public function setExpiration(?\DateTimeInterface $expiration): self
+    {
+        $this->expiration = $expiration;
 
         return $this;
     }

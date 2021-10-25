@@ -153,7 +153,7 @@
         function sendSeats(method) {
             window.location = window.location.origin + "/booking/payment?method=cash&seats=" + "{{ seats|join(', ') }}" +
                 "&id_session=" + {{ session.getId() }} +'&method=' + method + '&price=' +{{ cinema.getTicketsPrice() }}
-                +'&email=' + "{{ email }}" + '&id_coupon=' +  resultCoupon;
+                +'&email=' + "{{ email }}" + '&id_coupon=' + resultCoupon;
         }
 
         // Función para convertir los arrays de twig en arrays de javascript
@@ -162,7 +162,7 @@
         }
 
 
-       // Función para validar el cupón de descuento
+        // Función para validar el cupón de descuento
         function validate() {
 
             let couponInput = $("#coupon").val();
@@ -172,21 +172,20 @@
                     "<i class='fas fa-exclamation p-2'></i> No hay cupones disponibles para ti</b>";
             } else {
                 $.each(coupons, function (k, coupon) {
-
-                    if (coupon['code'] === couponInput && coupon['active']) {
+                    if (coupon['code'] === couponInput && coupon['active'] && (coupon['expiration']===undefined || new Date()< coupon['expiration'])) {
                         document.getElementById("notification").innerHTML = "<b style='margin-left:2px;background:lightgreen;'>" +
                             "<i class='fas fa-check-square'></i> Cupón aplicado " + coupon['discount'] + "% de descuento</b>";
-                        var discount=coupon['discount']/100;
-                        var oldPrice={{ cinema.getTicketsPrice()*n_seats }};
-                        var newPrice= oldPrice - (oldPrice*discount);
-                        var oldMessage= "Precio total: "+ oldPrice + " euros";
-                        var newMessage= "Precio total: "+ newPrice + " euros";
+                        var discount = coupon['discount'] / 100;
+                        var oldPrice ={{ cinema.getTicketsPrice()*n_seats }};
+                        var newPrice = oldPrice - (oldPrice * discount);
+                        var oldMessage = "Precio total: " + oldPrice + " euros";
+                        var newMessage = "Precio total: " + newPrice + " euros";
                         document.getElementById("totalPrice").innerHTML = "<b>" +
-                            "<i class='fas fa-coins mr-2'></i>"+  oldMessage.strike() + "</b> <br> " +
-                            "<b>"+  newMessage + "</b> <br> ";
-                        resultCoupon= coupon['id'];
+                            "<i class='fas fa-coins mr-2'></i>" + oldMessage.strike() + "</b> <br> " +
+                            "<b>" + newMessage + "</b> <br> ";
+                        resultCoupon = coupon['id'];
                         return false;
-                    }else{
+                    } else {
                         document.getElementById("notification").innerHTML = "<b style='margin-left:2px;background:#ffa2a2;'>" +
                             "<i class='fas fa-exclamation p-2'></i> Código de cupón no válido</b>";
                     }
