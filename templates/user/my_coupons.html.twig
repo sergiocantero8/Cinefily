@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mis cupones | Cinefily{% endblock %}
+
+
+{% block main %}
+
+    <div class="container">
+        <div class="main-body">
+            <div class="row">
+                <div class="col-lg-4">
+                    {% include 'user/includes/data_profile.html.twig' with {'link': '/user/profile',
+                        'link_name': 'Mi perfil' , 'icon': 'fas fa-user', 'link2': '/user/myTickets',
+                        'link_name2': 'Mis entradas' , 'icon2': 'fas fa-ticket-alt'} %}
+                </div>
+                <div class="col-lg-8">
+                    <div class="user-profile">
+                        <div class="card-body">
+                            <div class="h4"><i class="fas fa-tags pr-2"></i>Mis cupones</div>
+                            <div class="row">
+                                {% if coupons is not null %}
+                                    {% for coupon in coupons %}
+                                        <div class="col-6 mt-3">
+                                            <div class="h6 font-weight-bold"></div>
+                                            {% include 'user/includes/coupon.html.twig' with {'code': coupon.getCode(),
+                                                'discount': coupon.getDiscount(), 'active': coupon.getActive()} %}
+                                        </div>
+                                    {% endfor %}
+                                    {% if coupons is empty %}
+                                        <div class="h6 m-3">No tienes ningún cupón disponible</div>
+                                    {% endif %}
+                                    <div class="col-12 navigation mt-5">
+                                        {{ knp_pagination_render(coupons, null, {}, {
+                                            'align': 'center',
+                                            'size': 'large',
+                                            'rounded': true,
+                                        }) }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+{% endblock %}
+
+{% block custom_body_javascript %}
+
+{% endblock %}

@@ -373,10 +373,50 @@ class UserController extends AbstractController
             array('user' => $this->getUser()->getID())));
         $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(
             array('user' => $this->getUser()->getID())));
+        $nCoupons = count($this->getDoctrine()->getRepository(Coupon::class)->findBy(
+            array('user' => $this->getUser()->getID())));
 
 
         return $this->render($template, array('tickets' => $tickets, 'user' => $user, 'user_tickets' => $nTickets,
             'user_comments' => $nComments, 'tickets_pagination' => $ticketsPagination));
+
+    }
+
+
+    /**
+     * Ruta para visualizar todos los cupones disponibles para el usuario
+     * @Route("/user/myCoupons", name="user_coupons")
+     */
+    public function userCoupons(Request $request, PaginatorInterface $paginator): Response
+    {
+
+        if (!$this->getUser()) :
+            return $this->redirectToRoute('home');
+        endif;
+        $user = $this->getUser();
+
+        $template = 'user/my_coupons.html.twig';
+
+        $myCouponsQuery = $this->getDoctrine()->getRepository(Coupon::class)->findByUser($this->getUser());
+
+
+        if ($myCouponsQuery !== null):
+            // Paginar los resultados de la consulta
+            $couponsPagination = $paginator->paginate(
+            // Consulta Doctrine, no resultados
+                $myCouponsQuery,
+                // Definir el parámetro de la página
+                $request->query->getInt('page', 1),
+                // Items per page
+                4
+            );
+        endif;
+
+        $stats= $this->getNItemsProfile();
+
+
+        return $this->render($template, array('coupons' => $couponsPagination ?? null, 'user' => $user, 'user_tickets' => $stats['nTickets'],
+            'user_comments' => $stats['nComments'], 'user_coupons' => $stats['nCoupons']));
 
     }
 
@@ -542,6 +582,27 @@ class UserController extends AbstractController
             $index = random_int(0, $count - 1);
             $result .= mb_substr($chars, $index, 1);
         }
+
+        return $result;
+    }
+
+    /**
+     * Obtiene el número de comentarios realizados, cupones y entradas compradas del usuario identificado
+     * @return array
+     */
+    public function getNItemsProfile(): ?array
+    {
+        $result = null;
+        if ($this->getUser()):
+            $result = array(
+                'nTickets'=> count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
+                array('user' => $this->getUser()->getID()))),
+                'nComments' => count($this->getDoctrine()->getRepository(Comment::class)->findBy(
+                    array('user' => $this->getUser()->getID()))),
+                'nCoupons' => count($this->getDoctrine()->getRepository(Coupon::class)->findBy(
+                    array('user' => $this->getUser()->getID())))
+            );
+        endif;
 
         return $result;
     }

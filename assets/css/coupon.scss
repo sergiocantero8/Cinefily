@@ -1,0 +1,26 @@
+.coupon {
+  border-radius: 12px;
+  box-shadow: 5px 8px 10px #d6d5d533;
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  width: 250px;
+  background-color: #fff1df;
+}
+
+.code {
+  background: #007bff;
+  color: #fff;
+}
+
+.status-coupon {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin-right: 5px;
+
+  span{
+    padding: 5px;
+    border-radius: 10px;
+  }
+}
