@@ -74,6 +74,32 @@ table {
 }
 
 
+.sessions-cinema{
+  height: 100%;
+  width: 100%;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  background-color: #26272b;
+  overflow: hidden;
+
+  .title-cinema{
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    text-align: left;
+    font-size: 17px;
+    margin: 27px 0 0 0;
+    letter-spacing: 1px;
+  }
+
+  .sessions{
+    a{
+      font-size: 12px;
+    }
+  }
+}
+
 
 
 

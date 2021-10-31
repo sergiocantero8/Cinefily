@@ -1,12 +1,14 @@
 <!-- Bootstrap row -->
 <div class="row" id="body-row">
     <!-- Sidebar -->
-    <div id="sidebar-container" class="sidebar none md-block"><!-- d-* hiddens the Sidebar in smaller devices. Its itens can be kept on the Navbar 'Menu' -->
+    <div id="sidebar-container" class="sidebar none md-block">
+        <!-- d-* hiddens the Sidebar in smaller devices. Its itens can be kept on the Navbar 'Menu' -->
         <!-- Bootstrap List Group -->
         <ul class="list-group">
             <!-- Separator with title -->
             <li>
-                <a href="#" data-toggle="sidebar-colapse" class="bg-dark list-group-item list-group-item-action d-flex align-items-center">
+                <a href="#" data-toggle="sidebar-colapse"
+                   class="list-group-item list-group-item-action d-flex align-items-center">
                     <div class="d-flex w-100 justify-content-start align-items-center">
                         <span id="collapse-icon" class="fa fa-2x mr-3"></span>
                         <span id="collapse-text" class="menu-collapsed"></span>
@@ -14,64 +16,92 @@
                 </a>
             </li>
 
-            <li class="list-group-item sidebar-separator-title text-muted d-flex align-items-center menu-collapsed">
-                <small>MAIN MENU</small>
+            <li class="list-group-item sidebar-separator-title d-flex align-items-center menu-collapsed font-weight-bold">
+                <small>MENÚ PRINCIPAL</small>
             </li>
             <!-- /END Separator -->
 
-            <a href="#submenu2" data-toggle="collapse" aria-expanded="false" class="bg-dark list-group-item list-group-item-action flex-column align-items-start">
-                <div class="d-flex w-100 justify-content-start align-items-center">
-                    <span class="fa fa-user fa-fw mr-3"></span>
-                    <span class="menu-collapsed">Profile</span>
-                    <span class="submenu-icon ml-auto"></span>
-                </div>
-            </a>
-            <!-- Submenu content -->
-            <div id='submenu2' class="collapse sidebar-submenu">
-                <a href="#" class="list-group-item list-group-item-action bg-dark text-white">
-                    <span class="menu-collapsed">Settings</span>
+            <li>
+                <a href="/cinema/all" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-start align-items-center">
+                        <span class="fas fa-hotel mr-2"></span>
+                        <span class="menu-collapsed">Cines</span>
+                    </div>
                 </a>
-                <a href="#" class="list-group-item list-group-item-action bg-dark text-white">
-                    <span class="menu-collapsed">Password</span>
+            </li>
+            <li>
+                <a href="/showtimes" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-start align-items-center">
+                        <span class="fas fa-clipboard-list mr-2"></span>
+                        <span class="menu-collapsed">Cartelera</span>
+                    </div>
                 </a>
-            </div>
-            <a href="#" class="bg-dark list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-start align-items-center">
-                    <span class="fa fa-tasks fa-fw mr-3"></span>
-                    <span class="menu-collapsed">Tasks</span>
-                </div>
-            </a>
+            </li>
+            <li>
+                <a href="/search?event_type=película" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-start align-items-center">
+                        <span class="fas fa-film mr-2"></span>
+                        <span class="menu-collapsed">Películas</span>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-start align-items-center">
+                        <span class="fas fa-theater-masks mr-2"></span>
+                        <span class="menu-collapsed">Eventos</span>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="/upcoming" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-start align-items-center">
+                        <span class="fas fa-forward mr-2"></span>
+                        <span class="menu-collapsed">Próximamente</span>
+                    </div>
+                </a>
+            </li>
+            <li>
+                <a href="/contact" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-start align-items-center">
+                        <span class="fas fa-address-book mr-2"></span>
+                        <span class="menu-collapsed">Contacto</span>
+                    </div>
+                </a>
+            </li>
             <!-- Separator with title -->
-            <li class="list-group-item sidebar-separator-title text-muted d-flex align-items-center menu-collapsed">
-                <small>OPTIONS</small>
+            <li class="list-group-item sidebar-separator-title d-flex align-items-center menu-collapsed font-weight-bold">
+                <small>OPCIONES</small>
             </li>
             <!-- /END Separator -->
-            <a href="#" class="bg-dark list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-start align-items-center">
-                    <span class="fa fa-calendar fa-fw mr-3"></span>
-                    <span class="menu-collapsed">Calendar</span>
+            <li>
+                <a href="#submenu2" data-toggle="collapse" aria-expanded="false"
+                   class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-start align-items-center">
+                        <span class="fa fa-user fa-fw mr-3"></span>
+                        <span class="menu-collapsed">Perfil</span>
+                        <span class="submenu-icon ml-auto"></span>
+                    </div>
+                </a>
+            </li>
+            <!-- Submenu content -->
+            <li>
+                <div id='submenu2' class="collapse sidebar-submenu">
+                    <a href="#" class="list-group-item list-group-item-action text-white">
+                        <span class="menu-collapsed">Mi perfil</span>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action text-white">
+                        <span class="menu-collapsed">Mis entradas</span>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action text-white">
+                        <span class="menu-collapsed">Mis cupones</span>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action text-white">
+                        <span class="menu-collapsed">Cerrar sesión</span>
+                    </a>
                 </div>
-            </a>
-            <a href="#" class="bg-dark list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-start align-items-center">
-                    <span class="fa fa-envelope-o fa-fw mr-3"></span>
-                    <span class="menu-collapsed">Messages <span class="badge badge-pill badge-primary ml-2">5</span></span>
-                </div>
-            </a>
-            <!-- Separator without title -->
-            <li class="list-group-item sidebar-separator menu-collapsed"></li>
-            <!-- /END Separator -->
-            <a href="#" class="bg-dark list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-start align-items-center">
-                    <span class="fa fa-question fa-fw mr-3"></span>
-                    <span class="menu-collapsed">Help</span>
-                </div>
-            </a>
+            </li>
 
-            <!-- Logo -->
-            <li class="list-group-item logo-separator d-flex justify-content-center">
-                <img src='https://v4-alpha.getbootstrap.com/assets/brand/bootstrap-solid.svg' width="30" height="30" />
-            </li>
         </ul><!-- List Group END-->
     </div><!-- sidebar-container END -->
 

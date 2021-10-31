@@ -8,7 +8,53 @@
     <div class="container-fluid">
 
         <h1 class="display-4 mb-5 mt-2">Cinefily </h1>
+        <div class="d-flex justify-content-start">
 
+            {% if sessionsByEvent is not empty %}
+            <div class="row mb-5 ml-5">
+                <div class="col-12">
+                    <div class="h4 mt-2">
+                        <i class="fas fa-video mr-2"></i> Sesiones para hoy
+                    </div>
+                </div>
+                {% for key,sessionByRoom in sessionsByEvent %}
+                    <div class="col-4 ">
+                        <div class="sessions-cinema">
+                            <div class="row">
+                                <div class="col-6">
+                                    <img src="{{ asset('uploads/images/' ~ sessionByRoom['event'].getPosterPhoto()) }}" height="220" width="170"
+                                         alt="Poster photo"/>
+                                </div>
+                                <div class="col-6 pl-0">
+                                    <div class="title-cinema h6">
+                                        {{ sessionByRoom['event'].getTitle() }}
+                                    </div>
+                                    <div class="sessions m-2">
+                                        <div class="row">
+                                            {% for n_room,sessions in sessionByRoom %}
+                                                {% if n_room != 'event' %}
+                                                    <div class="col-12 text-white">
+                                                        Sala {{ n_room }}:
+                                                    </div>
+                                                    <div class="col-12">
+                                                        {% for one_session in sessions %}
+                                                            <a class="btn btn-primary"
+                                                               href="/booking/?session={{ one_session.getId() }}"
+                                                               role="button">{{ one_session.getSchedule()|date("H:i") }}</a>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
         {% if films != null and films is not empty %}
             {% for genre in filmGenres %}
                 {% if films[genre] is defined %}

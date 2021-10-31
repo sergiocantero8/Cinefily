@@ -91,6 +91,7 @@ class SessionRepository extends ServiceEntityRepository
      */
     public function findByDate(Cinema $cinema, DateTime $start, DateTime $end): ?array
     {
+
         $qb=$this->createQueryBuilder('s');
         return $qb
             ->where('s.schedule BETWEEN :start AND :end')
@@ -102,6 +103,47 @@ class SessionRepository extends ServiceEntityRepository
             ;
     }
 
+    /**
+     * Método que devuelve todas las sesiones comprendidas entre una fecha de inicio y una fecha de fin y un evento
+     * concreto
+     * @param EventData $event
+     * @param DateTime $start
+     * @param DateTime $end
+     * @return array|null Returns an array of Session objects
+     */
+    public function findByDateAndEvent(EventData $event, DateTime $start, DateTime $end): ?array
+    {
+
+        $qb=$this->createQueryBuilder('s');
+        return $qb
+            ->where('s.schedule BETWEEN :start AND :end')
+            ->andWhere('s.event = :event')
+            ->setParameter('start',$start)
+            ->setParameter('end',$end)
+            ->setParameter('event',$event)
+            ->getQuery()->execute()
+            ;
+    }
+
+
+    /**
+     * Método que devuelve todas las sesiones comprendidas entre una fecha de inicio y una fecha de fin y un evento
+     * concreto
+     * @param DateTime $start
+     * @param DateTime $end
+     * @return array|null Returns an array of Session objects
+     */
+    public function getTodayActiveSessions(DateTime $start, DateTime $end): ?array
+    {
+
+        $qb=$this->createQueryBuilder('s');
+        return $qb
+            ->where('s.schedule BETWEEN :start AND :end')
+            ->setParameter('start',$start)
+            ->setParameter('end',$end)
+            ->getQuery()->execute()
+            ;
+    }
     // /**
     //  * @return Session[] Returns an array of Session objects
     //  */

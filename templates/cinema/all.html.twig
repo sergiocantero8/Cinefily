@@ -39,6 +39,7 @@
             <th scope="col">Número de salas</th>
             <th scope="col">Asientos totales</th>
             <th scope="col">Precio de las entradas</th>
+            <th scope="col">Número de sesiones activas</th>
             {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
                 <th scope="col">Acciones</th>
             {% endif %}
@@ -52,6 +53,7 @@
                 <td>{{ cinema.n_rooms }}</td>
                 <td>{{ cinema.n_seats }}</td>
                 <td>{{ cinema.tickets_price }}€</td>
+                <td>{{ cinema.n_sessions }}</td>
                 {% if app.user and app.user.privileges == constant('ROLE_ADMIN', app.user) %}
                     <td>
                         <button class="btn btn-danger" data-toggle="modal"

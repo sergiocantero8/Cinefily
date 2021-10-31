@@ -10,7 +10,9 @@
                         class="font-italic">{{ user.getId() }}</span></h3>
             <div class="row">
                 <div class="col-lg-4">
-                    {% include 'user/includes/data_profile.html.twig' %}
+                    {% include 'user/includes/data_profile.html.twig' with
+                        {'link': '/user/myTickets','link_name': 'Mis entradas' , 'icon': 'fas fa-ticket-alt',
+                            'link2': '/user/myCoupons','link_name2': 'Mis cupones' , 'icon2': 'fas fa-tags'} %}
                 </div>
                 <div class="col-lg-8">
                     <div class="user-profile">

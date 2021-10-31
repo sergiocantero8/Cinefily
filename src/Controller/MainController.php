@@ -14,10 +14,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use Swift_Mailer;
 use Swift_Message;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -25,8 +22,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Exception\DisabledException;
 use function array_key_exists;
+use function in_array;
 
 class MainController extends AbstractController
 {
@@ -51,8 +48,9 @@ class MainController extends AbstractController
 
     /**
      * @Route("/", name="home")
+     * @throws Exception
      */
-    public function renderHomePage(EventController $eventController): Response
+    public function renderHomePage(): Response
     {
 
         // Obtenemos todos los géneros para eventos
@@ -87,31 +85,22 @@ class MainController extends AbstractController
             endforeach;
         endif;
 
-        /*
-        // Si hay películas obtenidas a través de la API de TMDB
-        if (isset($filmsTMDB)):
-            foreach ($upcomingsFilms as $filmTMDB):
-                if ($filmTMDB !== NULL):
+        # Obtenemos todas las sesiones programadas para hoy
+        $sessionsByEvent = array();
+        $now = new DateTime();
 
-                    $genres = EventController::gendersToString(isset($filmTMDB['genres']) ? $filmsTMDB['genres'] : null);
-                    $overview = EventData::getShortenSummary($filmTMDB['overview']);
+        $activeSessions=$this->getDoctrine()->getRepository(Session::class)->getTodayActiveSessions(
+            new DateTime(), $now->add(new DateInterval(('P1D'))));
+        foreach ($activeSessions as $session):
+            if (!array_key_exists($session->getEvent()->getId(), $sessionsByEvent)):
+                $event = $session->getEvent();
+                $sessionsByEvent[$session->getEvent()->getId()]['event'] = $event;
+            endif;
+            $sessionsByEvent[$session->getEvent()->getId()][$session->getRoom()->getNumber()][] = $session;
+        endforeach;
 
-                    $data['TMDB'][] = array(
-                        'tmdb_id' => $filmTMDB['id'],
-                        'title' => strtoupper($filmTMDB['title']),
-                        'genres' => $genres,
-                        'release_date' => $filmTMDB['release_date'],
-                        'duration' => isset($filmTMDB['runtime']) ? $filmsTMDB['runtime'] : null,
-                        'summary' => $overview,
-                        'poster_photo' => $eventController->getImageBaseURLIMDB() . 'w154/' . $filmTMDB['poster_path'],
-                    );
 
-                endif;
-            endforeach;
-        endif;
-    */
-
-        return $this->render('home.html.twig', array('films' => $data));
+        return $this->render('home.html.twig', array('films' => $data, 'sessionsByEvent' => $sessionsByEvent ?? null));
 
     }
 
@@ -124,14 +113,14 @@ class MainController extends AbstractController
     public function renderLogInfo(Request $request, PaginatorInterface $paginator): Response
     {
         # Si el usuario está identificado pero no es administrador no podrá acceder
-        if (!$this->getUser() || ($this->getUser() && !\in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
+        if (!$this->getUser() || ($this->getUser() && !in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
             $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
             return $this->redirectToRoute('home');
         endif;
 
         # Obtenemos toda la información del Log
-        $logInfoQuery = $this->getDoctrine()->getRepository(LogInfo::class)->createQueryBuilder('L')
-            ->getQuery();
+        $logInfoQuery = $this->getDoctrine()->getRepository(LogInfo::class)->createQueryBuilder('l')
+            ->orderBy('l.date','DESC')->getQuery();
         $logResults = null;
 
         if ($logInfoQuery !== null):
@@ -220,7 +209,7 @@ class MainController extends AbstractController
      */
     public function renderPageError(): Response
     {
-        return $this->render('error.html.twig', null);
+        return $this->render('error.html.twig', array());
     }
 
 

@@ -1,10 +1,10 @@
-<?php
+<?php /** @noinspection PhpParamsInspection */
 
 namespace App\Controller;
 
 use App\Entity\Cinema;
 use App\Entity\Room;
-use App\Entity\Seat;
+use App\Entity\Session;
 use App\Entity\User;
 use App\Form\AddCinemaType;
 use Symfony\Component\HttpFoundation\Request;
@@ -111,23 +111,25 @@ class CinemaController extends AbstractController
 
         foreach ($cinemas as $cinema):
             $rooms = $this->getDoctrine()->getRepository(Room::class)->findBy(array('cinema' => $cinema));
-            $nSeats=0;
+            $nSeats = 0;
 
             foreach ($rooms as $room):
-                $nSeats+=$room->getNRows() * $room->getNColumns();
+                $nSeats += $room->getNRows() * $room->getNColumns();
             endforeach;
 
+            $nActiveSessions = count($this->getDoctrine()->getRepository(Session::class)->findByActiveSessions($cinema));
             $data[] = array(
                 'id' => $cinema->getID(),
                 'name' => $cinema->getName(),
                 'location' => $cinema->getLocation(),
                 'tickets_price' => $cinema->getTicketsPrice(),
                 'n_rooms' => count($rooms),
-                'n_seats' => $nSeats
+                'n_seats' => $nSeats,
+                'n_sessions' => $nActiveSessions
             );
         endforeach;
 
-        return $this->render('cinema/all.html.twig', array('data'=>$data));
+        return $this->render('cinema/all.html.twig', array('data' => $data));
     }
 
     /**

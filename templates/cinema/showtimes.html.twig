@@ -40,22 +40,32 @@
                              class="db_poster_photo" alt="Poster photo" height="200" width="170"/>
 
                     </td>
-                    <td>
-                        <div class="h5">{{ sessions.event.getTitle() }}</div>
+                    <td class="w-50">
+                        <div class="h5">{{ sessions.event.getTitle() }}
+                            <p class="h6 mt-2">{{ sessions.event.getDescription() }}</p>
+                            <div class="group-buttons-showtimes">
+                                <a class="btn btn-warning" href="/event/details?id={{ sessions.event.getId() }}">
+                                    <i class="fas fa-eye mr-1"></i> Ver detalles</a>
+
+                                <a class="btn btn-dark" href={{ sessions.event.getYoutubeTrailer() }} target="_blank">
+                                    <i class="fas fa-play-circle mr-1"></i>Trailer</a>
+                            </div>
+                        </div>
                     </td>
                     <td>
                         <div class="row">
-                        {% for room_number,session in sessions %}
-                            {% if room_number != 'event' %}
-                                <div class="col-12 mt-2">
-                                    <div class="h6">Sala {{ room_number }}</div>
-                                {% for one_session in session %}
-                                    <a class="btn btn-primary button-showtimes" href="/booking/?session={{ one_session.getId() }}"
-                                       role="button">{{ one_session.schedule|date("H:i") }}</a>
-                                {% endfor %}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
+                            {% for room_number,session in sessions %}
+                                {% if room_number != 'event' %}
+                                    <div class="col-12 mt-2">
+                                        <div class="h6">Sala {{ room_number }}</div>
+                                        {% for one_session in session %}
+                                            <a class="btn btn-primary button-showtimes"
+                                               href="/booking/?session={{ one_session.getId() }}"
+                                               role="button">{{ one_session.schedule|date("H:i") }}</a>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     </td>
                 </tr>

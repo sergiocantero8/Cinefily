@@ -219,6 +219,10 @@ class EventController extends AbstractController
         # Se crea el formulario para la sección de comentarios si hay un usuario autenticado, de lo contrario es null
         $commentsForm = NULL;
 
+        if ($ID === null && $tmdbID === null):
+            return $this->redirectToRoute('page_error');
+        endif;
+
         if ($this->getUser()):
             if ($ID !== null):
                 $action = '?id=' . $ID;
@@ -649,8 +653,12 @@ class EventController extends AbstractController
 
     /**
      * @Route("/upcoming", name="upcoming")
-     * @param Request $request
      * @return Response
+     * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
      */
     public function upcomingFilms(): Response
     {

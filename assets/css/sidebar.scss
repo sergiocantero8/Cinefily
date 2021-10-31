@@ -1,6 +1,6 @@
 @media (min-width: 1000px) {
   #sidebar-container {
-    display: none !important;
+  display: none !important;
   }
 }
 
@@ -12,6 +12,25 @@
   min-height: 100vh;
   background-color: #26272b;
   padding: 0;
+
+  ul{
+    li{
+      background-color: beige;
+      a{
+        background-color: #26272b;
+      }
+    }
+  }
+}
+
+
+.list-group-item {
+  position: relative;
+  display: block;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: -1px;
+  border-radius: 0 !important;
+  border: 1px solid rgba(0, 0, 0, .125);
 }
 
 /* Sidebar sizes when expanded and expanded */
