@@ -53,6 +53,11 @@ class Ticket
      */
     private $seatBooked;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $validated;
+
 
     # ------------------------------------------- GETTERS AND SETTERS ------------------------------------------------ #
     public function getId(): ?int
@@ -146,6 +151,18 @@ class Ticket
         }
 
         $this->seatBooked = $seatBooked;
+
+        return $this;
+    }
+
+    public function getValidated(): ?bool
+    {
+        return $this->validated;
+    }
+
+    public function setValidated(?bool $validated): self
+    {
+        $this->validated = $validated;
 
         return $this;
     }

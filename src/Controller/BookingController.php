@@ -7,6 +7,7 @@ use App\Entity\LogInfo;
 use App\Entity\SeatBooked;
 use App\Entity\Session;
 use App\Entity\Ticket;
+use App\Entity\User;
 use DateTime;
 use Exception;
 use Swift_Mailer;
@@ -24,6 +25,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use function count;
 use Symfony\Component\Lock\LockFactory;
+use function in_array;
 
 
 class BookingController extends AbstractController
@@ -135,9 +137,6 @@ class BookingController extends AbstractController
         $seats = array_filter(explode(',', $s));
         $matrixSeats = $this->getMatrixSeats($seats);
         $qr = $this->generateTicketQR(7);
-        if ($qr === null):
-            $qr = EventController::getSVGQR();
-        endif;
 
         $data = array(
             'seats' => $seats,
@@ -214,7 +213,7 @@ class BookingController extends AbstractController
 
                                 $ticket = new Ticket();
                                 $ticket->setSession($session);
-
+                                $ticket->setValidated(false);
 
                                 if ($this->getUser()):
                                     $ticket->setUser($this->getUser());
@@ -346,14 +345,25 @@ class BookingController extends AbstractController
     public function validateTicket(Request $request): RedirectResponse
     {
 
+        if (!$this->getUser() || ($this->getUser() && !in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true))):
+            $this->addFlash('error', 'No tienes acceso a la ruta ' . $request->getBaseUrl());
+            return $this->redirectToRoute('home');
+        endif;
+
         # Obtenemos el id del ticket
         $id = $request->get('id');
 
         if ($id !== null):
-            $this->getDoctrine()->getRepository(Ticket::class)->find($id);
+            $ticket = $this->getDoctrine()->getRepository(Ticket::class)->find($id);
+            if ($ticket !== null):
+                $ticket->setValidated(true);
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($ticket);
+                $em->flush();
+            endif;
         endif;
 
-
+        $this->addFlash('success', 'Ticket validado');
         return $this->redirectToRoute('home');
 
     }
@@ -388,7 +398,6 @@ class BookingController extends AbstractController
      */
     public function generateTicketQR(int $ticketID): ?string
     {
-        $result = NULL;
 
         $url = 'https://api.qr-code-generator.com/v1/create?access-token=' . static::API_QR_GENERATOR_KEY;
         $response = $this->client->request(
@@ -407,6 +416,8 @@ class BookingController extends AbstractController
 
         if ($response->getStatusCode() === EventController::SUCCESS_STATUS_CODE):
             $result = $response->getContent();
+        else:
+            $result = EventController::getSVGQR();
         endif;
 
         return $result;
