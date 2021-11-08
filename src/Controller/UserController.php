@@ -126,12 +126,30 @@ class UserController extends AbstractController
      */
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        if ($this->getUser()) :
+        if ($this->getUser()):
+            $createdAt = $this->getUser()->getCreatedAt();
+            $now = new DateTime();
+            $found = $this->getDoctrine()->getRepository(Coupon::class)->findBy(array('user' => $this->getUser(), 'code' => '1MONTH'));
+
+            if ($createdAt->diff($now)->m >= 1 && empty($found)):
+                $coupon = new Coupon();
+                $coupon->setDiscount(20);
+                $coupon->setCode('1MONTH');
+                $coupon->setUser($this->getUser());
+                $coupon->setActive(true);
+
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($coupon);
+                $em->flush();
+            endif;
+
             return $this->redirectToRoute('home');
         endif;
 
+
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
+
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
@@ -306,17 +324,15 @@ class UserController extends AbstractController
         $template = 'user/profile.html.twig';
         $date = $this->getUser()->getCreatedAt()->format('d/m/Y');
 
-        $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(
-            array('user' => $this->getUser()->getID())));
-        $nTickets = count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
-            array('user' => $this->getUser()->getID())));
+        $stats = $this->getNItemsProfile();
 
 
         $data = array(
             'form' => $form->createView(),
             'user' => $user,
-            'user_comments' => $nComments,
-            'user_tickets' => $nTickets,
+            'user_comments' => $stats['nComments'],
+            'user_tickets' => $stats['nTickets'],
+            'user_coupons' => $stats['nCoupons'],
             'created_at' => $date
         );
 
@@ -369,16 +385,11 @@ class UserController extends AbstractController
         endforeach;
 
 
-        $nTickets = count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
-            array('user' => $this->getUser()->getID())));
-        $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(
-            array('user' => $this->getUser()->getID())));
-        $nCoupons = count($this->getDoctrine()->getRepository(Coupon::class)->findBy(
-            array('user' => $this->getUser()->getID())));
+        $stats = $this->getNItemsProfile();
 
 
-        return $this->render($template, array('tickets' => $tickets, 'user' => $user, 'user_tickets' => $nTickets,
-            'user_comments' => $nComments, 'tickets_pagination' => $ticketsPagination));
+        return $this->render($template, array('tickets' => $tickets, 'user' => $user, 'user_tickets' => $stats['nComments'],
+            'user_comments' => $stats['nComments'], 'user_coupons' => $stats['nCoupons'], 'tickets_pagination' => $ticketsPagination));
 
     }
 
@@ -412,7 +423,7 @@ class UserController extends AbstractController
             );
         endif;
 
-        $stats= $this->getNItemsProfile();
+        $stats = $this->getNItemsProfile();
 
 
         return $this->render($template, array('coupons' => $couponsPagination ?? null, 'user' => $user, 'user_tickets' => $stats['nTickets'],
@@ -554,15 +565,15 @@ class UserController extends AbstractController
         if ($userID !== null):
             $user = $this->getDoctrine()->getRepository(User::class)->find($userID);
             if ($user !== null):
-                $nComments = count($this->getDoctrine()->getRepository(Comment::class)->findBy(array('user' => $user->getId())));
-                $nTickets = count($this->getDoctrine()->getRepository(Ticket::class)->findBy(array('user' => $user->getId())));
+                $stats = $this->getNItemsProfile($user);
                 $privileges = static::convertPrivilegesToString($user->getPrivileges());
             endif;
         endif;
 
 
         return $this->render('user/admin_profile_details.html.twig', array('user' => $user ?? null,
-            'user_comments' => $nComments ?? null, 'user_tickets' => $nTickets ?? null, 'privileges' => $privileges ?? null));
+            'user_comments' => $stats['nComments'] ?? null, 'user_tickets' => $stats['nTickets'] ?? null,
+            'privileges' => $privileges ?? null, 'user_coupons' => $stats['nCoupons'] ?? null,));
     }
 
     # ------------------------------------------------- METHODS ------------------------------------------------------ #
@@ -590,17 +601,28 @@ class UserController extends AbstractController
      * Obtiene el número de comentarios realizados, cupones y entradas compradas del usuario identificado
      * @return array
      */
-    public function getNItemsProfile(): ?array
+    public function getNItemsProfile(User $user = null): ?array
     {
+
         $result = null;
-        if ($this->getUser()):
+
+        if ($user !== null):
             $result = array(
-                'nTickets'=> count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
-                array('user' => $this->getUser()->getID()))),
+                'nTickets' => count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
+                    array('user' => $user->getId()))),
                 'nComments' => count($this->getDoctrine()->getRepository(Comment::class)->findBy(
-                    array('user' => $this->getUser()->getID()))),
+                    array('user' => $user->getId()))),
                 'nCoupons' => count($this->getDoctrine()->getRepository(Coupon::class)->findBy(
-                    array('user' => $this->getUser()->getID())))
+                    array('user' => $user->getId())))
+            );
+        elseif($this->getUser()):
+            $result = array(
+                'nTickets' => count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
+                    array('user' => $this->getUser()->getId()))),
+                'nComments' => count($this->getDoctrine()->getRepository(Comment::class)->findBy(
+                    array('user' => $this->getUser()->getId()))),
+                'nCoupons' => count($this->getDoctrine()->getRepository(Coupon::class)->findBy(
+                    array('user' => $this->getUser()->getId())))
             );
         endif;
 
