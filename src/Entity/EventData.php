@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\User;
 use App\Repository\EventDataRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -17,7 +18,7 @@ class EventData
 
     # -------------------------------------------------- CONST ------------------------------------------------------- #
 
-    public const MAX_WORDS = 20;
+    public const MAX_CHARACTERS = 111;
     # ----------------------------------------------- PROPERTIES ----------------------------------------------------- #
 
     /**
@@ -390,29 +391,19 @@ class EventData
 
     # ---------------------------------------------- STATIC METHODS -------------------------------------------------- #
 
-    public static function getShortenSummary(string $overview, ?int $maxWords=null): string
+    public static function getShortenSummary(string $overview, ?int $maxCharacters = null): string
     {
 
-        $words = explode(' ', $overview);
-
-        if ($maxWords === null):
-            $maxWords=static::MAX_WORDS;
+        if ($maxCharacters !== null):
+            $newOverview = substr(chunk_split($overview, $maxCharacters), 0, $maxCharacters);
+        else:
+            $newOverview = substr(chunk_split($overview, static::MAX_CHARACTERS), 0, static::MAX_CHARACTERS);
         endif;
 
-        if (count($words) >= $maxWords):
-            $overview = '';
-            foreach ($words as $number => $word):
-                if ($number !== $maxWords):
-                    $overview .= $word;
-                    $overview .= ' ';
-                else:
-                    $overview .= '...';
-                    break;
-                endif;
-            endforeach;
-        endif;
 
-        return $overview;
+        $newOverview .= '...';
+
+        return $newOverview;
     }
 
 

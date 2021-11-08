@@ -71,10 +71,10 @@ class BookingController extends AbstractController
             $event = $session->getEvent();
             $room = $session->getRoom();
             if ($room !== null):
-                $matrixStatusSeats=array();
+                $matrixStatusSeats = array();
                 $reservedSeats = $this->getDoctrine()->getRepository(SeatBooked::class)->findBy(array('session' => $session));
                 foreach ($reservedSeats as $seatBooked):
-                    $matrixStatusSeats[$seatBooked->getRow()][$seatBooked->getNumber()]=true;
+                    $matrixStatusSeats[$seatBooked->getRow()][$seatBooked->getNumber()] = true;
                 endforeach;
             endif;
         endif;
@@ -135,6 +135,10 @@ class BookingController extends AbstractController
         $seats = array_filter(explode(',', $s));
         $matrixSeats = $this->getMatrixSeats($seats);
         $qr = $this->generateTicketQR(7);
+        if ($qr === null):
+            $qr = EventController::getSVGQR();
+        endif;
+
         $data = array(
             'seats' => $seats,
             'n_seats' => count($seats),
@@ -382,7 +386,7 @@ class BookingController extends AbstractController
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function generateTicketQR(int $ticketID): string
+    public function generateTicketQR(int $ticketID): ?string
     {
         $result = NULL;
 
@@ -400,7 +404,6 @@ class BookingController extends AbstractController
             ]
 
         );
-
 
         if ($response->getStatusCode() === EventController::SUCCESS_STATUS_CODE):
             $result = $response->getContent();

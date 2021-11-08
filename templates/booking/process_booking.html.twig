@@ -223,7 +223,7 @@
                 createOrder: function (data, actions) {
                     var amount={{ totalPrice }};
                     return actions.order.create({
-                        purchase_units: [{"amount": {"currency_code": "EUR", "value": 0.01}}]
+                        purchase_units: [{"amount": {"currency_code": "EUR", "value": amount}}]
                     });
                 },
 
