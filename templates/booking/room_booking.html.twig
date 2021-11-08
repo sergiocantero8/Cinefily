@@ -50,7 +50,7 @@
                             <small id="emailHelp" class="form-text text-muted">Máximo 10 asientos</small>
                         </div>
                         <div class="col-12 ">
-                            <button onclick="takeData()" class="btn btn-dark btn-sm mt-2">Empezar seleccion</button>
+                            <button onclick="checkData()" class="btn btn-dark btn-sm mt-2">Empezar seleccion</button>
                         </div>
                         <div class="col-12 col-md-6 mt-2" id="notification"></div>
                     </div>
@@ -118,12 +118,11 @@
                                             {% set spaceColumns= 1 %}
                                         {% endif %}
                                         <td>
-                                            {% if matrixStatusSeats[i][j] == true %}
+                                            {% if matrixStatusSeats[i][j] is defined and matrixStatusSeats[i][j] == true %}
+                                                <div class="smallBox redBox"></div>
+                                            {% else %}
                                                 <input type="checkbox" class="seats"
                                                        value="Fila {{ i }} Asiento {{ j }},">
-
-                                            {% else %}
-                                                <div class="smallBox redBox"></div>
                                             {% endif %}
                                         </td>
                                     {% endfor %}
@@ -161,7 +160,7 @@
         });
 
         // Función que toma los datos del usuario (email y numero de asientos)
-        function takeData() {
+        function checkData() {
             // Si no se ha introducido ningún dato
             if (($("#userEmail").val().length == 0) || ($("#numSeats").val().length == 0)) {
                 alert("Introduce tu email y el número de asientos");

@@ -71,15 +71,11 @@ class BookingController extends AbstractController
             $event = $session->getEvent();
             $room = $session->getRoom();
             if ($room !== null):
-                $matrixStatusSeats = array();
-                for ($row = 1; $row <= $room->getNRows(); $row++):
-                    for($number = 1; $number <= $room->getNColumns(); $number++):
-                        $seatBooked = $this->getDoctrine()->getRepository(SeatBooked::class)->findBy(
-                            array('session' => $session, 'row' => $row, 'number' => $number)
-                        );
-                        $matrixStatusSeats[$row][$number] = empty($seatBooked);
-                    endfor;
-                endfor;
+                $matrixStatusSeats=array();
+                $reservedSeats = $this->getDoctrine()->getRepository(SeatBooked::class)->findBy(array('session' => $session));
+                foreach ($reservedSeats as $seatBooked):
+                    $matrixStatusSeats[$seatBooked->getRow()][$seatBooked->getNumber()]=true;
+                endforeach;
             endif;
         endif;
 
@@ -203,92 +199,92 @@ class BookingController extends AbstractController
                     foreach ($matrixSeats as $row => $columns):
                         foreach ($columns as $column):
 
-                                # Obtiene el cerrojo para que no haya concurrencia
-                                $lock->acquire(true);
+                            # Obtiene el cerrojo para que no haya concurrencia
+                            $lock->acquire(true);
 
-                                $seatBooked = $this->getDoctrine()->getRepository(SeatBooked::class)->findBy(
-                                    array('session' => $session, 'row'=>(int)$row, 'number'=> (int)$column, 'room'=> $room->getId())
-                                );
-                                # Si el asiento está libre
-                                if (empty($seatBooked)):
+                            $seatBooked = $this->getDoctrine()->getRepository(SeatBooked::class)->findBy(
+                                array('session' => $session, 'row' => (int)$row, 'number' => (int)$column, 'room' => $room->getId())
+                            );
+                            # Si el asiento está libre
+                            if (empty($seatBooked)):
 
-                                    $ticket = new Ticket();
-                                    $ticket->setSession($session);
-
-
-                                    if ($this->getUser()):
-                                        $ticket->setUser($this->getUser());
-                                    endif;
-
-                                    $ticket->setSaleDate(new DateTime());
-
-                                    if ($couponID !== 0):
-                                        $coupon = $this->getDoctrine()->getRepository(Coupon::class)->find($couponID);
-                                        if ($coupon !== null):
-                                            $coupon->setActive(false);
-                                            $ticket->setPrice($price - (($coupon->getDiscount() / 100) * $price));
-                                            $em->persist($coupon);
-                                            $em->flush();
-                                        endif;
-                                    else:
-                                        $ticket->setPrice($price);
-                                    endif;
-
-                                    # Creamos el asiento reservado correspondiente al asiento y a la sesión
-                                    $seatBooked = new SeatBooked();
-                                    $seatBooked->setSession($session);
-                                    $seatBooked->setTicket($ticket);
-                                    $seatBooked->setRoom($room);
-                                    $seatBooked->setRow($row);
-                                    $seatBooked->setNumber($column);
-
-                                    # Guardamos toda la información relacionado con el ticket
-                                    $em->persist($seatBooked);
-                                    $em->flush();
-
-                                    $ticket->setSeatBooked($seatBooked);
-                                    $em->persist($ticket);
-                                    $em->flush();
+                                $ticket = new Ticket();
+                                $ticket->setSession($session);
 
 
-                                    $message = 'Sus asientos se han reservado correctamente. ';
-
-                                    $logInfo = new LogInfo(LogInfo::TYPE_SUCCESS, 'Se han reservado ' . $n_seats . ' asientos para la session
-                                                                        con ID' . $session->getID() . ' y con email asociado ' . $email);
-                                    $em->persist($logInfo);
-                                    $em->flush();
-
-                                    try {
-                                        $ticket->setQrCode($this->generateTicketQR($ticket->getId()));
-                                    } catch (ClientExceptionInterface
-                                    | RedirectionExceptionInterface |
-                                    DecodingExceptionInterface | TransportExceptionInterface | ServerExceptionInterface $e) {
-                                        new LogInfo(LogInfo::TYPE_ERROR, 'Error al generar código QR');
-                                        $em->persist($logInfo);
-                                        $em->flush();
-                                        throw new Exception("Error al generar código QR", $e);
-
-                                    }
-                                    $em->persist($ticket);
-                                    $em->flush();
-                                    if ($this->getUser()):
-                                        $message .= 'También las tiene disponibles en su perfil, en el apartado Mis entradas';
-                                    endif;
-                                    $typeMessage = 'success';
-
-                                # Si no estuviera libre creamos un error
-                                else:
-                                    $message = 'No se ha podido realizar la reserva, debido a que se ha intentaod reservar un asiento
-                                    ocupado';
-                                    $typeMessage = 'error';
-                                    $info = new LogInfo(LogInfo::TYPE_ERROR, 'Se intenta reservar un asiento 
-                                    que está ocupado');
-                                    $em->persist($info);
-                                    $em->flush();
+                                if ($this->getUser()):
+                                    $ticket->setUser($this->getUser());
                                 endif;
 
-                                # Libera el cerrojo
-                                $lock->release();
+                                $ticket->setSaleDate(new DateTime());
+
+                                if ($couponID !== 0):
+                                    $coupon = $this->getDoctrine()->getRepository(Coupon::class)->find($couponID);
+                                    if ($coupon !== null):
+                                        $coupon->setActive(false);
+                                        $ticket->setPrice($price - (($coupon->getDiscount() / 100) * $price));
+                                        $em->persist($coupon);
+                                        $em->flush();
+                                    endif;
+                                else:
+                                    $ticket->setPrice($price);
+                                endif;
+
+                                # Creamos el asiento reservado correspondiente al asiento y a la sesión
+                                $seatBooked = new SeatBooked();
+                                $seatBooked->setSession($session);
+                                $seatBooked->setTicket($ticket);
+                                $seatBooked->setRoom($room);
+                                $seatBooked->setRow($row);
+                                $seatBooked->setNumber($column);
+
+                                # Guardamos toda la información relacionado con el ticket
+                                $em->persist($seatBooked);
+                                $em->flush();
+
+                                $ticket->setSeatBooked($seatBooked);
+                                $em->persist($ticket);
+                                $em->flush();
+
+
+                                $message = 'Sus asientos se han reservado correctamente. ';
+
+                                $logInfo = new LogInfo(LogInfo::TYPE_SUCCESS, 'Se han reservado ' . $n_seats . ' asientos para la session
+                                                                        con ID' . $session->getID() . ' y con email asociado ' . $email);
+                                $em->persist($logInfo);
+                                $em->flush();
+
+                                try {
+                                    $ticket->setQrCode($this->generateTicketQR($ticket->getId()));
+                                } catch (ClientExceptionInterface
+                                | RedirectionExceptionInterface |
+                                DecodingExceptionInterface | TransportExceptionInterface | ServerExceptionInterface $e) {
+                                    new LogInfo(LogInfo::TYPE_ERROR, 'Error al generar código QR');
+                                    $em->persist($logInfo);
+                                    $em->flush();
+                                    throw new Exception("Error al generar código QR", $e);
+
+                                }
+                                $em->persist($ticket);
+                                $em->flush();
+                                if ($this->getUser()):
+                                    $message .= 'También las tiene disponibles en su perfil, en el apartado Mis entradas';
+                                endif;
+                                $typeMessage = 'success';
+
+                            # Si no estuviera libre creamos un error
+                            else:
+                                $message = 'No se ha podido realizar la reserva, debido a que se ha intentaod reservar un asiento
+                                    ocupado';
+                                $typeMessage = 'error';
+                                $info = new LogInfo(LogInfo::TYPE_ERROR, 'Se intenta reservar un asiento 
+                                    que está ocupado');
+                                $em->persist($info);
+                                $em->flush();
+                            endif;
+
+                            # Libera el cerrojo
+                            $lock->release();
 
 
                         endforeach;
