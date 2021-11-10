@@ -669,7 +669,7 @@ class EventController extends AbstractController
         foreach ($upcomingsFilms as $filmTMDB):
             if ($filmTMDB !== NULL):
 
-                $overview = EventData::getShortenSummary($filmTMDB['overview'], 25);
+                $overview = EventData::getShortenSummary($filmTMDB['overview']);
 
                 $data[] = array(
                     'tmdb_id' => $filmTMDB['id'],
@@ -732,10 +732,10 @@ class EventController extends AbstractController
 
         $response = $this->client->request(
             'GET',
-            'https://api.themoviedb.org/3/movie/upcoming?api_key=' . self::API_KEY . '&language=es-ES&page=1'
+            'https://api.themoviedb.org/3/movie/upcoming?api_key=' . static::API_KEY . '&language=es-ES&page=1'
         );
 
-        if ($response->getStatusCode() === self::SUCCESS_STATUS_CODE):
+        if ($response->getStatusCode() === static::SUCCESS_STATUS_CODE):
             $result = $response->toArray();
         endif;
 

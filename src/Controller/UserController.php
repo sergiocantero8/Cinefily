@@ -522,11 +522,18 @@ class UserController extends AbstractController
 
                 # Buscamos si tiene algún ticket comprado para setear a null el usuario asociado
                 $tickets = $this->getDoctrine()->getRepository(Ticket::class)->findBy(array('user' => $user));
+                $coupons = $this->getDoctrine()->getRepository(Coupon::class)->findBy(array('user' => $user));
 
                 foreach ($tickets as $ticket):
                     $ticket->setUser(null);
                     $em->persist($ticket);
                 endforeach;
+
+                foreach ($coupons as $coupon):
+                    $em->remove($coupon);
+                    $em->flush();
+                endforeach;
+
                 $em->flush();
 
                 # Borramos el usuario

@@ -7,7 +7,7 @@
 
     <div class="container-fluid">
 
-        <h1 class="display-4 mb-5 mt-2">Cinefily </h1>
+        <h1 class="display-4 mb-5 mt-2 ml-5">Cinefily </h1>
         <div class="d-flex justify-content-start">
 
             {% if sessionsByEvent is not empty %}
@@ -58,7 +58,7 @@
         {% if films != null and films is not empty %}
             {% for genre in filmGenres %}
                 {% if films[genre] is defined %}
-                    <div class="h4"> {{ ucfirst(genre) }} </div>
+                    <div class="h4 ml-5"> {{ ucfirst(genre) }} </div>
                     <div class="row mt-5">
                         {% for film in films[genre] %}
                             <div class="card-box col-12 col-md-6 col-xl-4 ">

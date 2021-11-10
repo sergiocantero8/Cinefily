@@ -40,6 +40,24 @@ class SessionRepository extends ServiceEntityRepository
         ;
     }
 
+
+    /**
+     * Método que devuelve todas las sesiones que sean posteriores a la fecha actual de un cine concreto,
+     * es decir, que estén activas
+     * @return Session[] Returns an array of Session objects
+     */
+    public function findActiveSessionsByDate(Cinema $cinema): ?array
+    {
+        $now = new DateTime();
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.cinema = :cinema')
+            ->andWhere('s.schedule > :now')
+            ->setParameter('cinema',$cinema)
+            ->setParameter('now', $now)
+            ->getQuery()->execute()
+            ;
+    }
+
     /**
      * Método que devuelve todas las sesiones que sean posteriores a la fecha actual de un evento concreto,
      * es decir, que estén activas
