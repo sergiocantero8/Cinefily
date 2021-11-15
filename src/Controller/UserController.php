@@ -348,47 +348,51 @@ class UserController extends AbstractController
     public function userTickets(Request $request, PaginatorInterface $paginator): Response
     {
 
-        if (!$this->getUser()) :
+
+        $id = $request->get('id');
+
+        if ($id === null && $this->getUser()):
+            $user = $this->getUser() ?? new User();
+        elseif ($this->getUser() && in_array(User::ROLE_ADMIN, $this->getUser()->getRoles(), true)):
+            $user = $this->getDoctrine()->getRepository(User::class)->find((int)$id);
+        else:
             return $this->redirectToRoute('home');
         endif;
-
-
-        $user = $this->getUser() ?? new User();
-
         $template = 'user/my_tickets.html.twig';
 
         $ticketsPagination = null;
-        $myTicketsQuery = $this->getDoctrine()->getRepository(Ticket::class)->findByUser($this->getUser());
+        if ($user !== null):
+            $myTicketsQuery = $this->getDoctrine()->getRepository(Ticket::class)->findByUser($user);
 
 
-        if ($myTicketsQuery !== null):
-            // Paginar los resultados de la consulta
-            $ticketsPagination = $paginator->paginate(
-            // Consulta Doctrine, no resultados
-                $myTicketsQuery,
-                // Definir el parámetro de la página
-                $request->query->getInt('page', 1),
-                // Items per page
-                6
-            );
-        endif;
-
-        $tickets = array();
-        foreach ($ticketsPagination as $ticket):
-            $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $ticket->getSession()));
-
-            if ($session !== null):
-                $tickets[] = array('session' => $session, 'event' => $session->getEvent(), 'room' => $session->getRoom(),
-                    'cinema' => $session->getCinema(), 'seat' => $ticket->getSeatBooked(), 'ticket' => $ticket);
+            if ($myTicketsQuery !== null):
+                // Paginar los resultados de la consulta
+                $ticketsPagination = $paginator->paginate(
+                // Consulta Doctrine, no resultados
+                    $myTicketsQuery,
+                    // Definir el parámetro de la página
+                    $request->query->getInt('page', 1),
+                    // Items per page
+                    6
+                );
             endif;
 
-        endforeach;
+            $tickets = array();
+            foreach ($ticketsPagination as $ticket):
+                $session = $this->getDoctrine()->getRepository(Session::class)->findOneBy(array('id' => $ticket->getSession()));
+
+                if ($session !== null):
+                    $tickets[] = array('session' => $session, 'event' => $session->getEvent(), 'room' => $session->getRoom(),
+                        'cinema' => $session->getCinema(), 'seat' => $ticket->getSeatBooked(), 'ticket' => $ticket);
+                endif;
+
+            endforeach;
 
 
-        $stats = $this->getNItemsProfile();
+            $stats = $this->getNItemsProfile();
+        endif;
 
-
-        return $this->render($template, array('tickets' => $tickets, 'user' => $user, 'user_tickets' => $stats['nComments'],
+        return $this->render($template, array('tickets' => $tickets ?? null, 'user' => $user, 'user_tickets' => $stats['nComments'] ??null,
             'user_comments' => $stats['nComments'], 'user_coupons' => $stats['nCoupons'], 'tickets_pagination' => $ticketsPagination));
 
     }
@@ -423,7 +427,7 @@ class UserController extends AbstractController
             );
         endif;
 
-        $stats = $this->getNItemsProfile();
+        $stats = $this->getNItemsProfile($user);
 
 
         return $this->render($template, array('coupons' => $couponsPagination ?? null, 'user' => $user, 'user_tickets' => $stats['nTickets'],
@@ -622,7 +626,7 @@ class UserController extends AbstractController
                 'nCoupons' => count($this->getDoctrine()->getRepository(Coupon::class)->findBy(
                     array('user' => $user->getId())))
             );
-        elseif($this->getUser()):
+        elseif ($this->getUser()):
             $result = array(
                 'nTickets' => count($this->getDoctrine()->getRepository(Ticket::class)->findBy(
                     array('user' => $this->getUser()->getId()))),

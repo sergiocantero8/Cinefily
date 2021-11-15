@@ -359,8 +359,8 @@ a[data-tooltip][data-placement="top"]::after {
 }
 .comments-section{
   background-color: floralwhite;
-  margin-left: 0;
-  margin-right: 0;
+  margin-left: 0!important;
+  margin-right: 0!important;
 }
 .comment-wrapper .panel-body {
   max-height:650px;
