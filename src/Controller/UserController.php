@@ -103,7 +103,7 @@ class UserController extends AbstractController
                 $entityManager->flush();
 
                 $this->addFlash('success', '¡Te has registrado correctamente!');
-                $this->redirectToRoute('home');
+                return $this->redirectToRoute('home');
             else:
                 $this->addFlash('error', 'Ha ocurrido un error al registrarte. Revisa que todos los campos 
                  están correctos.');
