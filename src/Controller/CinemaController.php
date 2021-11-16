@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpParamsInspection */
+<?php /** @noinspection GlobalVariableUsageInspection */
+
+/** @noinspection PhpParamsInspection */
 
 namespace App\Controller;
 
@@ -48,39 +50,36 @@ class CinemaController extends AbstractController
             return $this->redirectToRoute('home');
         endif;
 
-        $form = $this->createForm(AddCinemaType::class, null, array());
-        $form->handleRequest($request);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST'):
+            $nRooms = (int)$_POST['n_rooms'];
 
-
-        if ($form->isSubmitted() && $form->isValid()):
-            $dataForm = $form->getData();
-            $nRooms = $dataForm['n_rooms'];
-            $nRows = $dataForm['n_rows'];
-            $nColumns = $dataForm['n_columns'];
-            if ($nRooms > 0 && $nRooms <= static::MAX_ROOMS && $nRows > 0 && $nRows <= static::MAX_ROWS &&
-                $nColumns > 0 && $nColumns <= static::MAX_COLUMNS):
+            if ($nRooms > 0 && $nRooms <= static::MAX_ROOMS):
 
                 # Creamos un nuevo cine
                 $cinema = new Cinema();
 
-                $cinema->setName($dataForm['name']);
-                $cinema->setLocation($dataForm['location']);
-                $cinema->setTicketsPrice($dataForm['tickets_price']);
+                $cinema->setName($_POST['name']);
+                $cinema->setLocation($_POST['location']);
+                $cinema->setTicketsPrice($_POST['price']);
 
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($cinema);
 
                 # Con este bucle vamos creando una sala de cine hasta el número de salas que nos ha indicado el usuario
                 for ($i = 1; $i <= $nRooms; $i++):
-                    $room = new Room();
-                    $room->setCinema($cinema);
-                    $room->setNRows($nRows);
-                    $room->setNColumns($nColumns);
-                    $room->setNumber($i);
+                    $nRows = (int)$_POST['nrows_' . $i];
+                    $nColumns = (int)$_POST['nseats_' . $i];
 
-                    # Guardamos en la base de datos la sala
-                    $em->persist($room);
+                    if ($nRows > 0 && $nRows <= static::MAX_ROWS && $nColumns > 0 && $nColumns <= static::MAX_COLUMNS):
+                        $room = new Room();
+                        $room->setCinema($cinema);
+                        $room->setNRows($nRows);
+                        $room->setNColumns($nColumns);
+                        $room->setNumber($i);
 
+                        # Guardamos en la base de datos la sala
+                        $em->persist($room);
+                    endif;
                 endfor;
                 $em->flush();
                 $this->addFlash('success', 'El cine se ha añadido correctamente');
@@ -92,9 +91,7 @@ class CinemaController extends AbstractController
 
         endif;
 
-        $data = array(
-            'form' => $form->createView()
-        );
+        $data = array();
 
         return $this->render('cinema/add.html.twig', $data);
     }

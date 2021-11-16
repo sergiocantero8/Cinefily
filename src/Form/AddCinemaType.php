@@ -44,12 +44,6 @@ class AddCinemaType extends AbstractType
             ->add('n_rooms', IntegerType::class, array(
                 'label' => 'Salas (máximo 15)'
             ))
-            ->add('n_rows', IntegerType::class, array(
-                'label' => 'Filas por sala (máximo 20)'
-            ))
-            ->add('n_columns', IntegerType::class, array(
-                'label' => 'Asientos por fila (máximo 30)'
-            ))
             ->add('tickets_price', NumberType::class, array(
                 'label' => 'Precio de las entradas (estándar)',
                 'attr' => array(
@@ -57,7 +51,8 @@ class AddCinemaType extends AbstractType
                 ),
             ))
             ->add('submit', SubmitType::class, array(
-                'label' => 'Añadir'
+                'label' => 'Añadir',
+                'disabled' => true
             ));
     }
 
