@@ -70,6 +70,7 @@ class AddEventType extends AbstractType
             ))
             ->add('duration', IntegerType::class, array(
                 'label' => 'Duración (mins)',
+                'required'=> false,
                 'data' => $event !== null ? $event->getDuration() : $event
             ))
             ->add('release_date', DateTimeType::class, array(
@@ -77,6 +78,7 @@ class AddEventType extends AbstractType
                 'placeholder' => [
                     'year' => 'Año', 'month' => 'Mes', 'day' => 'Dia'
                 ],
+                'required'=> false,
                 'years' => range(1900, 2021),
                 'with_minutes' => false,
                 'data' => $event !== null ? $event->getReleaseDate() : $event
@@ -125,6 +127,7 @@ class AddEventType extends AbstractType
             ))
             ->add('age_rating', ChoiceType::class, array(
                 'label' => 'Recomendada para',
+                'required'=> false,
                 'choices' => $options['data']['age_rating_types'],
                 'data' => $event !== null ? $event->getAgeRating() : $event
             ))
