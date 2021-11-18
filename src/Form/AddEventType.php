@@ -78,7 +78,6 @@ class AddEventType extends AbstractType
                 'placeholder' => [
                     'year' => 'Año', 'month' => 'Mes', 'day' => 'Dia'
                 ],
-                'required'=> false,
                 'years' => range(1900, 2021),
                 'with_minutes' => false,
                 'data' => $event !== null ? $event->getReleaseDate() : $event

@@ -127,7 +127,6 @@ class EventController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()):
             $data_form = $form->getData();
 
-
             # Creamos un nuevo evento
             $event = new EventData();
 
